@@ -1,0 +1,7 @@
+ULK114_workflow_V1-3.svg
+	ONT UL library prep cartoon
+	from: https://store.nanoporetech.com/us/ultra-long-dna-sequencing-kit-v14.html (pulled 22 June 2023)
+
+HiFi-reads-img.svg
+	PacBio CCS sequencing cartoon
+	from https://www.pacb.com/technology/hifi-sequencing/ (pulled 22 June 2023)
