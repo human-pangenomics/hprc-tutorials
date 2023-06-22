@@ -20,7 +20,10 @@ Long, highly accurate reads allows for a number of analyses that were difficult 
 Oxford Nanopore's ultralong (UL) sequencing has lower accuracy (~90%), but is really long (even longer than normal ONT). This is achieved though a different library prep -- as compared to normal DNA sequencing with ONT. UL library prep uses a transposase to cut DNA at non specific sites where it can then be adapted for sequencing. 
 
 **ONT Ultralong Library Prep**
-![ONT UL Library Process](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/sequencing/ULK114_workflow_V1-3.svg)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/sequencing/ULK114_workflow_V1-3.svg" width="350"/>
+</p>
+
 
 The time, transposase amount, and temperature are all factors that effect transposase activity. The more you cut, the shorter the reads. ONT's standard DNA library prep, on the other hand, shears DNA then ligates adapters. (If you've created DNA libraries using Illumina's TruSeq kits, then you get the idea.)
 
