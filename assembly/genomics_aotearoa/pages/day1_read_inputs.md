@@ -1,4 +1,12 @@
 # PacBio & ONT Data
+
+We are going to start by introducing the two long read sequencing technologies that we will be using: PacBio's HiFi and Oxford Nanopore's Ultralong. These two technologies are complementary and each have their own strengths leading. You can answer some questions more easily with HiFi and some more easily with ONT UL. They can also be used together and this is important for the concept of a hybrid assembly algorithm where accurate reads are used to create a draft assembly and long reads are used to extend that assembly. 
+
+In this section we will learn about both technologies then we create plots showing their characteristic read lengths and qualities. This will help us get a feel for what the data actually looks like in the wild. Lastly we will prepare this data for use in our assembly section.
+
+This section is important because as someone who is about to make an assembly you have the most control over what type of data you put into the assembly algorithm. The more you know about the data, the better your assembly will be.
+
+
 ## PacBio Hifi: Illumina-Like Quality With Long Reads
 **What is PacBio HiFi**
 Pacbio's high fidelity (or HiFi) reads are long (~15kb) and accurate (~99.9%). PacBio produces such high quality reads (with their single-molecule real-time, or SMRT, sequencing) by reading the same sequence over and over again in order to create a circular consensus sequence (or CCS) as shown below. 
@@ -32,7 +40,9 @@ In order to get a feel for the data we only need a small portion of it. Pull the
 zcat /nesi/nobackup/nesi02659/LRA/resources/LRA_hifi.fq.gz \
     | head -n 200000 \
     | pigz > LRA_hifi_50k_reads.fq.gz &
-
+```
+Also downsample the UL reads
+```
 zcat /nesi/nobackup/nesi02659/LRA/resources/LRA_ONTUL.fq.gz \
     | head -n 4000 \
     | pigz > LRA_ONTUL_1k_reads.fq.gz &
@@ -51,14 +61,23 @@ Once the run is complete, navigate in your file browser to the NanoComp-report.h
 
 <details>
     <summary>
-        <strong>What do you expect each datatype to be used for in assembly?</strong>
+        <strong>What is the range of Q-scores seen in HiFi data?</strong>
     </summary>
-    Answer
+    While most HiFi data is Q30, there is a spread. The CCS process actually produces different data based on a number of different factors including the number of times a molecule is read (also called subread passes). Raw CCS data is usually filtered for >Q20 reads at which point it is by convention called HiFi. (Note that some people use CCS data below Q20!)
+</details>
+
+<details>
+    <summary>
+        <strong>What percent of UL reads are over 100kb?</strong>
+    </summary>
+    This depends on the dataset but it is very common to see 30% of reads being over 100kb. The 100kb number gets passed around a lot because reads that are much longer than HiFi are when UL distinguishes itself.
 </details>
 
 # Cleaning Data For Assembly
 ## PacBio Adapter Trimming
-PacBio's CCS software attempts to identify adapters and remove them. This process is getting better all the time, but some older datasets can have adapters remaining. If this is the case adapters can 
+PacBio's CCS software attempts to identify adapters and remove them. This process is getting better all the time, but some datasets (especially older ones) can have adapters remaining. If this is the case adapters can find their way into the assemblies. 
+
+Run CutAdapt to check for adapter sequences in the downsampled data that we are currently using. (The results will print to stdout on your terminal screen.)
 ```
 cutadapt \
     -b "AAAAAAAAAAAAAAAAAATTAACGGAGGAGGAGGA;min_overlap=35" \
@@ -70,27 +89,27 @@ cutadapt \
     --revcomp \
     -e 0.05
 ```
-Notice that we are writing to `/dev/null`. We are working on a subset of these reads so the runtime is reasonable. So there is no reason to hold onto the reads that we are filtering.
+Notice that we are writing output to `/dev/null`. We are working on a subset of these reads so the runtime is reasonable. There is no need to hold onto the reads that we are filtering on just a subset of the data.
 
 <details>
     <summary>
-        <strong>What do you think these two sequences are? (hint: you can Google them)</strong>
+        <strong>What do you think the two sequences that we are filtering out are? (hint: you can Google them)</strong>
     </summary>
-    Answer
+    The first sequence is the primer and the second sequence is the hairpin adapter. You can see the hairpin by looking at the 5' and 3' ends and checking that they are reverse complements.
 </details>
 
 <details>
     <summary>
         <strong>Why can we get away with throwing away entire reads that contain adapter sequences?</strong>
     </summary>
-    Answer
+    As you can see from the summary statistics from CutAdapt, not many reads in this dataset have adapters/primers. There is some concern about bias -- where we remove certain sequences from the genome assembly process. We've taken the filtered reads and aligned them to the genome and they didn't look like they were piling up in any one area.
 </details>
 
 <details>
     <summary>
         <strong>What would happen if we left adapter sequences in the reads?</strong>
     </summary>
-    Answer
+    If there are enough adapters present, you can get entire contigs comprised of adapters. This is not the worst, actually because they are easy to identify and remove wholesale. It is trickier (and this happens more often) when adapter sequences end up embedded in the final assemblies. If/when you upload assemblies to repositories like Genbank they check for these adapters and force you to mask them out with N's. This is confusing to users because it is common to use N's to signify gaps in scaffolded assemblies. So users don't know if they are looking at a scaffolded assembly or masked out sequence.
 </details>
 
 
