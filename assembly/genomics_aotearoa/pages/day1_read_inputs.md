@@ -117,13 +117,18 @@ Notice that we are writing output to `/dev/null`. We are working on a subset of 
 
 
 ## ONT Read Length Filtering
-Hifiasm is often run with ONT data filtered to be over 50kb in length. 
+Hifiasm is often run with ONT data filtered to be over 50kb in length, so let's filter that data now to see how much of the data remains. 
 ```
 seqkit seq \
     -m 50000 \
     LRA_ONTUL_1k_reads.fq.gz \
     | pigz > LRA_ONTUL_1k_reads.50kb.fq.gz &
 ```
+Now we can quickly check how many reads are retained
+```
+zcat LRA_ONTUL_1k_reads.50kb.fq.gz | wc -l
+```
+
 <details>
     <summary>
         <strong>Why do you think an assembler might want to include only reads over 50kb?</strong>
