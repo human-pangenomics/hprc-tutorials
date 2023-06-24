@@ -1,14 +1,129 @@
-# Assembly with HiFi & UL
+<!-- # Background on HiFi+UL Assemblers
 ## Verkko Process
 Figure from paper
 ## Hifiasm Process
 Figure from paper
+ -->
+# Playing With Test Data
+Running assemblers is very computationally intensive and the output files can be big. Let's not jump straight into assembling human genomes. Instead we can use the test data that both assemblers provide as a way to both ensure that we know how to run the tool (which is easy) and we can start to get a feel for the process and outputs in real life. 
+## Run Hifiasm With Test Data
 
-# View Assembly
-## Show call to Verkko & Hifiasm
+**Create A Directory**
+```
+cd ~
+mkdir -p day2_assembly/hifiasm_test
+cd day2_assembly/hifiasm_test
+```
 
-## View Data
-Use HG002 from asm comparison
-Download from S3
+**Now download Hifiasm's test data**<br>
+```
+wget https://github.com/chhylp123/hifiasm/releases/download/v0.7/chr11-2M.fa.gz
+```
+This is HiFi data from about 2 million bases of chromosome 11. Hifi data is the only required data type for Hifiasm and Verkko. You can create assemblies from only Hifi data and you can add ONT and phasing later. Also notice that this data is in fastq format! Presumably this is to make the file smaller since this is test data.
 
-# Launch QC (Overnight)
+Now let's load the hifiasm module
+```
+module purge
+module load hifiasm
+```
+And actually run the test data
+```
+hifiasm \
+    -o test \
+    -t4 \
+    -f0 \
+    chr11-2M.fa.gz \
+    2> test.log &
+```
+This should take around 3 minutes. Once the run is complete take a look at the top of the log:
+```
+head -n 60 test.log
+```
+Now check the [hifiasm log interpretation](https://hifiasm.readthedocs.io/en/latest/interpreting-output.html#hifiasm-log-interpretation) section of the documentation to give that some context.
+
+<details>
+    <summary>
+        <strong>What does the histogram represent, and how many peaks do you expect?</strong>
+    </summary>    
+    The histogram represents the kmer count in the hifi reads. For humans we expect to see a large peak somewhere around our expected sequencing coverage: this represents homozygous kmers. The smaller peak represents heterozygous kmers.
+</details>
+
+Now `ls` the directory to see what outputs are present. What do you see? No fasta files, but there are a lot of files that  end in `gfa`. If you haven't seen these before, then we get to introduce you to another file format! 
+
+## Introduction To GFA Files
+GFA stands for [Graphical Fragment Alignment](http://gfa-spec.github.io/GFA-spec/GFA1.html) and Hifiasm outputs assemblies in GFA files. GFAs aren't like bed or sam files which have one entry per line (or fasta/q that have 2/4 lines per entry). But this is bioinformatics, so you can rest assured that it is just a text file with a new file extension. It's easiest to just look at an example of a GFA file from the spec:
+
+```
+H    VN:Z:1.0
+S   11  ACCTT
+S   12  TCAAGG
+S   13  CTTGATT
+L   11  +   12  -   4M
+L   12  -   13  +   5M
+L   11  +   13  +   3M
+P   14  11+,12-,13+ 4M,5M
+```
+**Here we see the following file types**
+* H (Header): File header. You get the idea.
+    * The example here the header is just saying that the file follows GFA 1.0 spec. 
+    * Notice that this line follows a TAG:TYPE:VALUE convention. Type in this case is Z which corresponds to printable string. 
+* S (Segment): A sequence of DNA
+    * This is what we care about for the moment!
+* L (Link): Overlap between two segments
+    * We can read the first Link line as saying that the end of Segment 11 (+) connects to the begging of Segment 12 (-) and the overlap is 4 matching bases. In this case it would look like this:
+```    
+    ACCTT    (Segment 11)
+     ||||
+     GGAACT  (Segment 12 -- reversed)
+```
+* P (Path): Ordered list of segments (connected by links)
+
+**So how do we get a fasta from a GFA?**<br>
+To get a fasta we just pull the S lines from a GFA and print them to a file:
+```
+awk '/^S/{print ">"$2;print $3}' \
+    test.bp.p_ctg.gfa \
+    > test.p_ctg.fa 
+```
+You can read this awk command as: 
+1. Give me all input lines that start with `S` 
+2. Then print the second column of those lines (which is the sequence ID) 
+3. Also print another line with the actual sequence
+
+<details>
+    <summary>
+        <strong>Why does Hifiasm output GFAs and not Fastas?</strong>
+    </summary>    
+    Hifiasm (and many other assemblers) use gfas while they are actually assembling. The gfa represents/stores the assembly graph. Hifiasm probably doesn't output fastas just because everything in the fasta is contained in the gfa, so why store it twice?
+</details>
+
+
+
+## View Hifiasm Test Assembly GFA in Bandage
+We are going to take a look at the assembly gfa file in a browser called Bandage. Bandage provides a way to visualize something called unitig graphs.
+
+**Start Bandage**
+1. From your Jupyter session click the + icon to create a new tab.
+2. Click the Virtual Desktop icon (this will open a new tab in your web browser)
+3. In the Virtual Desktop, click on the terminal emulator icon (in your toolbar at the bottom of your screen)
+4. Load the Bandage module with `module load Bandage`
+4. Type `Bandage &` to start Bandage
+
+**Load a unitig GFA**
+1. Click the *File* dropdown then *Load Graph*
+2. Navigate to our current folder (day2_assembly/hifiasm_test)
+3. Select the `test.bp.r_utg.noseq.gfa` file and press the **Open** icon
+4. Under **Graph Drawing** on the left-hand side click **Draw Graph**
+
+Ok, so what are we looking at? The thick lines are nodes -- which in this case represent sequences. Since we loaded the unitig graph the sequences are unitigs. A unitig is a high confidence contig. It is a place where the assembler says "I know exactly what is going on here". The ends of unitigs are where it gets messy. At the ends, an assembler has choices to make about which unitig(s) to connect to next.
+
+**Now load a contig GFA**<br>
+Open the `test.bp.p_ctg.noseq.gfa` file to see how boring it is.
+
+In general, when using Bandage people look at the unitig gfas (not contig gfas). An assembly is a hypothesis, and the contigs output by the assembler are its best guess at the correct haplotype sequence. The contigs don't show much information about the decisions being made, however. They are the output. This is where the unitigs come in. 
+
+**Here are some things you can do with Bandage**
+1. Let's say you mapped a sample's ONT reads back onto that sample's denovo assembly and have identified a misjoin. You can open up bandage and find that  unitigs that went into the contig to see if it can be easily manually broken.
+2. If you have a phased diploid assembly with a large sequence that is missing, you can look at the unitig gfa, color the nodes by haplotype, and see which sequences are omitted. Those sequences can then be analyzed and manually added into the final assembly.
+3. You can label nodes with (hifi) coverage and inspect regions with low quality too see if they have low coverage as well. If so, you might want to throw them out. (This does happen, in particular for small contigs that assemblers tend to output.)
+
