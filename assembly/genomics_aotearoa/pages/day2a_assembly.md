@@ -50,7 +50,7 @@ Now check the [hifiasm log interpretation](https://hifiasm.readthedocs.io/en/lat
 
 Now `ls` the directory to see what outputs are present. What do you see? No fasta files, but there are a lot of files that  end in `gfa`. If you haven't seen these before, then we get to introduce you to another file format! 
 
-## Introduction To GFA Files
+### Introduction To GFA Files
 GFA stands for [Graphical Fragment Alignment](http://gfa-spec.github.io/GFA-spec/GFA1.html) and Hifiasm outputs assemblies in GFA files. GFAs aren't like bed or sam files which have one entry per line (or fasta/q that have 2/4 lines per entry). But this is bioinformatics, so you can rest assured that it is just a text file with a new file extension. It's easiest to just look at an example of a GFA file from the spec:
 
 ```
@@ -63,7 +63,7 @@ L   12  -   13  +   5M
 L   11  +   13  +   3M
 P   14  11+,12-,13+ 4M,5M
 ```
-**Here we see the following file types**
+**Here we see the following line types**
 * H (Header): File header. You get the idea.
     * The example here the header is just saying that the file follows GFA 1.0 spec. 
     * Notice that this line follows a TAG:TYPE:VALUE convention. Type in this case is Z which corresponds to printable string. 
@@ -99,7 +99,7 @@ You can read this awk command as:
 
 
 
-## View Hifiasm Test Assembly GFA in Bandage
+### View Hifiasm Test Assembly GFA in Bandage
 We are going to take a look at the assembly gfa file in a browser called Bandage. Bandage provides a way to visualize something called unitig graphs.
 
 **Start Bandage**
@@ -120,7 +120,7 @@ Ok, so what are we looking at? The thick lines are nodes -- which in this case r
 **Now load a contig GFA**<br>
 Open the `test.bp.p_ctg.noseq.gfa` file to see how boring it is.
 
-In general, when using Bandage people look at the unitig gfas (not contig gfas). An assembly is a hypothesis, and the contigs output by the assembler are its best guess at the correct haplotype sequence. The contigs don't show much information about the decisions being made, however. They are the output. This is where the unitigs come in. 
+In general, when using Bandage people look at the unitig gfas (not contig gfas). An assembly is a hypothesis, and the contigs output by the assembler are its best guess at the correct haplotype sequence. The contigs don't show much information about the decisions being made, however. They are the output. We view unitig gfas so we can see the data structure at the point that the assembler was making tough decisions. 
 
 **Here are some things you can do with Bandage**
 1. Let's say you mapped a sample's ONT reads back onto that sample's denovo assembly and have identified a misjoin. You can open up bandage and find that  unitigs that went into the contig to see if it can be easily manually broken.
