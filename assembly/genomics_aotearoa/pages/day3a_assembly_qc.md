@@ -14,14 +14,16 @@ Normally, when we receive a hodgepodge of things with different values of the sa
 
 Median comes closer to reaching what we're trying to measure, but it can be skewed by having many very small contigs, so instead a popular metric for assessing assemblies is *N50*.
 
-The N50 is similar to the median in that one must first sort the numbers, but then insted of taking the middle value, the N50 value is the *length of the first contig that is equal to or greater than half of the assembly sum*. But that's hard to understand verbally, so let's look at it visually:
+The N50 is similar to the median in that one must first sort the numbers, but then insted of taking the middle value, the N50 value is the *length of the first contig that is equal to or greater than half of the assembly sum*. But that can be hard to understand verbally, so let's look at it visually:
 
 ["../images/qc/N50.png"](image)
 *Image adapted from <a href='https://www.molecularecologist.com/2017/03/29/whats-n50/'>Elin Videvall at The Molecular Ecologist</a>.* 
 
 The N50 can be interpreted as such: given an N50 value, 50% of the sequence in that assembly is contained in contigs of that length or longer. Thus, N50 has been traditionally used as the assembly statistic of choice for comparing assemblies, as it's more intuitive (compared to average contig length) to see that an assembly with an N50 value of 100Mbp is more contiguous than one with an N50 value of 50MBp, since it seems like there are more larger contigs in the former assembly.
 
-Another statistic that is often reported with N50 is the *L50*, which is the index value of the contig that gives the N50 value. For instance, in the above image, the L50 would be 3, because it would be the third largest contig that gives the N50 value. 
+Another statistic that is often reported with N50 is the *L50*, which is the index value of the contig that gives the N50 value. For instance, in the above image, the L50 would be 3, because it would be the third largest contig that gives the N50 value. L50 is useful for contextualizing the N50, because it gives an idea of how many contigs make up that half of your assembly. 
+
+Given how the N50 value can be so affected by addition or removal of small contigs, another metric has come into use: the area under the (N50) curve, or the auN value. 
 
 Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output .
 ```
