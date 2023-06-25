@@ -8,14 +8,30 @@ Now that we have understood our data types (day 1) and put them through an assem
 ```
 
 ## Contiguity (assembly statistics using gfastats)
-Recall that our sequences in the assembly are referred to as *contigs*. 
+Recall that the sequences in our assembly are referred to as *contigs*. 
 
-Let's try to get some basic statistics for our assembly.
+Normally, when we receive a hodgepodge of things with different values of the same variable, such as our contigs of varying lengths, we are inclined to use descriptive statistics such as average or median to try to get a grasp on how our data looks. However, it can be hard to compare average contig length between assemblies -- if they have the same total size and same number of contigs, it's still the same average, even if it's five contigs of 100 bp, or one 460 bp contig and four 10 bp ones! This matters for assembly because ideally we want *fewer* contigs that are *larger*. 
+
+Median comes closer to reaching what we're trying to measure, but it can be skewed by having many very small contigs, so instead a popular metric for assessing assemblies is *N50*.
+
+The N50 is similar to the median in that one must first sort the numbers, but then insted of taking the middle value, the N50 value is the *length of the first contig that is equal to or greater than half of the assembly sum*. But that's hard to understand verbally, so let's look at it visually:
+
+["../images/qc/N50.png"](image)
+*Image adapted from <a href='https://www.molecularecologist.com/2017/03/29/whats-n50/'>Elin Videvall at The Molecular Ecologist</a>.* 
+
+The N50 can be interpreted as such: given an N50 value, 50% of the sequence in that assembly is contained in contigs of that length or longer. Thus, N50 has been traditionally used as the assembly statistic of choice for comparing assemblies, as it's more intuitive (compared to average contig length) to see that an assembly with an N50 value of 100Mbp is more contiguous than one with an N50 value of 50MBp, since it seems like there are more larger contigs in the former assembly.
+
+Another statistic that is often reported with N50 is the *L50*, which is the index value of the contig that gives the N50 value. For instance, in the above image, the L50 would be 3, because it would be the third largest contig that gives the N50 value. 
+
+Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output .
 ```
 gfastats -t test.p_ctg.fa
 ```
-FASTA STATS EXPLAINER
+
+
+
 Remember, though, that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats.
+
 ```
 gfastats -t test.p_ctg.gfa
 ```
