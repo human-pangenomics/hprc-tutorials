@@ -127,3 +127,110 @@ In general, when using Bandage people look at the unitig gfas (not contig gfas).
 2. If you have a phased diploid assembly with a large sequence that is missing, you can look at the unitig gfa, color the nodes by haplotype, and see which sequences are omitted. Those sequences can then be analyzed and manually added into the final assembly.
 3. You can label nodes with (hifi) coverage and inspect regions with low quality too see if they have low coverage as well. If so, you might want to throw them out. (This does happen, in particular for small contigs that assemblers tend to output.)
 
+pbmm2 align -j 128 $referencepath $hifi_demux > $alignedbam
+
+## Run Verkko With Test Data
+**Create A Directory**
+```
+cd ~
+mkdir -p day2_assembly/verkko_test
+cd day2_assembly/verkko_test
+```
+
+**Now download Verkko's test data**<br>
+```
+curl -L https://obj.umiacs.umd.edu/sergek/shared/ecoli_hifi_subset24x.fastq.gz -o hifi.fastq.gz
+curl -L https://obj.umiacs.umd.edu/sergek/shared/ecoli_ont_subset50x.fastq.gz -o ont.fastq.gz
+```
+You can see that this dataset is for ecoli and there is both HiFi and ONT data included.
+
+We could follow what we did with Hifiasm and just run Verkko in our notebook environment like so:
+```
+module purge
+module load verkko/1.3.1-Miniconda3
+
+verkko \
+    -d asm \
+    --hifi ./hifi.fastq.gz \
+    --nano ./ont.fastq.gz
+```
+but depending on how you created your notebook environment this command may crash it. That's ok, it gives us an opportunity to test running Verkko w/ Slurm.
+
+**Create Slurm script for test Verkko run**
+
+Start your favourite text editor
+```
+nano verkko_test.sl
+```
+
+And then paste in the following
+```
+#!/bin/bash -e
+
+#SBATCH --account       nesi02659
+#SBATCH --partition     milan
+#SBATCH --job-name      test_verkko
+#SBATCH --cpus-per-task 8
+#SBATCH --time          00:15:00
+#SBATCH --mem           24G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+## load modules
+module purge
+module load verkko/1.3.1-Miniconda3
+
+
+## run verkko
+verkko \
+    -d assembly \
+    --hifi ./hifi.fastq.gz \
+    --nano ./ont.fastq.gz
+```
+
+**Run verkko test**
+```
+sbatch verkko_test.sl
+```
+This should only take a few minutes to complete.
+
+You can keep track of the run w/ the `squeue` command. (If you don't know your username, you can find it with `whoami`).
+```
+squeue -u myusername
+```
+
+**How does Verkko run?**
+
+It turns out that if you run Verkko more than once or twice you will have to know a bit about how it is constructed. Verkko is a program that reads in the parameters you gave it and figures out a few things about your verkko installation and then creates a configuration file (`verkko.yml`) and a shell script (`snakemake.sh`). The shell script is then automatically executed.
+
+Take a look at the shell script that was created for your run
+```
+cat assembly/snakemake.sh
+```
+It is just a call to snakemake!!! You can think of Verkko as a tool, but also as a pipeline because it is. This has some advantages. One is that if you know what Verkko is doing (which is somewhat achievable given that the snakemake rules guide you through Verkko's logic), you can add to it, or even swap out how Verkko performs a given step for how you'd like to do it. It also means that you can restart a run at any given step (if you made a mistake or if the run failed). Lastly, and maybe most importantly, snakemake supports Slurm as a backend. So if you have access to an HPC you could (and probably should) run verkko and allow it to launch Slurm jobs for you. (This is in contrast to what we just did which was to run a slurm job and just allow all jobs to run on the allocated resources that we requested for the entire run.)
+
+**Now take a look at the jobs that were run**
+
+You can view the stderr from the run in your slurm logs, or in snakemakes logs. Let's take a look at the top of the log:
+```
+head -n 35 assembly/.snakemake/log/*.log
+```
+This show a list of snakemake jobs that will get executed for this dataset. There are a few things to note. The first is that for larger datasets some jobs will get executed many times (hence the count column). This dataset is small, so most jobs have count=1. The second thing to note is that these jobs are sorted alphabetically, so we can get a feel for scale, but it's a bit hard to figure out what Verkko is really doing.
+
+Open the logs and scroll through them
+```
+less asm/.snakemake/log/*.log
+```
+You can see all of the snakemake jobs, in order, that were run. Even for this tiny dataset there are many. Since there are a lot of jobs, there are a lot of outputs, and these are organized (roughly) by snakemake rule. Take a look at the output folder in order to familiarize yourself with the layout.
+```
+ls -lh assembly
+```
+
+**Take a look at the initial hifi graph**
+
+Open the `assembly/1-buildGraph/hifi-resolved.gfa` file in Bandage. You will see that it is already pretty good. There are only three nodes.
+
+**Now take a look at the ONT resolved graph**
+
+Open the `assembly/5-untip/unitig-normal-connected-tip.gfa` file in Bandage. Now our three nodes have been resolved into one. 
+
