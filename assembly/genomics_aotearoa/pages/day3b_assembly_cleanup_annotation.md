@@ -2,8 +2,26 @@
 
 
 ## Assembly Cleanup
+Once you have a genome, and you think you want to hold onto it for a while and start doing actual analysis it is time to check it for contamination. In particular, before using and sharing your assembly it is best to make sure that you don't have:
+* contamination from other species
+* lot's of contigs for Epstein Barr Virus (EBV) or mitochondrial sequence
+* adapters
 
-TODO
+curl -LO https://github.com/ncbi/fcs/raw/main/dist/fcs.py
+curl -LO https://github.com/ncbi/fcs/raw/main/examples/fcsgx_test.fa.gz
+
+python3 fcs.py db check \
+    --mft "$LOCAL_DB/gxdb/all.manifest" \
+    --dir /my_tmpfs/gxdb
+
+
+python3 ./fcs.py \
+    screen genome \
+    --fasta ./fcsgx_test.fa.gz \
+    --out-dir ./gx_out/ \
+    --gx-db "$GXDB_LOC/test-only"  \
+    --tax-id 6973 
+
 
 ## Genome Annotation
 

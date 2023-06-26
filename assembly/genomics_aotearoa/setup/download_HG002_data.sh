@@ -83,6 +83,69 @@ mkdir /nesi/nobackup/nesi02659/LRA/resources/meryl
 
 
 ###############################################################################
+##                               Download HiC Data                           ##
+###############################################################################
+
+mkdir -p /nesi/nobackup/nesi02659/LRA/resources/hic
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/hic/downsampled/HG002.HiC_1_S1_R1_001.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/hic/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/hic/downsampled/HG002.HiC_1_S2_R1_001.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/hic/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/hic/downsampled/HG002.HiC_1_S3_R1_001.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/hic/ &    
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/hic/downsampled/HG002.HiC_1_S1_R2_001.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/hic/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/hic/downsampled/HG002.HiC_1_S2_R2_001.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/hic/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/hic/downsampled/HG002.HiC_1_S3_R2_001.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/hic/ &
+
+
+
+###############################################################################
+##                                 Download Yaks                             ##
+###############################################################################
+
+mkdir /nesi/nobackup/nesi02659/LRA/resources/yak
+
+## sample
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/backup/GA/HG002/yak/HG002.yak \
+    /nesi/nobackup/nesi02659/LRA/resources/yak/
+
+## mat
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/submissions/6040D518-FE32-4CEB-B55C-504A05E4D662--HG002_PARENTAL_YAKS/HG002_PARENTS_FULL/mat.HG004.yak \
+    /nesi/nobackup/nesi02659/LRA/resources/yak/ &
+
+## pat
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/submissions/6040D518-FE32-4CEB-B55C-504A05E4D662--HG002_PARENTAL_YAKS/HG002_PARENTS_FULL/pat.HG003.yak \
+    /nesi/nobackup/nesi02659/LRA/resources/yak/ &
+
+
+###############################################################################
 ##                            Download Verkko Trio Folder                    ##
 ###############################################################################
 
@@ -92,3 +155,50 @@ mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/
     s3 --no-sign-request cp \
     s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/verkko_1.3.1/trio/supporting_files/assembly_verkko_v1.3_trio.tar \
     /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/
+
+## extract
+tar xvf \
+    /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly_verkko_v1.3_trio.tar \
+    --directory /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/
+
+
+###############################################################################
+##                            Download Verkko GFAse Run                      ##
+###############################################################################
+
+mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/hic
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/verkko_1.3.1/gfase/HG002_verkko_gfase_diploid.fasta.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/hic    
+
+###############################################################################
+##                            Download Hifiasm Asms                          ##
+###############################################################################
+
+mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/trio
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/hifiasm_v0.19.5/trio/HG002.mat.fa.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/trio/    
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/hifiasm_v0.19.5/trio/HG002.pat.fa.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/trio/
+
+mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/hifiasm_v0.19.5/hic/HG002.hap1.fa.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic/
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/hifiasm_v0.19.5/hic/HG002.hap1.fa.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic/
+
+

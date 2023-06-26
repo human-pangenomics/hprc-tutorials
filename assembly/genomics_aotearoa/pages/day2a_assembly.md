@@ -211,11 +211,11 @@ It is just a call to snakemake!!! You can think of Verkko as a tool, but also as
 
 **Now take a look at the jobs that were run**
 
-You can view the stderr from the run in your slurm logs, or in snakemakes logs. Let's take a look at the top of the log:
+You can view the stderr from the run in your slurm logs, or in snakemake's logs. Let's take a look at the top of the log:
 ```
 head -n 35 assembly/.snakemake/log/*.log
 ```
-This show a list of snakemake jobs that will get executed for this dataset. There are a few things to note. The first is that for larger datasets some jobs will get executed many times (hence the count column). This dataset is small, so most jobs have count=1. The second thing to note is that these jobs are sorted alphabetically, so we can get a feel for scale, but it's a bit hard to figure out what Verkko is really doing.
+This shows a list of snakemake jobs that will get executed for this dataset. There are a few things to note. The first is that for larger datasets some jobs will get executed many times (hence the count column). This dataset is small, so most jobs have count=1. The second thing to note is that these jobs are sorted alphabetically, so we can get a feel for scale, but it's a bit hard to figure out what Verkko is really doing.
 
 Open the logs and scroll through them
 ```
