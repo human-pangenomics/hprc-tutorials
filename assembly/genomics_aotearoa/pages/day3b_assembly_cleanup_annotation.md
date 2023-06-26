@@ -252,3 +252,26 @@ less -S asm.annotations.gff
 
 TODO
 
+# Long Read/Contig Mapping
+We are ready to map long reads and assembly contigs to genomes. For this we need a set of tools that are differenct from what you might be used in for Illumina data. You might be asking "what's the matter with bwa-mem? for long reads?" It is ["slow and inaccurate"](https://lh3.github.io/2018/04/02/minimap2-and-the-future-of-bwa#:~:text=For%20long%20reads%2C%20minimap2%20is,a%20typical%20long%2Dread%20mapper.) for this application. So let's jump in to long read mappers and what we can do with them.
+
+## Mashmap: Super Fast (Approximate) Mapping
+https://genomeinformatics.github.io/mashmap/
+cd ~/day3_assembly_evaluation/Col-0/rename
+
+ln -s /opt/assembly_data/TAIR10.1.fasta
+
+mashmap \
+  -r TAIR10.1.fasta \
+  -q assembly.100k.fasta \
+  -f one-to-one --pi 95 -s 100000 \
+  -t 16 -o mashmap/mashmap.out
+
+ generateDotPlot png large mashmap/mashmap.out
+
+
+
+## Minimap2: Accurate Alignment
+
+## map with ubams to include methylation info
+    pbmm2 align -j 128 $referencepath $hifi_demux > $alignedbam
