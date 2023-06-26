@@ -5,23 +5,29 @@
 Once you have a genome, and you think you want to hold onto it for a while and start doing actual analysis it is time to check it for contamination. In particular, before using and sharing your assembly it is best to make sure that you don't have:
 * contamination from other species
 * lot's of contigs for Epstein Barr Virus (EBV) or mitochondrial sequence
-* adapters
+* adapters embedded in your contigs
+
+When you upload your assembly to Genbank, the sequence is automatically screen for contaminants and if anything is found you have to fix it and upload the fixed assembly. It's much better to take a look on your end. Luckily NCBI has released a version of their screening tool that can be run locally, so we will do that now.
+
+**First download the Foreign Contamination Screen (FCS) tool from NCBI**
 
 curl -LO https://github.com/ncbi/fcs/raw/main/dist/fcs.py
 curl -LO https://github.com/ncbi/fcs/raw/main/examples/fcsgx_test.fa.gz
 
-python3 fcs.py db check \
-    --mft "$LOCAL_DB/gxdb/all.manifest" \
-    --dir /my_tmpfs/gxdb
+This tool is a python script that calls a Docker/Singularity container. This was done because contamination screens notoriously require a ton of dependencies. So having a Docker container makes things easier on the user. The docker container requires that a database of contaminants are downloaded. We have already downloaded the test database here: `/nesi/nobackup/nesi02659/LRA/resources/fcs/test-only`. The container has already been downloaded as well, we just need to load the singularity module.
+```
+module load Singularity
+```
 
-
+**Now we can run the test data**
+```
 python3 ./fcs.py \
     screen genome \
     --fasta ./fcsgx_test.fa.gz \
     --out-dir ./gx_out/ \
-    --gx-db "$GXDB_LOC/test-only"  \
+    --gx-db /nesi/nobackup/nesi02659/LRA/resources/fcs/test-only  \
     --tax-id 6973 
-
+```
 
 ## Genome Annotation
 
