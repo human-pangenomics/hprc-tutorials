@@ -23,27 +23,37 @@ The N50 can be interpreted as such: given an N50 value, 50% of the sequence in t
 
 Another statistic that is often reported with N50 is the *L50*, which is the rank of the contig that gives the N50 value. For instance, in the above image, the L50 would be 3, because it would be the third largest contig that gives the N50 value. L50 is useful for contextualizing the N50, because it gives an idea of how many contigs make up that half of your assembly. 
 
-!!! info ""
-
-    ### N50 or NG50?
+<details>
+    <summary>
+        <strong>N50 or NG50?</strong>
+    </summary>    
     Another measurement you might see is NG50. This is the N50 value, just calculated using a given genome size instead of the sum of the contigs.
+</details>
 
 Given how the N50 value can be so affected by addition or removal of small contigs, another metric has come into use: <a href="https://lh3.github.io/2020/04/08/a-new-metric-on-assembly-contiguity">the area under the (N50) curve</a>, or the auN value. Though N50 is measured at the 50% mark, we could make similar values for any value of x, for instance N30 would be the value where 30% of the sequence in that assembly is of that length or longer. These metrics are thus called Nx statistics, and one could plot them against contig length to get an *Nx curve*, which gives a more nuanced view of the actual contig size distribution of your assembly. 
 
 ![NGx plot](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/NGx_plot.png)
+
 *Image adapted from <a href='https://lh3.github.io/2020/04/08/a-new-metric-on-assembly-contiguity'>Heng Li's blog, which in turn adapts it from a NIBS workshop</a>.* 
 
 auN tries to capture the nature of this curve, instead of a value from an arbitrary point on it. On the above example, each step on the curve represents a contig (length on the y-axis), so the black curve is the most contiguous as it has one contig that covers over 40% of the assembly. Despite that, this assembly would have the same N50 value (on the x-axis) as multiple other assemblies that are more fragmented in the same area. 
 
-Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output metrics such as N50, auN, total size, etc. The output will be tab-delimited because we're passing it the "-t" flag. .
+
+**Run gfastats**
+Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output metrics such as N50, auN, total size, etc. We can try it out on that small hifiasm assembly we did earlier of some of chromosome 11. 
 ```
-gfastats -t test.p_ctg.fa
+## let's make sure we know where we put that test assembly, first
+ls day2_assembly/hifiasm_test
+## if you have the test.* outputs in there, then you're good to go!
+gfastats day2_assembly/hifiasm_test/test.p_ctg.fa
 ```
+
+
 
 Remember, though, that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats.
 
 ```
-gfastats -t test.p_ctg.gfa
+gfastats test.p_ctg.gfa
 ```
 
 
