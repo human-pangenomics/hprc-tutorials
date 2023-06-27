@@ -9,14 +9,22 @@ Once you have a genome, and you think you want to hold onto it for a while and s
 
 When you upload your assembly to Genbank, the sequence is automatically screen for contaminants and if anything is found you have to fix it and upload the fixed assembly. It's much better to take a look on your end. Luckily NCBI has released a version of their screening tool that can be run locally, so we will do that now.
 
-**First download the Foreign Contamination Screen (FCS) tool from NCBI**
+**Make a directory**
+```
+cd ~
+mkdir -p day3_qc/fcs/
+cd day3_qc/fcs/
+```
+
+**Download the Foreign Contamination Screen (FCS) tool from NCBI**
 
 curl -LO https://github.com/ncbi/fcs/raw/main/dist/fcs.py
 curl -LO https://github.com/ncbi/fcs/raw/main/examples/fcsgx_test.fa.gz
 
-This tool is a python script that calls a Docker/Singularity container. This was done because contamination screens notoriously require a ton of dependencies. So having a Docker container makes things easier on the user. The docker container requires that a database of contaminants are downloaded. We have already downloaded the test database here: `/nesi/nobackup/nesi02659/LRA/resources/fcs/test-only`. The container has already been downloaded as well, we just need to load the singularity module.
+This tool is a python script that calls a Docker/Singularity container. This was done because contamination screens notoriously require a ton of dependencies. So having a Docker container makes things easier on the user. The docker container requires that a database of contaminants are downloaded. We have already downloaded the test database here: `/nesi/nobackup/nesi02659/LRA/resources/fcs/test-only`. The container has already been downloaded as well, we just need to load the singularity module and let FCS know where the container is:
 ```
 module load Singularity
+export FCS_DEFAULT_IMAGE=/opt/nesi/containers/fcs/fcs-gx-0.4.0.sif
 ```
 
 **Now we can run the test data**
@@ -24,9 +32,45 @@ module load Singularity
 python3 ./fcs.py \
     screen genome \
     --fasta ./fcsgx_test.fa.gz \
-    --out-dir ./gx_out/ \
+    --out-dir ./gx_out \
     --gx-db /nesi/nobackup/nesi02659/LRA/resources/fcs/test-only  \
     --tax-id 6973 
+```
+Now perform a full run
+```
+
+cp /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta .
+```
+```
+nano fcs_full.sl
+```
+And paste in the following
+```
+#!/bin/bash -e
+
+#SBATCH --account       nesi02659
+#SBATCH --job-name      test_verkko
+#SBATCH --cpus-per-task 8
+#SBATCH --time          03:00:00
+#SBATCH --mem           480G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+## load modules
+module purge
+module load Singularity
+export FCS_DEFAULT_IMAGE=/opt/nesi/containers/fcs/fcs-gx-0.4.0.sif
+
+python3 /home/juklucas/day3_qc/fcs/fcs.py \
+    screen genome \
+    --fasta ./assembly.haplotype1.fasta \
+    --out-dir ./asm_fcs_output \
+    --gx-db /nesi/nobackup/nesi02659/LRA/resources/fcs/gxdb \
+    --tax-id 6973 
+```
+Now execute the job
+```
+sbatch fcs_full.sl
 ```
 
 ## Genome Annotation
@@ -68,97 +112,97 @@ makes use of another genome assembly with annotations you wish to "copy" onto
 your assembly.
 
 <details>
-	<summary>
-		<strong>What is the easiest way to annotate my genome of interest?</strong>
-	</summary>
-	The easiest way to get a genome annotated is to have someone else do it. If
-	sharing data with NCBI is possible and your assembly is the best option to
-	represent your species of interest, they may be willing to annotate your
-	genome for you using
-	<a href="https://www.ncbi.nlm.nih.gov/genome/annotation_euk/process/">their pipeline</a>.
-	Otherwise, finding a collaborator with expertise is a good option.
+    <summary>
+        <strong>What is the easiest way to annotate my genome of interest?</strong>
+    </summary>
+    The easiest way to get a genome annotated is to have someone else do it. If
+    sharing data with NCBI is possible and your assembly is the best option to
+    represent your species of interest, they may be willing to annotate your
+    genome for you using
+    <a href="https://www.ncbi.nlm.nih.gov/genome/annotation_euk/process/">their pipeline</a>.
+    Otherwise, finding a collaborator with expertise is a good option.
 </details>
 
 <details>
-	<summary>
-		<strong>What are the most common formats for sharing annotation data?</strong>
-	</summary>
-	The most common formats are
-	<a href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1">BED (Browser Extensible Data)</a>,
-	<a href="https://gmod.org/wiki/GFF3">GFF (Generic Feature Format; v3)</a>,
-	<a href="https://gmod.org/wiki/GFF2">GTF (General Transfer Format; a.k.a., deprecated GFF v2)</a>,
-	and custom TSV (tab-separated value).
-	<a href="http://genome.cse.ucsc.edu/goldenPath/help/wiggle.html">Wiggle</a>
-	format and its variants are also common for displaying information in a genome
-	browser.
+    <summary>
+        <strong>What are the most common formats for sharing annotation data?</strong>
+    </summary>
+    The most common formats are
+    <a href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1">BED (Browser Extensible Data)</a>,
+    <a href="https://gmod.org/wiki/GFF3">GFF (Generic Feature Format; v3)</a>,
+    <a href="https://gmod.org/wiki/GFF2">GTF (General Transfer Format; a.k.a., deprecated GFF v2)</a>,
+    and custom TSV (tab-separated value).
+    <a href="http://genome.cse.ucsc.edu/goldenPath/help/wiggle.html">Wiggle</a>
+    format and its variants are also common for displaying information in a genome
+    browser.
 </details>
 
 <details>
-	<summary>
-		<strong>Which tool(s) should I use for my project?</strong>
-	</summary>
-	Annotation is a complex problem, and no single tool exists that can be
-	universally recommended. A high-quality annotation plan often requires the
-	use of may tools and/or complex pipelines, and the installation of many of
-	these tools can be complicated, even for expert command-line users.
-	Generally speaking, following the best-practice of those in your field or
-	who work on the same taxa is a reasonable option. In some cases, tools
-	specific to some set of organisms have been developed (e.g., <a
-	href="https://funannotate.readthedocs.io/">Funannotate</a> for fungi).
-	Recently, the <a href="https://github.com/Gaius-Augustus/BRAKER">BRAKER</a>
-	team released version 3 of their pipeline for gene structure prediction
-	(wrapping GeneMark-ES/ET & AUGUSTUS). If you have a trustworthy source of
-	annotations from another assembly, you can consider <a
-	href="https://github.com/agshumate/Liftoff">Liftoff</a> and <a
-	href="https://github.com/ComparativeGenomicsToolkit/Comparative-Annotation-Toolkit">CAT</a>.
-	<a
-	href="https://www.ebi.ac.uk/interpro/about/interproscan/">InterProScan</a>
-	can give you functional annotations relatively quickly. If you are able to
-	share your data with NCBI and your assembly is the best assembly (or if the
-	community agrees it is otherwise preferred), they NCBI annotation team will
-	annotate it for you using their automated pipeline. <a
-	href="https://gff3toolkit.readthedocs.io/">GFF3 Toolkit</a> can be useful
-	when working with GFF3 files, and <a
-	href="https://gfacs.readthedocs.io">gFACs</a> can help with filtering,
-	analysis, and conversion tasks.
+    <summary>
+        <strong>Which tool(s) should I use for my project?</strong>
+    </summary>
+    Annotation is a complex problem, and no single tool exists that can be
+    universally recommended. A high-quality annotation plan often requires the
+    use of may tools and/or complex pipelines, and the installation of many of
+    these tools can be complicated, even for expert command-line users.
+    Generally speaking, following the best-practice of those in your field or
+    who work on the same taxa is a reasonable option. In some cases, tools
+    specific to some set of organisms have been developed (e.g., <a
+    href="https://funannotate.readthedocs.io/">Funannotate</a> for fungi).
+    Recently, the <a href="https://github.com/Gaius-Augustus/BRAKER">BRAKER</a>
+    team released version 3 of their pipeline for gene structure prediction
+    (wrapping GeneMark-ES/ET & AUGUSTUS). If you have a trustworthy source of
+    annotations from another assembly, you can consider <a
+    href="https://github.com/agshumate/Liftoff">Liftoff</a> and <a
+    href="https://github.com/ComparativeGenomicsToolkit/Comparative-Annotation-Toolkit">CAT</a>.
+    <a
+    href="https://www.ebi.ac.uk/interpro/about/interproscan/">InterProScan</a>
+    can give you functional annotations relatively quickly. If you are able to
+    share your data with NCBI and your assembly is the best assembly (or if the
+    community agrees it is otherwise preferred), they NCBI annotation team will
+    annotate it for you using their automated pipeline. <a
+    href="https://gff3toolkit.readthedocs.io/">GFF3 Toolkit</a> can be useful
+    when working with GFF3 files, and <a
+    href="https://gfacs.readthedocs.io">gFACs</a> can help with filtering,
+    analysis, and conversion tasks.
 </details>
 
 <details>
-	<summary>
-		<strong>How can I learn more about annotation?</strong>
-	</summary>
-	Please consider the following sources:
-	<ul>
-		<li>
-			Review of eukaryotic genome annotation written for beginners
-			(Yandell and Ence, 2012; doi:
-			<a href="https://doi.org/10.1038/nrg3174">10.1038/nrg3174</a>)
-		</li>
-		<li>
-			Review of assembly and annotation written for conservation
-			geneticists and assuming limited understanding of bioinformatics and
-			high-throughput sequencing (Ekblom and Wolf, 2014; doi:
-			<a href="https://doi.org/10.1111/eva.12178">10.1111/eva.12178</a>)
-		</li>
-		<li>
-			Review of structural and functional annotation, providing
-			definitions and the limitations of annotation (Mudge and Harrow,
-			2016; doi: <a href="https://doi.org/10.1038/nrg.2016.119">10.1038/nrg.2016.119</a>)
-		</li>
-		<li>
-			Protocol (from <a href="https://www.protocols.io">protocols.io</a>)
-			for <em>de novo</em> annotation using the <a
-			href="https://yandell-lab.org/software/maker.html">MAKER</a>
-			pipeline. This is annotation "in the wild" describing actual steps
-			taken if not the justification for them, but it is based on this <a
-			href="https://weatherby.genetics.utah.edu/MAKER/wiki/index.php/MAKER_Tutorial_for_WGS_Assembly_and_Annotation_Winter_School_2018">2018
-			tutorial</a> by the developers of MAKER. <a
-			href="https://doi.org/10.17504/protocols.io.b3xvqpn6">The
-			protocol</a> was used to annotate a non-model fish genome (Pickett
-			and Talma <em>et al.</em>, 2022; doi: <a
-			href="https://doi.org/10.46471/gigabyte.44">10.46471/gigabyte.44</a>).
-		</li>
-	</ul>
+    <summary>
+        <strong>How can I learn more about annotation?</strong>
+    </summary>
+    Please consider the following sources:
+    <ul>
+        <li>
+            Review of eukaryotic genome annotation written for beginners
+            (Yandell and Ence, 2012; doi:
+            <a href="https://doi.org/10.1038/nrg3174">10.1038/nrg3174</a>)
+        </li>
+        <li>
+            Review of assembly and annotation written for conservation
+            geneticists and assuming limited understanding of bioinformatics and
+            high-throughput sequencing (Ekblom and Wolf, 2014; doi:
+            <a href="https://doi.org/10.1111/eva.12178">10.1111/eva.12178</a>)
+        </li>
+        <li>
+            Review of structural and functional annotation, providing
+            definitions and the limitations of annotation (Mudge and Harrow,
+            2016; doi: <a href="https://doi.org/10.1038/nrg.2016.119">10.1038/nrg.2016.119</a>)
+        </li>
+        <li>
+            Protocol (from <a href="https://www.protocols.io">protocols.io</a>)
+            for <em>de novo</em> annotation using the <a
+            href="https://yandell-lab.org/software/maker.html">MAKER</a>
+            pipeline. This is annotation "in the wild" describing actual steps
+            taken if not the justification for them, but it is based on this <a
+            href="https://weatherby.genetics.utah.edu/MAKER/wiki/index.php/MAKER_Tutorial_for_WGS_Assembly_and_Annotation_Winter_School_2018">2018
+            tutorial</a> by the developers of MAKER. <a
+            href="https://doi.org/10.17504/protocols.io.b3xvqpn6">The
+            protocol</a> was used to annotate a non-model fish genome (Pickett
+            and Talma <em>et al.</em>, 2022; doi: <a
+            href="https://doi.org/10.46471/gigabyte.44">10.46471/gigabyte.44</a>).
+        </li>
+    </ul>
 </details>
 
 ### Annotation with Liftoff
@@ -206,33 +250,33 @@ ln -s /path/to/my-hg002-asm-from-this-workshop/assembly.fasta asm.fa
 
 ```shell
 liftoff \
-	-p ${THREADS} \
-	-g chm13-annotations.gff \
-	-o asm.annotations.gff \
-	asm.fa \
-	chm13.fa
+    -p ${THREADS} \
+    -g chm13-annotations.gff \
+    -o asm.annotations.gff \
+    asm.fa \
+    chm13.fa
 ```
 
 <!-- OTHER POSSIBLE OPTIONS
-	-u unmapped_features.txt
-	-m /path/to/minimap2-installation/bin/minimap2
-	-infer_genes -OR- -infer_transcripts # depending on what the chm13-annotations.gff looks like
-	-chroms chromosomes.csv
-	-unplaced unplaced_seq_names.txt
-	-copies # possibly with -sc 2 # diploid vs haploid assembly liftover
+    -u unmapped_features.txt
+    -m /path/to/minimap2-installation/bin/minimap2
+    -infer_genes -OR- -infer_transcripts # depending on what the chm13-annotations.gff looks like
+    -chroms chromosomes.csv
+    -unplaced unplaced_seq_names.txt
+    -copies # possibly with -sc 2 # diploid vs haploid assembly liftover
 -->
 
 <details>
-	<summary>
-		<strong>What do each of these options do?</strong>
-	</summary>
-	<code>-p</code> specifies the number of threads to use. <code>-g</code> specifies the location of
-	the GFF file with the input annotations for the reference. <code>-o</code> specifies
-	the location of the GFF file with the output annotations for the target.
-	The two positional parameters at the end are respectively the target
-	assembly (our HG002 assembly) and the reference assembly (T2T-CHM13). Run
-	the following command to see all the options described in more detail:
-	<pre><code>liftoff -h</code></pre>
+    <summary>
+        <strong>What do each of these options do?</strong>
+    </summary>
+    <code>-p</code> specifies the number of threads to use. <code>-g</code> specifies the location of
+    the GFF file with the input annotations for the reference. <code>-o</code> specifies
+    the location of the GFF file with the output annotations for the target.
+    The two positional parameters at the end are respectively the target
+    assembly (our HG002 assembly) and the reference assembly (T2T-CHM13). Run
+    the following command to see all the options described in more detail:
+    <pre><code>liftoff -h</code></pre>
 </details>
 
 **Look at the output GFF3 file**
@@ -253,25 +297,108 @@ less -S asm.annotations.gff
 TODO
 
 # Long Read/Contig Mapping
-We are ready to map long reads and assembly contigs to genomes. For this we need a set of tools that are differenct from what you might be used in for Illumina data. You might be asking "what's the matter with bwa-mem? for long reads?" It is ["slow and inaccurate"](https://lh3.github.io/2018/04/02/minimap2-and-the-future-of-bwa#:~:text=For%20long%20reads%2C%20minimap2%20is,a%20typical%20long%2Dread%20mapper.) for this application. So let's jump in to long read mappers and what we can do with them.
+We are ready to map long reads and assembly contigs to genomes. For this we need a set of tools that are differenct from what you might be used to using for Illumina data. You might be asking "what's the matter with bwa-mem for long reads?" It is [slow](https://lh3.github.io/2018/04/02/minimap2-and-the-future-of-bwa#:~:text=For%20long%20reads%2C%20minimap2%20is,a%20typical%20long%2Dread%20mapper.) and probably inaccurate for this application. So let's jump in to long read mappers and see what we can do with them.
 
 ## Mashmap: Super Fast (Approximate) Mapping
-https://genomeinformatics.github.io/mashmap/
-cd ~/day3_assembly_evaluation/Col-0/rename
+The first thing we would like to do is to find out how our assembled genome compares to the T2T genome CHM13. If we can map our assembly quickly onto CHM13, we can answer questions like:
+* Which contigs correspond to chr1?
+* How many of my contigs are T2T assembled?
+* Are we seeing any large duplications or missing regions?
 
-ln -s /opt/assembly_data/TAIR10.1.fasta
+[MashMap](https://genomeinformatics.github.io/mashmap/) is a super fast mapper that is commonly used for these kinds of questions. MashMap doesn't seed and extend, it takes sequences and plays tricks with kmers. Loosely speaking if you take a sequence and get all of its kmers of a certain size and then sort those kmers, you can do a lot with just the "smallest" kmer (this is called a minimizer). MashMap uses a set of those smallest kmers to say: this sequence here and my query sequence share a lot of smallest kmers. The output of MashMap is an approximation of read position and identity. Let's actually use it now to align our asembly to CHM13.
 
+**Create A Directory**
+```
+cd ~
+mkdir -p day3b_annotation/mashmap
+cd day3b_annotation/mashmap
+```
+
+**Link the files we need**
+
+We are going to use CHM13 v2.0 (which includes a Y chromosome)
+```
+ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa
+```
+as well as haplotype 1 from our Verkko trio assembly
+```
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta
+```
+
+**Run MashMap**
+```
 mashmap \
-  -r TAIR10.1.fasta \
-  -q assembly.100k.fasta \
-  -f one-to-one --pi 95 -s 100000 \
-  -t 16 -o mashmap/mashmap.out
+  -r chm13v2.0.fa \
+  -q assembly.haplotype1.fasta \
+  -f one-to-one \
+  --pi 95 \
+  -s 100000 \
+  -t 4 \
+  -o asm-to-chm13.mashmap.out
+```
 
- generateDotPlot png large mashmap/mashmap.out
+<details>
+    <summary>
+        <strong>Take a look at the parameters for MashMap. What are -f, --pi, and -s?</strong>
+    </summary>    
+    --pi is the percent identity. The default value is 85 which means that mappings with 85% or more identity should be reported. -s is the segment length. MasMap will not report segments under this value. -f is the filter mode. After MashMap identifies mappings, it can go through and filter to ensure only the best mapping is reported (if we pass "map") or in our case that all good mappings are reported (if we pass "one-to-one").
+</details>
 
 
+<details>
+    <summary>
+        <strong>Why did we use the values that we used for --pi and -s?</strong>
+    </summary>    
+    Since we are mapping a human assembly against another human assembly we expect the sequences to be very similar. This is why we overwrote the default value of 85 for --pi. If we were to use the default value for -s (5000) then we would likely see a lot of hits from homologous regions. This may be interesting, but if we want to know how good our assembly is extra hits will just confuse things.
+</details>
 
-## Minimap2: Accurate Alignment
+**Once the mapping is done, let's take a look at the output.**
+```
+head asm-to-chm13.mashmap.out
+```
+Note that the output is similar to the Paired Alignment Format, or [PAF](https://github.com/lh3/miniasm/blob/master/PAF.md), and has the following columns:
+* query name
+* length
+* 0-based start
+* end
+* strand
+* target name
+* length
+* start
+* end 
+* mapping nucleotide identity (estimate)
 
-## map with ubams to include methylation info
-    pbmm2 align -j 128 $referencepath $hifi_demux > $alignedbam
+
+The most recent versions of MashMap actually output PAF by defalt. But not the version we are using here. 
+
+**Now generate a dot plot of the alignment**
+```
+generateDotPlot png medium asm-to-chm13.mashmap.out
+```
+And take a look at it (you can click on it in your file explorer).
+
+<details>
+    <summary>
+        <strong>Does anything stick out to you?</strong>
+    </summary>    
+    There is no sequence in the assembly mapping to chrY. This makes sense as this is the maternal haplotype's assembly. 
+</details>
+
+
+### Exercise: Can We Find Any Contigs/Scaffolds That Are T2T?
+
+Look through the dotplot to try and identify a contig or two that are assembled T2T. Once you've done that we will have to bring in another tool to make sure that there are actually telomeric repeats on the 5' and 3' ends. (Some people care about the presence of telomeric repeats when defining what T2T means.)
+
+Run the `telo` tool from seqtk to identify (human) telomeric ends:
+```
+seqtk telo assembly.haplotype1.fasta > telos.bed
+```
+
+Now look through the bed file and find the contig you are interested in to see if there are telomeres on both ends. 
+
+**Closing notes**
+1. This could all be automated, of course. The T2T and HPRC consortiums have worklows that go through assemblies to determine T2T status at the chromosomal level, but those workflows are pretty similar to what we did above, actually. 
+
+2. Not having base-level information is actually ok for what we just did. If you would like base level information at only a few fold the run cost of mashmap (so still very fast), then you probably want to check out [wfmash](https://github.com/waveygang/wfmash/blob/master/README.md). It can be used for alignments of long reads (100kb+) or assemblies at very large scales.
+
+
