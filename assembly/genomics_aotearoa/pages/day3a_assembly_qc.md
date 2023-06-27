@@ -16,32 +16,57 @@ Median comes closer to reaching what we're trying to measure, but it can be skew
 
 The N50 is similar to the median in that one must first sort the numbers, but then insted of taking the middle value, the N50 value is the *length of the first contig that is equal to or greater than half of the assembly sum*. But that can be hard to understand verbally, so let's look at it visually:
 
-![N50 schematic]("../images/qc/N50.png")
+![N50 schematic](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/N50.png)
 *Image adapted from <a href='https://www.molecularecologist.com/2017/03/29/whats-n50/'>Elin Videvall at The Molecular Ecologist</a>.* 
 
 The N50 can be interpreted as such: given an N50 value, 50% of the sequence in that assembly is contained in contigs of that length or longer. Thus, N50 has been traditionally used as the assembly statistic of choice for comparing assemblies, as it's more intuitive (compared to average contig length) to see that an assembly with an N50 value of 100Mbp is more contiguous than one with an N50 value of 50MBp, since it seems like there are more larger contigs in the former assembly.
 
 Another statistic that is often reported with N50 is the *L50*, which is the rank of the contig that gives the N50 value. For instance, in the above image, the L50 would be 3, because it would be the third largest contig that gives the N50 value. L50 is useful for contextualizing the N50, because it gives an idea of how many contigs make up that half of your assembly. 
 
-!!! info ""
-
-    ### N50 or NG50?
+<details>
+    <summary>
+        <strong>N50 or NG50?</strong>
+    </summary>    
     Another measurement you might see is NG50. This is the N50 value, just calculated using a given genome size instead of the sum of the contigs.
+</details>
 
-Given how the N50 value can be so affected by addition or removal of small contigs, another metric has come into use: <a href="https://lh3.github.io/2020/04/08/a-new-metric-on-assembly-contiguity">the area under the (N50) curve</a>, or the auN value. 
+Given how the N50 value can be so affected by addition or removal of small contigs, another metric has come into use: <a href="https://lh3.github.io/2020/04/08/a-new-metric-on-assembly-contiguity">the area under the (N50) curve</a>, or the auN value. Though N50 is measured at the 50% mark, we could make similar values for any value of x, for instance N30 would be the value where 30% of the sequence in that assembly is of that length or longer. These metrics are thus called Nx statistics, and one could plot them against contig length to get an *Nx curve*, which gives a more nuanced view of the actual contig size distribution of your assembly. 
 
-Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output .
+![NGx plot](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/NGx_plot.png)
+
+*Image adapted from <a href='https://lh3.github.io/2020/04/08/a-new-metric-on-assembly-contiguity'>Heng Li's blog, which in turn adapts it from a NIBS workshop</a>.* 
+
+auN tries to capture the nature of this curve, instead of a value from an arbitrary point on it. On the above example, each step on the curve represents a contig (length on the y-axis), so the black curve is the most contiguous as it has one contig that covers over 40% of the assembly. Despite that, this assembly would have the same N50 value (on the x-axis) as multiple other assemblies that are more fragmented in the same area. 
+
+
+**Run gfastats**
+
+Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output metrics such as N50, auN, total size, etc. We can try it out on that small hifiasm assembly we did earlier of some of chromosome 11. 
+
 ```
-gfastats -t test.p_ctg.fa
+## let's make sure we know where we put that test assembly, first
+ls day2_assembly/hifiasm_test
+## if you have the test.* outputs in there, then you're good to go!
+module load gfastats
+gfastats day2_assembly/hifiasm_test/test.p_ctg.fa
 ```
 
+The results are a little boring since we only have 1 contig of about 2Mbp, but that lines up with what we expected since this was just a subset of chromosome 11. Note that the results for "scaffolds" and "contigs" are the same here -- that is because gfastats finds scaffolds as regions of known sequence linked by unnknown sequence (represented as N's). Since we only have uninterrupted contigs, those contigs are being reported as "scaffolds" too. Here the statistics look the same, but the statistics can be very different if you have additional scaffolding technology to join your contigs!
 
-
-Remember, though, that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats.
+Remember that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats. Since we already know that the primary graph might look kind of uneventful from yesterday's time in Bandage, let's get the statistics for the raw unitig graph.
 
 ```
-gfastats -t test.p_ctg.gfa
+gfastats --discover-paths day2_assembly/hifiasm_test/test.bp.r_utg.gfa
 ```
+
+<details>
+    <summary>
+        <strong>What's the `--discover-paths` flag for?</strong>
+    </summary>    
+    gfastats tries to clearly distinguish contigs from segments, so it will not pick up on contigs in a GFA without paths defined (such as the GFA output from hifiasm). To get the contig stats as well as graph stats from these GFAs, you'll need to add the `--discover-paths` flag. 
+</details>
+
+Now that's more to work with! We can see that it is reporting the unitigs as contigs and we have the statistics such as N50 and auN here. Additionally, there's graph-specific statistics at the end of the output. Like we saw in Bandage, there are 44 segments with 122 edges connecting them. There's 0 disconnected components, so every node has some connection with another node, and only 4 dead ends, so most of the nodes have a connection on both their (+) and (-) end. 
 
 
 ## Correctness (QV using Merqury)
