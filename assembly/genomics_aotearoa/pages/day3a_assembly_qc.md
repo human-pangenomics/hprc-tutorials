@@ -38,8 +38,7 @@ Given how the N50 value can be so affected by addition or removal of small conti
 
 auN tries to capture the nature of this curve, instead of a value from an arbitrary point on it. On the above example, each step on the curve represents a contig (length on the y-axis), so the black curve is the most contiguous as it has one contig that covers over 40% of the assembly. Despite that, this assembly would have the same N50 value (on the x-axis) as multiple other assemblies that are more fragmented in the same area. 
 
-
-**Run gfastats**
+**Run gfastats on a FASTA**
 
 Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output metrics such as N50, auN, total size, etc. We can try it out on that small hifiasm assembly we did earlier of some of chromosome 11. 
 
@@ -52,6 +51,9 @@ gfastats day2_assembly/hifiasm_test/test.p_ctg.fa
 ```
 
 The results are a little boring since we only have 1 contig of about 2Mbp, but that lines up with what we expected since this was just a subset of chromosome 11. Note that the results for "scaffolds" and "contigs" are the same here -- that is because gfastats finds scaffolds as regions of known sequence linked by unnknown sequence (represented as N's). Since we only have uninterrupted contigs, those contigs are being reported as "scaffolds" too. Here the statistics look the same, but the statistics can be very different if you have additional scaffolding technology to join your contigs!
+
+
+**Run gfastats on a GFA**
 
 Remember that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats. Since we already know that the primary graph might look kind of uneventful from yesterday's time in Bandage, let's get the statistics for the raw unitig graph.
 
@@ -66,7 +68,57 @@ gfastats --discover-paths day2_assembly/hifiasm_test/test.bp.r_utg.gfa
     gfastats tries to clearly distinguish contigs from segments, so it will not pick up on contigs in a GFA without paths defined (such as the GFA output from hifiasm). To get the contig stats as well as graph stats from these GFAs, you'll need to add the `--discover-paths` flag. 
 </details>
 
-Now that's more to work with! We can see that it is reporting the unitigs as contigs and we have the statistics such as N50 and auN here. Additionally, there's graph-specific statistics at the end of the output. Like we saw in Bandage, there are 44 segments with 122 edges connecting them. There's 0 disconnected components, so every node has some connection with another node, and only 4 dead ends, so most of the nodes have a connection on both their (+) and (-) end. 
+Now that's more to work with! We can see that it is reporting the unitigs as contigs and we have the statistics such as N50 and auN here. Additionally, there's graph-specific statistics at the end of the output. Like we saw in Bandage, there are 44 segments with 122 edges connecting them. There are 0 disconnected components, so every node has some connection with another node, and only 4 dead ends, so most of the nodes have a connection on both their (+) and (-) end. 
+
+**Compare two assemblies' stats**
+
+Now that we've familiarized ourselves with the output for one assembly, let's compare two assemblies and their statistics. Recall that yesterday we ran a small verkko assembly using HiFi and ONT data. We're going to try an assembly now *without* the ONT data. 
+
+```
+mkdir -p day3_assembly_qc/verkko_hifionly
+module purge
+module load verkko
+sbatch -c 8 -p milan --account=nesi02659 --job-name=test_verkko --time=00:15:00 --mem=24G --wrap=
+verkko -d day3_assembly_qc/verkko_hifionly/assembly --hifi day2_assembly/verkko_test/hifi.fastq.gz"
+```
+
+<details>
+    <summary>
+        <strong>Wrap???</strong>
+    </summary>    
+    Previously, we used the `sbatch` command to submit a slurm script to the cluster and the slurm job handler. The `sbatch` command can actually take a lot of parameters like the ones we included in the beginning of our script, and one of those parameters is `--wrap` which kind of wraps whatever command you give it in a slurm wrapper so that the cluster can schedule it as if it was a slurm script. 
+</details>
+
+!!! question "Food for thought"
+```
+- Based on what you learned about assembly and data types so far, how do you think the assembly with only HiFi data will compare to the assembly with HiFi and ONT data?
+```
+
+When that finishes, let's check out the stats.
+
+```
+gfastats day3_assembly_qc/verkko_hifionly/assembly/assembly.fasta
+```
+
+You should see that this assembly has three contigs, but is about the same length as the HiFi and ONT assembly from yesterday (~4.6Mbp), which was only one contig. It can be hard to scroll back and forth between the results for two different assemblies, so let's use this one-liner that I like:
+
+```
+paste <(gfastats -t day2_assembly/verkko_test/assembly/assembly.fasta) <(gfastats -t day3_assembly_qc/verkko_hifionly/assembly/assembly.fasta | cut -f 2)
+```
+1. `paste` is a command that pastes two files side by side
+2. the `<(COMMAND)` syntax is called process substitution, and it passes the output of the command(s) inside the parentheses to another command (here it is passing the `gfastats` output to `paste`), and can be useful when using a pipe (|) might not be possible
+3. the `-t` flag in gfastats specifies that the output should be tab-delimited, which makes it more computer-parseable
+4. the `cut` command in the second gfastats is just getting the actual statistics column from the gfastats output, because the first column is the name of the statistic
+
+Your output should look something like this:
+```
+# scaffolds     1       3
+Total scaffold length   4655998 4676792
+Average scaffold length 4655998.00      1558930.67
+Scaffold N50    4655998 4648805
+Scaffold auN    4655998.00      4621069.35
+```
+... where the first column is the stats from yesterday's HiFi+ONT verkko assembly, and the second column is the stats from todays' HiFi-only verkko assembly. 
 
 
 ## Correctness (QV using Merqury)
