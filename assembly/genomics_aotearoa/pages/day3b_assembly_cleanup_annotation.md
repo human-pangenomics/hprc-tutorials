@@ -404,7 +404,7 @@ Now look through the bed file and find the contig you are interested in to see i
 </details>
 
 **Closing notes**
-1. This could all be automated, of course. The T2T and HPRC consortiums have worklows that go through assemblies to determine T2T status at the chromosomal level, but those workflows are pretty similar to what we did above, actually. 
+1. This could all be automated, of course. The T2T and HPRC consortiums have workflows that go through assemblies to determine T2T status at the chromosomal level, but those workflows are pretty similar to what we did above, actually. 
 
 2. Not having base-level information is actually ok for what we just did. If you would like base level information at only a few fold the run cost of mashmap (so still very fast), then you probably want to check out [wfmash](https://github.com/waveygang/wfmash/blob/master/README.md). It can be used for alignments of long reads (100kb+) or assemblies at very large scales.
 

@@ -5,3 +5,7 @@ ULK114_workflow_V1-3.svg
 HiFi-reads-img.svg
 	PacBio CCS sequencing cartoon
 	from https://www.pacb.com/technology/hifi-sequencing/ (pulled 22 June 2023)
+
+hi-c-flow-2.png
+	Hi-C Library flow
+	From: https://www.activemotif.com/blog-hi-c	 (pulled 25 June 2023)
