@@ -40,7 +40,7 @@ auN tries to capture the nature of this curve, instead of a value from an arbitr
 
 **Run gfastats on a FASTA**
 
-Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output metrics such as N50, auN, total size, etc. We can try it out on that small hifiasm assembly we did earlier of some of chromosome 11. 
+Let's get some basic statistics for our assembly using a tool called **gfastats**, which will output metrics such as N50, auN, total size, etc. We can try it out on that small hifiasm assembly we did earlier of some of chromosome 11. 
 
 ```
 ## let's make sure we know where we put that test assembly, first
@@ -109,15 +109,69 @@ gfastats -b contigs day2_assembly/verkko_test/assembly/1-buildGraph/hifi-resolve
 Ah, so there is one very large (~3.4Mbp) node and two much smaller (~4Kbp) ones! 
 
 ## Correctness (QV using Merqury)
-COMPLETENESS INTRO
 
-We'll use Merqury to calculate QV [EXPLAINER?]:
+Correctness refers to the base pair accuracy, and can be measured by comparing one's assembly to a gold standard reference genome. This approach is limited by 1) an assumption about the quality of the reference itself and the closeness between it and the assembly being compared, and 2) the need for a reference genome at all, which many species do not have (yet). 
+
+**Merqury** is a reference-free suite of tools for assessing assembly quality using *k*-mers and the read set that generated that assembly. 
+
+Let's try this out on the yeast verkko assembly. First we need a meryl database, so let's generate that 
+
+
 ```
-## merqury (qv) might need to check submit scripts to see if work
-sbatch -c[cores] merqury.sh \
-    [readDB.meryl]          \
-    [asm.fasta]             \
-    [output]
+mkdir -p day3_assembly_qc/merqury
+cd day3_assembly_qc/merqury
+# let's sym link the fasta and reads here so we can refer to them more easily
+ln -s ../../day2_assembly/verkko_test/assembly/assembly.fasta .
+ln -s ../../day2_assembly/hifi.fastq.gz .
+module purge
+module load Merqury
+sbatch -c 8 -p milan --account=nesi02659 --job-name=meryl --time=00:15:00 --mem=24G --wrap="meryl count k=30 memory=24 threads=8 hifi.fastq.gz output read-db.meryl"
+```
+
+<details>
+    <summary>
+        <strong>Wrap???</strong>
+    </summary>    
+    Previously, we used the `sbatch` command to submit a slurm script to the cluster and the slurm job handler. The `sbatch` command can actually take a lot of parameters like the ones we included in the beginning of our script, and one of those parameters is `--wrap` which kind of wraps whatever command you give it in a slurm wrapper so that the cluster can schedule it as if it was a slurm script. 
+</details>
+
+That shouldn't take too long to run.
+
+Let's make a slurm script (`run_merqury.sl`) to run the actual merqury program with the following contents:
+```
+#!/bin/bash -e
+
+#SBATCH --account       nesi02659
+#SBATCH --partition     milan
+#SBATCH --job-name      merqury1
+#SBATCH --cpus-per-task 8
+#SBATCH --time          00:15:00
+#SBATCH --mem           24G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+## load modules
+module purge
+module load Merqury
+export MERQURY=/opt/nesi/CS400_centos7_bdw/Merqury/1.3-Miniconda3/merqury
+
+## run merqury
+merqury.sh \
+    read-db.meryl \
+    assembly.fasta \
+    output
+```
+
+<details>
+    <summary>
+        <strong>What's that export command doing there?</strong>
+    </summary>    
+    Merqury as a package ships with a lot of scripts, especially for plotting. The `merqury.sh` command that we're using is calling those scripts, but we need to tell it where we installed Merqury. 
+</details>
+
+
+
+
 ### if we want to run merqury with the paternal info too, I like looking at blob plots to understand phasing
 sbatch -c[cores] merqury.sh \
     [readDB.meryl]          \
