@@ -16,7 +16,7 @@ Median comes closer to reaching what we're trying to measure, but it can be skew
 
 The N50 is similar to the median in that one must first sort the numbers, but then insted of taking the middle value, the N50 value is the *length of the first contig that is equal to or greater than half of the assembly sum*. But that can be hard to understand verbally, so let's look at it visually:
 
-![N50 schematic]("https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/N50.png")
+![N50 schematic](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/N50.png)
 *Image adapted from <a href='https://www.molecularecologist.com/2017/03/29/whats-n50/'>Elin Videvall at The Molecular Ecologist</a>.* 
 
 The N50 can be interpreted as such: given an N50 value, 50% of the sequence in that assembly is contained in contigs of that length or longer. Thus, N50 has been traditionally used as the assembly statistic of choice for comparing assemblies, as it's more intuitive (compared to average contig length) to see that an assembly with an N50 value of 100Mbp is more contiguous than one with an N50 value of 50MBp, since it seems like there are more larger contigs in the former assembly.
@@ -30,7 +30,7 @@ Another statistic that is often reported with N50 is the *L50*, which is the ran
 
 Given how the N50 value can be so affected by addition or removal of small contigs, another metric has come into use: <a href="https://lh3.github.io/2020/04/08/a-new-metric-on-assembly-contiguity">the area under the (N50) curve</a>, or the auN value. Though N50 is measured at the 50% mark, we could make similar values for any value of x, for instance N30 would be the value where 30% of the sequence in that assembly is of that length or longer. These metrics are thus called Nx statistics, and one could plot them against contig length to get an *Nx curve*, which gives a more nuanced view of the actual contig size distribution of your assembly. 
 
-![NGx plot]("https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/NGx_plot.png")
+![NGx plot](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/NGx_plot.png)
 *Image adapted from <a href='https://lh3.github.io/2020/04/08/a-new-metric-on-assembly-contiguity'>Heng Li's blog, which in turn adapts it from a NIBS workshop</a>.* 
 
 auN tries to capture the nature of this curve, instead of a value from an arbitrary point on it. On the above example, each step on the curve represents a contig (length on the y-axis), so the black curve is the most contiguous as it has one contig that covers over 40% of the assembly. Despite that, this assembly would have the same N50 value (on the x-axis) as multiple other assemblies that are more fragmented in the same area. 
