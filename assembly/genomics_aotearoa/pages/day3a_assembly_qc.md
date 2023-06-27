@@ -40,21 +40,33 @@ auN tries to capture the nature of this curve, instead of a value from an arbitr
 
 
 **Run gfastats**
+
 Let's get some basic statistics for our assembly using a tool called *gfastats*, which will output metrics such as N50, auN, total size, etc. We can try it out on that small hifiasm assembly we did earlier of some of chromosome 11. 
+
 ```
 ## let's make sure we know where we put that test assembly, first
 ls day2_assembly/hifiasm_test
 ## if you have the test.* outputs in there, then you're good to go!
+module load gfastats
 gfastats day2_assembly/hifiasm_test/test.p_ctg.fa
 ```
 
+The results are a little boring since we only have 1 contig of about 2Mbp, but that lines up with what we expected since this was just a subset of chromosome 11. Note that the results for "scaffolds" and "contigs" are the same here -- that is because gfastats finds scaffolds as regions of known sequence linked by unnknown sequence (represented as N's). Since we only have uninterrupted contigs, those contigs are being reported as "scaffolds" too. Here the statistics look the same, but the statistics can be very different if you have additional scaffolding technology to join your contigs!
 
-
-Remember, though, that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats.
+Remember that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats. Since we already know that the primary graph might look kind of uneventful from yesterday's time in Bandage, let's get the statistics for the raw unitig graph.
 
 ```
-gfastats test.p_ctg.gfa
+gfastats --discover-paths day2_assembly/hifiasm_test/test.bp.r_utg.gfa
 ```
+
+<details>
+    <summary>
+        <strong>What's the `--discover-paths` flag for?</strong>
+    </summary>    
+    gfastats tries to clearly distinguish contigs from segments, so it will not pick up on contigs in a GFA without paths defined (such as the GFA output from hifiasm). To get the contig stats as well as graph stats from these GFAs, you'll need to add the `--discover-paths` flag. 
+</details>
+
+Now that's more to work with! We can see that it is reporting the unitigs as contigs and we have the statistics such as N50 and auN here. Additionally, there's graph-specific statistics at the end of the output. Like we saw in Bandage, there are 44 segments with 122 edges connecting them. There's 0 disconnected components, so every node has some connection with another node, and only 4 dead ends, so most of the nodes have a connection on both their (+) and (-) end. 
 
 
 ## Correctness (QV using Merqury)
