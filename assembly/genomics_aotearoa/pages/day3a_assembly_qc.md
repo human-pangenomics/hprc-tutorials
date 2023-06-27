@@ -118,7 +118,14 @@ Average scaffold length 4655998.00      1558930.67
 Scaffold N50    4655998 4648805
 Scaffold auN    4655998.00      4621069.35
 ```
-... where the first column is the stats from yesterday's HiFi+ONT verkko assembly, and the second column is the stats from todays' HiFi-only verkko assembly. 
+
+... where the first column is the stats from yesterday's HiFi+ONT verkko assembly, and the second column is the stats from today's HiFi-only verkko assembly. That's interesting: the HiFi-only assembly has more contigs and a much lower averange contig length, but the two assemblies have similiar N50 and auN values. Recall that the N50 value means that 50% of the assembly is in contigs of that length or longer, so we know that there is at least one very large contig in the HiFi-only assembly, but what do the other contigs look like? Let's query that by getting a BED file of the contigs for the HiFi-only assembly. 
+
+```
+gfastats -b contigs day3_assembly_qc/verkko_hifionly/assembly/assembly.fasta
+```
+
+Ah, so there is one very large (~4.6Mbp) contig and two much smaller (~13-14Kbp) ones! 
 
 
 ## Correctness (QV using Merqury)
