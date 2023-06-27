@@ -202,3 +202,8 @@ mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic
     /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic/
 
 
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/T2T/CHM13/assemblies/chm13v2.0.fa \
+    /nesi/nobackup/nesi02659/LRA/resources/chm13/
+
