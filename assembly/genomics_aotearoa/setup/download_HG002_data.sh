@@ -207,3 +207,4 @@ mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic
 
 mkdir -p /nesi/nobackup/nesi02659/LRA/resources/chm13/
 curl "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_genomic.gff.gz" -o "/nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.gff.gz"
+curl "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_cds_from_genomic.fna.gz" -o "CHM13-T2T.cds.fasta.gz"
