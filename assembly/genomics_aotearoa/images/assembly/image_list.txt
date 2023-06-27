@@ -1,0 +1,3 @@
+hic_phasing.png
+	Hi-C phasing on unitig graph for assembly phasing
+	modified from: Garg, Shilpa. "Towards routine chromosome-scale haplotype-resolved reconstruction in cancer genomics." Nature Communications 14.1 (2023): 1358.
