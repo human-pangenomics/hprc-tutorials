@@ -70,7 +70,7 @@ P   14  11+,12-,13+ 4M,5M
 * S (Segment): A sequence of DNA
     * This is what we care about for the moment!
 * L (Link): Overlap between two segments
-    * We can read the first Link line as saying that the end of Segment 11 (+) connects to the begging of Segment 12 (-) and the overlap is 4 matching bases. In this case it would look like this:
+    * We can read the first Link line as saying that the end of Segment 11 (+) connects to the beginning of Segment 12 (-) and the overlap is 4 matching bases. In this case it would look like this:
 ```    
     ACCTT    (Segment 11)
      ||||
