@@ -70,40 +70,18 @@ gfastats --discover-paths day2_assembly/hifiasm_test/test.bp.r_utg.gfa
 
 Now that's more to work with! We can see that it is reporting the unitigs as contigs and we have the statistics such as N50 and auN here. Additionally, there's graph-specific statistics at the end of the output. Like we saw in Bandage, there are 44 segments with 122 edges connecting them. There are 0 disconnected components, so every node has some connection with another node, and only 4 dead ends, so most of the nodes have a connection on both their (+) and (-) end. 
 
-**Compare two assemblies' stats**
+**Compare two graphs' stats**
 
-Now that we've familiarized ourselves with the output for one assembly, let's compare two assemblies and their statistics. Recall that yesterday we ran a small verkko assembly using HiFi and ONT data. We're going to try an assembly now *without* the ONT data. 
-
-```
-mkdir -p day3_assembly_qc/verkko_hifionly
-module purge
-module load verkko
-sbatch -c 8 -p milan --account=nesi02659 --job-name=test_verkko --time=00:15:00 --mem=24G --wrap=
-verkko -d day3_assembly_qc/verkko_hifionly/assembly --hifi day2_assembly/verkko_test/hifi.fastq.gz"
-```
-
-<details>
-    <summary>
-        <strong>Wrap???</strong>
-    </summary>    
-    Previously, we used the `sbatch` command to submit a slurm script to the cluster and the slurm job handler. The `sbatch` command can actually take a lot of parameters like the ones we included in the beginning of our script, and one of those parameters is `--wrap` which kind of wraps whatever command you give it in a slurm wrapper so that the cluster can schedule it as if it was a slurm script. 
-</details>
-
-!!! question "Food for thought"
-```
-- Based on what you learned about assembly and data types so far, how do you think the assembly with only HiFi data will compare to the assembly with HiFi and ONT data?
-```
-
-When that finishes, let's check out the stats.
+Now that we've familiarized ourselves with the output for one assembly, let's compare two assemblies and their statistics. Recall that yesterday we ran a small verkko assembly using HiFi and ONT data. We also looked at what the initial HiFi-resolved graph looked like in Bandage. Let's compare the two graphs statistically now, to try to understand how the ONT data integration improves upon the intial HiFi-only assembly. 
 
 ```
-gfastats day3_assembly_qc/verkko_hifionly/assembly/assembly.fasta
+gfastats --discover-paths day2_assembly/verkko_test/assembly/1-buildGraph/hifi-resolved.gfa
 ```
 
-You should see that this assembly has three contigs, but is about the same length as the HiFi and ONT assembly from yesterday (~4.6Mbp), which was only one contig. It can be hard to scroll back and forth between the results for two different assemblies, so let's use this one-liner that I like:
+You should see that this graph has three contigs (and nodes), while the HiFi+ONT graph we looked at yesterday had only one node. How else does it compare to the previous assembly? It can be hard to scroll back and forth between the results for two different assemblies, so let's use this one-liner that I like:
 
 ```
-paste <(gfastats -t day2_assembly/verkko_test/assembly/assembly.fasta) <(gfastats -t day3_assembly_qc/verkko_hifionly/assembly/assembly.fasta | cut -f 2)
+paste <(gfastats -t --discover-paths day2_assembly/verkko_test/assembly/1-buildGraph/hifi-resolved.gfa) <(gfastats -t --discover-paths day2_assembly/verkko_test/assembly/5-untip/unitig-normal-connected-tip.gfa | cut -f 2)
 ```
 1. `paste` is a command that pastes two files side by side
 2. the `<(COMMAND)` syntax is called process substitution, and it passes the output of the command(s) inside the parentheses to another command (here it is passing the `gfastats` output to `paste`), and can be useful when using a pipe (|) might not be possible
@@ -112,21 +90,23 @@ paste <(gfastats -t day2_assembly/verkko_test/assembly/assembly.fasta) <(gfastat
 
 Your output should look something like this:
 ```
-# scaffolds     1       3
-Total scaffold length   4655998 4676792
-Average scaffold length 4655998.00      1558930.67
-Scaffold N50    4655998 4648805
-Scaffold auN    4655998.00      4621069.35
+# scaffolds     3       1
+Total scaffold length   3430242 3424280
+Average scaffold length 1143414.00      3424280.00
+Scaffold N50    3421198 3424280
+Scaffold auN    3412189.77      3424280.00
+Scaffold L50    1       1
+Largest scaffold        3421198 3424280
+Smallest scaffold       4518    3424280
 ```
 
-... where the first column is the stats from yesterday's HiFi+ONT verkko assembly, and the second column is the stats from today's HiFi-only verkko assembly. That's interesting: the HiFi-only assembly has more contigs and a much lower averange contig length, but the two assemblies have similiar N50 and auN values. Recall that the N50 value means that 50% of the assembly is in contigs of that length or longer, so we know that there is at least one very large contig in the HiFi-only assembly, but what do the other contigs look like? Let's query that by getting a BED file of the contigs for the HiFi-only assembly. 
+... where the first column is the stats from the HiFi-only assembly graph, and the second column is the stats from the HiFi+ONT assembly graph. That's interesting: the HiFi-only assembly has more contigs and a lower averange contig length, but the two assemblies have similiar N50 and auN values. Recall that the N50 value means that 50% of the assembly is in contigs of that length or longer, so we know that there is at least one very large contig in the HiFi-only assembly, but what do the other contigs look like? Let's query that by getting a BED file of the contigs for the HiFi-only assembly. 
 
 ```
-gfastats -b contigs day3_assembly_qc/verkko_hifionly/assembly/assembly.fasta
+gfastats -b contigs day2_assembly/verkko_test/assembly/1-buildGraph/hifi-resolved.gfa
 ```
 
-Ah, so there is one very large (~4.6Mbp) contig and two much smaller (~13-14Kbp) ones! 
-
+Ah, so there is one very large (~3.4Mbp) node and two much smaller (~4Kbp) ones! 
 
 ## Correctness (QV using Merqury)
 COMPLETENESS INTRO
