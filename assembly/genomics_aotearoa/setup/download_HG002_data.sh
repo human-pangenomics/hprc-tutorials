@@ -202,9 +202,14 @@ mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic
     /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic/
 
 ###############################################################################
-##                          Download CHM13 annotation data                   ##
+##                          Download CHM13 & annotation data                 ##
 ###############################################################################
 
 mkdir -p /nesi/nobackup/nesi02659/LRA/resources/chm13/
 curl "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_genomic.gff.gz" -o "/nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.gff.gz"
 curl "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_cds_from_genomic.fna.gz" -o "CHM13-T2T.cds.fasta.gz"
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/T2T/CHM13/assemblies/chm13v2.0.fa \
+    /nesi/nobackup/nesi02659/LRA/resources/chm13/
