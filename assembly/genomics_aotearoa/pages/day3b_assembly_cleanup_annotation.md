@@ -396,6 +396,13 @@ seqtk telo assembly.haplotype1.fasta > telos.bed
 
 Now look through the bed file and find the contig you are interested in to see if there are telomeres on both ends. 
 
+<details>
+    <summary>
+        <strong>Did you find any T2T contigs or Scaffolds?</strong>
+    </summary>    
+    In this assembly chromosomes 3, 10, 11, and 16 are assembled T2T with contigs (no gaps) and chr5 is assembled T2T in a scaffold. As of the writing of this document (June 2023) for a diploid human assembly you can expect to get around 12 chromosomes assembled T2T in contigs and an additional 12 or so assembled T2T in scaffolds with Verkko. Hifiasm is very similar but without scaffolds. This means that for a diploid verkko assembly about half of the chromosomes are T2T out of the box for ~40X HiFi and >15X (or so) UL ONT with either HiC or trio phasing. Pretty amazing. This sample (HG002) is not very heterozygous so it's actually a tough sample to assemble. That is why we aren't seeing very many T2T contigs/scaffolds. Sometimes you have to judge how good an assembly is on a per-sample basis.
+</details>
+
 **Closing notes**
 1. This could all be automated, of course. The T2T and HPRC consortiums have worklows that go through assemblies to determine T2T status at the chromosomal level, but those workflows are pretty similar to what we did above, actually. 
 
