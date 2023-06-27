@@ -81,6 +81,16 @@ mkdir /nesi/nobackup/nesi02659/LRA/resources/meryl
     s3://human-pangenomics/T2T/HG002/qc/paternal_compress.k30.hapmer.meryl.tar.gz \
     /nesi/nobackup/nesi02659/LRA/resources/meryl/ &
 
+## extract and cleanup
+tar xvf \
+    /nesi/nobackup/nesi02659/LRA/resources/meryl/maternal_compress.k30.hapmer.meryl.tar.gz \
+    --directory /nesi/nobackup/nesi02659/LRA/resources/meryl/
+
+tar xvf \
+    /nesi/nobackup/nesi02659/LRA/resources/meryl/paternal_compress.k30.hapmer.meryl.tar.gz \
+    --directory /nesi/nobackup/nesi02659/LRA/resources/meryl/
+
+rm /nesi/nobackup/nesi02659/LRA/resources/meryl/*tar.gz
 
 ###############################################################################
 ##                               Download HiC Data                           ##
