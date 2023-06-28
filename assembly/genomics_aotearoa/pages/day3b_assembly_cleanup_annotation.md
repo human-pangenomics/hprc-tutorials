@@ -18,8 +18,10 @@ cd day3_qc/fcs/
 
 **Download the Foreign Contamination Screen (FCS) tool from NCBI**
 
+```
 curl -LO https://github.com/ncbi/fcs/raw/main/dist/fcs.py
 curl -LO https://github.com/ncbi/fcs/raw/main/examples/fcsgx_test.fa.gz
+```
 
 This tool is a python script that calls a Docker/Singularity container. This was done because contamination screens notoriously require a ton of dependencies. So having a Docker container makes things easier on the user. The docker container requires that a database of contaminants are downloaded. We have already downloaded the test database here: `/nesi/nobackup/nesi02659/LRA/resources/fcs/test-only`. The container has already been downloaded as well, we just need to load the singularity module and let FCS know where the container is:
 ```
@@ -242,23 +244,48 @@ cd liftoff-annotation
 **Gather the necessary files**
 
 ```shell
-ln -s /path/to/chm13-annotations-file.gff chm13-annotations.gff
-ln -s /path/to/chm13-reference.fasta chm13.fa
-ln -s /path/to/my-hg002-asm-from-this-workshop/assembly.fasta asm.fa
+ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/CHM13-T2T.renamed.gff.gz chm13-annotations.gff.gz
+ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/CHM13-T2T.renamed.gff.liftoff.sqlite3 chm13-annotations.gff.liftoff.sqlite3
+ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/chm13v2.0.fa chm13.fa
+ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/chm13v2.0.fa.fai chm13.fa.fai
+ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa
+ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa.fai
 ```
+
+<details>
+    <summary>
+        <strong>What&rsquo;s with the <code>*.sqlite3</code> file?</strong>
+    </summary>
+    Liftoff stores features from the GFF file in a SQLite database. The first
+    part of any liftoff run processes the GFF file and creates the database,
+    which by default is written to the same file location and name with a
+    <code>_gz</code> appended to the end. If you experience an error at any
+    point (e.g., failing to allocate enough memory to your job), liftoff will
+    automatically re-create the database, even if that part of the process
+    completed successfully previously. This SQLite database is from a previous
+    run we did, and we&rsquo;ll use it in place of the GFF file to shave some
+    time (~10 mins for a full human genome) during our run. If you run
+    <code>liftoff -h</code>, you&rsquo;ll see that <code>-g</code> (to provide
+    the input GFF file) and <code>-db</code> (to provide the input SQLite
+    database) are interchangeable. We&rsquo;ll be using the database to save
+    time, but we could instead use the other option and supply the GFF file.
+	If you haven&rsquo;t yet viewed a GFF file, now would be a good time to
+	check one out: <pre><code>less -S chm13-annotations.gff.gz</code></pre>
+</details>
 
 **Run Liftoff**
 
 ```shell
 liftoff \
     -p ${THREADS} \
-    -g chm13-annotations.gff \
+    -db chm13-annotations.gff.liftoff.sqlite3 \
     -o asm.annotations.gff \
     asm.fa \
     chm13.fa
 ```
 
 <!-- OTHER POSSIBLE OPTIONS
+    -g chm13-annotations.gff
     -u unmapped_features.txt
     -m /path/to/minimap2-installation/bin/minimap2
     -infer_genes -OR- -infer_transcripts # depending on what the chm13-annotations.gff looks like
@@ -271,12 +298,13 @@ liftoff \
     <summary>
         <strong>What do each of these options do?</strong>
     </summary>
-    <code>-p</code> specifies the number of threads to use. <code>-g</code> specifies the location of
-    the GFF file with the input annotations for the reference. <code>-o</code> specifies
-    the location of the GFF file with the output annotations for the target.
-    The two positional parameters at the end are respectively the target
-    assembly (our HG002 assembly) and the reference assembly (T2T-CHM13). Run
-    the following command to see all the options described in more detail:
+    <code>-p</code> specifies the number of threads to use. <code>-db</code> specifies the location of
+    the SQLite database of features extracted by Liftoff from the GFF file with
+    the input annotations for the reference. <code>-o</code> specifies the
+    location of the GFF file with the output annotations for the target. The two
+    positional parameters at the end are respectively the target assembly (our
+    HG002 assembly) and the reference assembly (T2T-CHM13). Run the following
+    command to see all the options described in more detail:
     <pre><code>liftoff -h</code></pre>
 </details>
 
@@ -286,16 +314,37 @@ liftoff \
 less -S asm.annotations.gff
 ```
 
+You can also explore the files in Liftoff's intermediate directory:
+`intermediate_files`.
+
 **Visualize the annotations in a genome browser**
 
+Before we visualize the annotations in IGV, it is best if we sort and index the
+output GFF file:
+```
+module load IGV/2.9.4
+igvtools sort asm.annotations.gff asm.annotations.sorted.gff
+igvtools index asm.annotations.sorted.gff
+```
+These operations are small enough that you should not need to submit a job for
+them.
+
+To open IGV and view the annotations, do the following:
 1. Open IGV
-2. TODO
-3. TODO
-4. TODO
+    1. Open a Virtual Desktop session from your Jupyter Lab Launcher
+    2. Open the Terminal Emulator application
+    3. Load the IGV module and launch IGV
+       ```shell
+       module load IGV/2.9.4
+       igv.sh
+       ```
+2. Load the CHM13-T2T genome (instead of the default hg19): Genome > Load Genome from File... > `chm13.igv-genome.json`
+3. Load the GFF file: File > Load from File... > `asm.annotations.sorted.gff`
+4. Explore
 
-**Take Home**
+**What do you observe? Do you have any questions?**
 
-TODO
+<!-- END OF ANNOTATION SECTION -->
 
 # Long Read/Contig Mapping
 We are ready to map long reads and assembly contigs to genomes. For this we need a set of tools that are differenct from what you might be used to using for Illumina data. You might be asking "what's the matter with bwa-mem for long reads?" It is [slow](https://lh3.github.io/2018/04/02/minimap2-and-the-future-of-bwa#:~:text=For%20long%20reads%2C%20minimap2%20is,a%20typical%20long%2Dread%20mapper.) and probably inaccurate for this application. So let's jump in to long read mappers and see what we can do with them.
