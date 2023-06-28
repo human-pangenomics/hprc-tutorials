@@ -17,7 +17,7 @@ Pacbio's high fidelity (or HiFi) reads are long (~15kb) and accurate (~99.9%). P
 Long, highly accurate reads allows for a number of analyses that were difficult or impossible in the context of short reads. For instance, variants can be more easily phased as you can just look for variants that are seen in the same sequencing read. In our context, long accurate reads allow assembly algorithms to build assembly graphs across difficult regions. But it turns out that HiFi reads aren't long enough to span exact repeats in regions like human centromeres.
 
 ## ONT Ultralong: Lower Quality But Really Long Reads
-Oxford Nanopore's ultralong (UL) sequencing has lower accuracy (~90%), but is really long (even longer than normal ONT). This is achieved though a different library prep -- as compared to normal DNA sequencing with ONT. UL library prep uses a transposase to cut DNA at non specific sites where it can then be adapted for sequencing. 
+Oxford Nanopore's ultralong (UL) sequencing has lower accuracy (~97%), but is really long (even longer than normal ONT). This is achieved though a different library prep -- as compared to normal DNA sequencing with ONT. UL library prep uses a transposase to cut DNA at non specific sites where it can then be adapted for sequencing. 
 
 **ONT Ultralong Library Prep**
 <p align="center">
@@ -86,8 +86,11 @@ Once the run is complete, navigate in your file browser to the NanoComp-report.h
 ## PacBio Adapter Trimming
 PacBio's CCS software attempts to identify adapters and remove them. This process is getting better all the time, but some datasets (especially older ones) can have adapters remaining. If this is the case adapters can find their way into the assemblies. 
 
-Run CutAdapt to check for adapter sequences in the downsampled data that we are currently using. (The results will print to stdout on your terminal screen.)
+Run CutAdapt to check for adapter sequences**
+ in the downsampled data that we are currently using. (The results will print to stdout on your terminal screen.)
 ```
+module load cutadapt/4.1-gimkl-2022a-Python-3.10.5
+
 cutadapt \
     -b "AAAAAAAAAAAAAAAAAATTAACGGAGGAGGAGGA;min_overlap=35" \
     -b "ATCTCTCTCTTTTCCTCCTCCTCCGTTGTTGTTGTTGAGAGAGAT;min_overlap=45" \
@@ -149,7 +152,7 @@ Now that we've introduced the data that creates the graphs, it's time to talk ab
 At the moment the easiest and most effective way to phase human assemblies is with trio information. Meaning you sequence a sample, then you also sequence its parents. You then look at which parts of the genome the sample inherited from one parent and not the other. This is done with kmer DBs. In our case with either Meryl (for Verkko) or YAK (for Hifiasm) so let's take a moment to learn about kmer DBs.
 
 ### Meryl
-[Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. Meryl creates databases of kmer counts from inputs. 
+[Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. It creates kmer databases (DBs) but it is also a toolset that you can. Meryl is to kmers what BedTools is to genomic regions.
 
 Here is an example of something you could do with Meryl:
 * You can create a kmer DB from an assembly
@@ -157,7 +160,7 @@ Here is an example of something you could do with Meryl:
 * Then write those out to a bed file with `meryl-lookup`. 
 Now you have "painted" all of the locations in the assembly with unique kmers. That can be a handy thing to have lying around.
 
-Today we want to use Meryl in the context of creating databases from Illumina readsets.
+Today we want to use Meryl in the context of creating databases from PCR-free Illumina readsets.
 
 **Create a directory**
 ```
@@ -218,12 +221,35 @@ It should be noted that Meryl DBs used for assembly with Verkko and for base-lev
 Hi-C is a proximity ligation method. It takes intact chromatin and locks it in place, cuts up the DNA, ligates strands that are nearby and then makes libraries from them. It's easiest to just take a look at a cartoon of the process.
 ![Hi-C Library Flow](https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/hi-c-flow-2.png?raw=true)
 
-Given that Hi-C is can be used for spatial genomics applicatios
+Given that Hi-C ligating molecules that are nearby it can be used for spatial genomics applications. In assembly we take advantage of the fact that most nearby molecules are on the same strand (or haplotype) of DNA. 
+
+<details>
+    <summary>
+        <strong>What are the advantage of trio phasing over Hi-C?</strong>
+    </summary>
+    Trio data is great for phasing because you can assign haplotypes to maternal and paternal bins. This has the added benefit of assigning all maternal contigs to the same assembly. Hi-C ensure that an entire chromosome is phased into one haplotype, but across chromosomes the assignment is random. 
+</details>
+
+<details>
+    <summary>
+        <strong>So why wouldn't you always use trio data for phasing?</strong>
+    </summary>
+    It can be hard to get trio data. If a sample has already been collected it may be hard to go back and indentify the parents and collect sample from them. In non-human samples, trios can also be difficult. 
+</details>
+
+<details>
+    <summary>
+        <strong>Are there any difficulties in preparing Hi-C data?</strong>
+    </summary>
+    Yes! As you can see in the cartoon above Hi-C relies on having intact chromatin as an input. This means that cell lines are an excellent input source, but frozen blood is less good, for instance.
+</details>
+
 
 
 ## Other Datatypes
 We should also mention that there are other datatypes that can be used for phasing, though they are less common.
+
 ### Pore-C
 Pore-C is a variant of Hi-C which retains the chromatin conformation capture, but the sequencing is done on ONT. This allows long reads sequencing of concatemers. Where Hi-C typically has at most one "contact" per read, Pore-C can have many. The libraries also do not need to be amplified so Pore-C reads can carry base modification calls. 
 
-* StrandSeq
+### StrandSeq
