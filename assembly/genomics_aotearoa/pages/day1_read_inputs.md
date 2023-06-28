@@ -1,4 +1,4 @@
-# PacBio & ONT Data
+# Graph Building: PacBio & ONT Data
 
 We are going to start by introducing the two long read sequencing technologies that we will be using: PacBio's HiFi and Oxford Nanopore's Ultralong. These two technologies are complementary and each have their own strengths leading. You can answer some questions more easily with HiFi and some more easily with ONT UL. They can also be used together and this is important for the concept of a hybrid assembly algorithm where accurate reads are used to create a draft assembly and long reads are used to extend that assembly. 
 
@@ -135,3 +135,46 @@ zcat LRA_ONTUL_1k_reads.50kb.fq.gz | wc -l
     </summary>
     Answer
 </details>
+
+# Phasing Data: Trio DBs and Hi-C
+Now that we've introduced the data that creates the graphs, it's time to talk about data types that can phase them in order to produce fully phased diploid assemblies (in the case of human assemblies). 
+
+## Trio Data
+At the moment the easiest and most effective way to phase human assemblies is with trio information. Meaning you sequence a sample, then you also sequence its parents. You then look at which parts of the genome the sample inherited from one parent and not the other. This is done with kmer DBs. In our case with either Meryl (for Verkko) or YAK (for Hifiasm) so let's take a moment to learn about kmer DBs.
+
+### Meryl
+[Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. Meryl creates databases of kmer counts from inputs. 
+
+Here is an example of something you could do with Meryl:
+* You can create a kmer DB from an assembly
+* You could then print all kmers that are only present once (using `meryl print equal-to 1`) 
+* Then write those out to a bed file with `meryl-lookup`. 
+Now you have "painted" all of the locations in the assembly with unique kmers. That can be a handy thing to have lying around.
+
+Today we want to use Meryl in the context of creating databases from Illumina readsets.
+
+**You can create a kmer DB from an Illumina read set**
+```
+meryl count \
+    compress \
+    k=30 \
+    threads=XX \
+    memory=YY \
+    maternal.*fastq.gz \
+    output maternal_compress.k30.meryl
+```
+
+<details>
+    <summary>
+        <strong>Do Meryl DBs have to be created from Illumina data?</strong>
+    </summary>
+    They don't! You can create a Meryl DB from HiFi data, for instance. The one caveat is that you want your input data to have a low error rate. So UL ONT data, for instance, wouldn't work.
+</details>
+
+## Hi-C
+
+
+## Other Datatypes
+We should also mention that there are other datatypes out there.
+* PoreC
+* StrandSeq
