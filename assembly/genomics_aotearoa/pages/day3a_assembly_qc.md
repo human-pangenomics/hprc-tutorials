@@ -136,10 +136,11 @@ Correctness refers to the base pair accuracy, and can be measured by comparing o
 
 **Merqury** is a reference-free suite of tools for assessing assembly quality using *k*-mers and the read set that generated that assembly. 
 
+**Running Merqury on the yeast verkko assembly**
+
 Let's try this out on the yeast verkko assembly. First we need a meryl database, so let's generate that 
-
-
 ```
+cd ~
 mkdir -p day3_assembly_qc/merqury
 cd day3_assembly_qc/merqury
 # let's sym link the fasta and reads here so we can refer to them more easily
@@ -147,7 +148,7 @@ ln -s ../../day2_assembly/verkko_test/assembly/assembly.fasta .
 ln -s ../../day2_assembly/hifi.fastq.gz .
 module purge
 module load Merqury
-sbatch -c 8 -p milan --account=nesi02659 --job-name=meryl --time=00:15:00 --mem=24G --wrap="meryl count k=30 memory=24 threads=8 hifi.fastq.gz output read-db.meryl"
+sbatch -c 8 --job-name=meryl --time=00:15:00 --mem=24G --wrap="meryl count k=30 memory=24 threads=8 hifi.fastq.gz output read-db.meryl"
 ```
 
 <details>
@@ -159,7 +160,7 @@ sbatch -c 8 -p milan --account=nesi02659 --job-name=meryl --time=00:15:00 --mem=
 
 That shouldn't take too long to run.
 
-Let's make a slurm script (`run_merqury.sl`) to run the actual merqury program with the following contents:
+Use your text editor of choice to make a slurm script (`run_merqury.sl`) to run the actual merqury program with the following contents:
 ```
 #!/bin/bash -e
 
@@ -196,7 +197,7 @@ output.qv:
 assembly	171	4655969	59.1213	1.22426e-06
 ```
 
-
+```
 ### if we want to run merqury with the paternal info too, I like looking at blob plots to understand phasing
 sbatch -c[cores] merqury.sh \
     [readDB.meryl]          \
@@ -206,16 +207,37 @@ sbatch -c[cores] merqury.sh \
     [output]
 ```
 
-COMPARE HIC ASSEMBLY SWITCH ERRORS TO TRIO
+** Switch errors **
+
 ```
-## yak trioeval for switch errors
-yak trioeval -t [threads] \
-    [pat.yak] [mat.yak]   \
-    [asm.fasta]           \
-    > trioeval.out
+#!/bin/bash -e
+
+#SBATCH --job-name      yaktrioeval
+#SBATCH --cpus-per-task 32
+#SBATCH --time          01:00:00
+#SBATCH --mem           256G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+## load modules
+module purge
+module load yak
+
+## run yak
+yak trioeval -t 32 \
+    ../yak/pat.HG003.yak ../yak/mat.HG004.yak   \
+    ../assemblies/hifiasm/full/hic/HG002.hap1.fa.gz           \
+    > hifiasm.hic.hap1.trioveal
+
+yak trioeval -t 32 \
+    ../yak/pat.HG003.yak ../yak/mat.HG004.yak   \
+    ../assemblies/hifiasm/full/trio/HG002.mat.fa.gz           \
+    > hifiasm.trio.mat.trioveal
 ```
 
-sbatch -c 8 -p milan --account=nesi02659 --job-name=yak --time=00:15:00 --mem=24G --wrap="yak trioeval ../yak/pat.HG003.yak ../yak/mat.HG004.yak ../assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta > verkko.trio.hap1.trioveal"
+
+**Note about orthogonal datasets for QV**
+
 
 ## Completeness (gene content using asmgene)
 
