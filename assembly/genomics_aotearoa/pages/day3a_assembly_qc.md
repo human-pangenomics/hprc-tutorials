@@ -227,12 +227,12 @@ module load yak
 yak trioeval -t 32 \
     ../yak/pat.HG003.yak ../yak/mat.HG004.yak   \
     ../assemblies/hifiasm/full/hic/HG002.hap1.fa.gz           \
-    > hifiasm.hic.hap1.trioveal
+    > hifiasm.hic.hap1.trioeval
 
 yak trioeval -t 32 \
     ../yak/pat.HG003.yak ../yak/mat.HG004.yak   \
     ../assemblies/hifiasm/full/trio/HG002.mat.fa.gz           \
-    > hifiasm.trio.mat.trioveal
+    > hifiasm.trio.mat.trioeval
 ```
 
 
