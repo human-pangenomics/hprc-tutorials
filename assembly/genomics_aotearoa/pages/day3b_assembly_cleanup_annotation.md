@@ -275,13 +275,25 @@ ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/verkko_trio_prebaked/asm_
 
 **Run Liftoff**
 
+First create a shell script `liftoff.sh` with the following content:
 ```shell
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+module load Liftoff/1.6.3.2-gimkl-2022a-Python-3.11.3
+
 liftoff \
-    -p ${THREADS} \
+    -p 8 \
     -db chm13-annotations.gff.liftoff.sqlite3 \
     -o asm.annotations.gff \
     asm.fa \
     chm13.fa
+```
+
+Then submit it as a job with `sbatch`:
+```
+sbatch -J liftoff -N1 -n1 -c8 --mem=20G -t 0-01:30 -A nesi02659 -o %x.%j.log liftoff.sh
 ```
 
 <!-- OTHER POSSIBLE OPTIONS
