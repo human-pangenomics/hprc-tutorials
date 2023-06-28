@@ -152,7 +152,7 @@ Now that we've introduced the data that creates the graphs, it's time to talk ab
 At the moment the easiest and most effective way to phase human assemblies is with trio information. Meaning you sequence a sample, then you also sequence its parents. You then look at which parts of the genome the sample inherited from one parent and not the other. This is done with kmer DBs. In our case with either Meryl (for Verkko) or YAK (for Hifiasm) so let's take a moment to learn about kmer DBs.
 
 ### Meryl
-[Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. It creates kmer databases (DBs) but it is also a toolset that you can. Meryl is to kmers what BedTools is to genomic regions.
+[Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. It creates kmer databases (DBs) but it is also a toolset that you can use for finding kmers and manipulating kmer count sets. Meryl is to kmers what BedTools is to genomic regions.
 
 Here is an example of something you could do with Meryl:
 * You can create a kmer DB from an assembly
@@ -160,7 +160,7 @@ Here is an example of something you could do with Meryl:
 * Then write those out to a bed file with `meryl-lookup`. 
 Now you have "painted" all of the locations in the assembly with unique kmers. That can be a handy thing to have lying around.
 
-Today we want to use Meryl in the context of creating databases from PCR-free Illumina readsets.
+Today we want to use Meryl in the context of creating databases from PCR-free Illumina readsets. These can be used both during the assembly process and during the post-assembly QC. 
 
 **Create a directory**
 ```
@@ -189,7 +189,72 @@ meryl count \
     output paternal_20M_compress.k30.meryl
 ```
 
-This should be pretty fast because we are just using a small amount of data to get a feel for the program. 
+This should be pretty fast because we are just using a small amount of data to get a feel for the program. The output of Meryl is a folder that contains 64 index files and 64 data files. If you try and look at the data files you'll see that they aren't human readable. In order to look at the actual kmers, you have to use meryl to print them.
+
+**Look at the kmers**
+```
+meryl print \
+    greater-than 1 \
+    paternal_20M_compress.k30.meryl \
+    | head
+```
+The first column is the kmer and the second column is the count of that kmer in the dataset.
+
+**Take a look at some statistics for the DB**
+```
+meryl statistics \
+    paternal_20M_compress.k30.meryl \
+    | head -n 20
+```
+
+We see a lot of kmers missing and the histogram has a ton of counts at 1. This makes sense for a heavily downsampled dataset. Great. We just got a feel for how to use Meryl in general on subset data. Now let's actually take a look at how to create Meryl DBs for Verkko assemblies.
+
+**First some background**
+We will be using trio data for phasing. Verkko takes as an input what are called hapmer DBs. These are constructed from the kmers that a child inherits from one parent and not the other. These kmers are useful for phasing assemblies because if an assembler has two very similar sequences it can look for maternal-specific kmers and paternal-specific kmers and use those to determine which haplotype to assing to each sequence.
+
+![Meryl Venn Diagram](https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/meryl_venn.png?raw=true)
+
+In the venn diagram above, the maternal hapmer kmers/DB are on the left-hand side (in the purple in red box). The paternal hapmer kmers/DB are on the right-hand side (in the purple in blue box).
+
+**Here is what the slurm script would look like:**
+(Don't run this, it is slow! We have made these for you already.
+```
+#!/bin/bash -e
+
+#SBATCH --account       nesi02659
+#SBATCH --job-name      meryl_run
+#SBATCH --cpus-per-task 32
+#SBATCH --time          12:00:00
+#SBATCH --mem           96G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+
+module purge
+module load Merqury/1.3-Miniconda3
+
+## Create mat/pat/child DBs
+meryl count compress k=30 \
+    threads=32 memory=96 \
+    maternal.*fastq.gz \
+    output maternal_compress.k30.meryl
+
+meryl count compress k=30 \
+    threads=32 memory=96 \
+    paternal.*fastq.gz \
+    output paternal_compress.k30.meryl
+
+meryl count compress k=30 \
+    threads=32 memory=96    \
+    child.*fastq.gz output    \
+    child_compress.k30.meryl
+
+## Create the hapmer DBs
+$MERQURY/trio/hapmers.sh \
+  maternal_compress.k30.meryl \
+  paternal_compress.k30.meryl \
+     child_compress.k30.meryl
+```
 
 **Meryl DBs for Assembly and QC**
 It should be noted that Meryl DBs used for assembly with Verkko and for base-level QC with Merqury are created differently. Here are the current recommendations for kmer size and compression:
