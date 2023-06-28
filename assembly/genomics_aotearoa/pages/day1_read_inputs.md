@@ -154,13 +154,19 @@ At the moment the easiest and most effective way to phase human assemblies is wi
 ### Meryl
 [Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. It creates kmer databases (DBs) but it is also a toolset that you can use for finding kmers and manipulating kmer count sets. Meryl is to kmers what BedTools is to genomic regions.
 
-Here is an example of something you could do with Meryl:
-* You can create a kmer DB from an assembly
-* You could then print all kmers that are only present once (using `meryl print equal-to 1`) 
-* Then write those out to a bed file with `meryl-lookup`. 
-Now you have "painted" all of the locations in the assembly with unique kmers. That can be a handy thing to have lying around.
-
 Today we want to use Meryl in the context of creating databases from PCR-free Illumina readsets. These can be used both during the assembly process and during the post-assembly QC. 
+
+**Some background on assembly phasing with trios**
+
+Verkko takes as an input what are called hapmer DBs. These are constructed from the kmers that a child inherits from one parent and not the other. These kmers are useful for phasing assemblies because if an assembler has two very similar sequences it can look for maternal-specific kmers and paternal-specific kmers and use those to determine which haplotype to assign to each sequence.
+
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/meryl_venn.png?raw=true" width="350"/>
+</p>
+
+In the venn diagram above, the maternal hapmer kmers/DB are on the left-hand side (in the purple in red box). The paternal hapmer kmers/DB are on the right-hand side (in the purple in blue box). 
+
+### Let's start by just familiarizing ourselves with Meryl's functionality...
 
 **Create a directory**
 ```
@@ -209,15 +215,7 @@ meryl statistics \
 
 We see a lot of kmers missing and the histogram has a ton of counts at 1. This makes sense for a heavily downsampled dataset. Great. We just got a feel for how to use Meryl in general on subset data. Now let's actually take a look at how to create Meryl DBs for Verkko assemblies.
 
-**First some background**
-
-We will be using trio data for phasing. Verkko takes as an input what are called hapmer DBs. These are constructed from the kmers that a child inherits from one parent and not the other. These kmers are useful for phasing assemblies because if an assembler has two very similar sequences it can look for maternal-specific kmers and paternal-specific kmers and use those to determine which haplotype to assign to each sequence.
-
-<p align="center">
-    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/meryl_venn.png?raw=true" width="350"/>
-</p>
-
-In the venn diagram above, the maternal hapmer kmers/DB are on the left-hand side (in the purple in red box). The paternal hapmer kmers/DB are on the right-hand side (in the purple in blue box).
+#### How would we run Meryl for Verkko?
 
 **Here is what the slurm script would look like:**
 
@@ -260,6 +258,8 @@ $MERQURY/trio/hapmers.sh \
      child_compress.k30.meryl
 ```
 
+#### Closing notes
+
 **Meryl DBs for Assembly and QC**
 It should be noted that Meryl DBs used for assembly with Verkko and for base-level QC with Merqury are created differently. Here are the current recommendations for kmer size and compression:
 * Verkko: use `k=30` and the `compress` command.
@@ -285,6 +285,14 @@ It should be noted that Meryl DBs used for assembly with Verkko and for base-lev
     </summary>
     They don't! You can create a Meryl DB from 10X data or HiFi data, for instance. The one caveat is that you want your input data to have a low error rate. So UL ONT data wouldn't work.
 </details>
+
+**Other things you could do with Meryl**
+
+Here is an example of something you could do with Meryl:
+* You can create a kmer DB from an assembly
+* You could then print all kmers that are only present once (using `meryl print equal-to 1`) 
+* Then write those out to a bed file with `meryl-lookup`. 
+Now you have "painted" all of the locations in the assembly with unique kmers. That can be a handy thing to have lying around.
 
 ## Hi-C
 Hi-C is a proximity ligation method. It takes intact chromatin and locks it in place, cuts up the DNA, ligates strands that are nearby and then makes libraries from them. It's easiest to just take a look at a cartoon of the process.
