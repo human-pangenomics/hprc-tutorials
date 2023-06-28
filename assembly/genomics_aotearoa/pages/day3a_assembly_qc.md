@@ -164,8 +164,6 @@ Use your text editor of choice to make a slurm script (`run_merqury.sl`) to run 
 ```
 #!/bin/bash -e
 
-#SBATCH --account       nesi02659
-#SBATCH --partition     milan
 #SBATCH --job-name      merqury1
 #SBATCH --cpus-per-task 8
 #SBATCH --time          00:15:00
@@ -178,11 +176,17 @@ module purge
 module load Merqury
 export MERQURY=/opt/nesi/CS400_centos7_bdw/Merqury/1.3-Miniconda3/merqury
 
+## create solo merqury dir and use it
+mkdir merqury_solo
+cd merqury_solo
+
 ## run merqury
 merqury.sh \
-    read-db.meryl \
-    assembly.fasta \
+    ../read-db.meryl \
+    ../assembly.fasta \
     output
+
+cd -
 ```
 
 <details>
@@ -196,6 +200,38 @@ output.qv:
 ```
 assembly	171	4655969	59.1213	1.22426e-06
 ```
+
+```
+#!/bin/bash -e
+
+#SBATCH --job-name      merqury2
+#SBATCH --cpus-per-task 8
+#SBATCH --time          00:15:00
+#SBATCH --mem           24G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+## load modules
+module purge
+module load Merqury
+export MERQURY=/opt/nesi/CS400_centos7_bdw/Merqury/1.3-Miniconda3/merqury
+
+## create trio merqury dir and use it
+mkdir merqury_trio
+cd merqury_trio
+
+## run merqury
+merqury.sh \
+    ../read-db.meryl \
+    ../paternal.k30.hapmer.meryl \
+    ../maternal.k30.hapmer.meryl \
+    ../assembly.haplotype1.fasta \
+    ../assembly.haploype2.fasta \
+    output
+
+cd -
+```
+
 
 ```
 ### if we want to run merqury with the paternal info too, I like looking at blob plots to understand phasing
