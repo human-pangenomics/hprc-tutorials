@@ -235,7 +235,6 @@ yak trioeval -t 32 \
     > hifiasm.trio.mat.trioeval
 ```
 
-
 **Note about orthogonal datasets for QV**
 
 
@@ -243,13 +242,39 @@ yak trioeval -t 32 \
 
 ```
 ## asmgene
-minimap2 -cxsplice:hq -t[threads] \
-    [ref.fasta] GCF_009914755.1_T2T-CHM13v2.0_cds_from_genomic.fna \
+mkdir -p day3_assembly_qc/asmgene
+cd day3_assembly_qc/asmgene
+# let's symlink some of the necessary files
+ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa .
+ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.cds.fasta .
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta .
+```
+
+
+```
+#!/bin/bash -e
+
+#SBATCH --job-name      asmgene
+#SBATCH --cpus-per-task 32
+#SBATCH --time          01:00:00
+#SBATCH --mem           256G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+## load modules
+module load minimap2
+
+## run minimap2 
+minimap2 -cxsplice:hq -t32 \
+    chm13v2.0.fa CHM13-T2T.cds.fasta \
     > ref.cdna.paf
-minimap2 -cxsplice:hq -t[threads] \
-    [asm.fasta] GCF_009914755.1_T2T-CHM13v2.0_cds_from_genomic.fna \
+minimap2 -cxsplice:hq -t32 \
+    assembly.haplotype1.fasta CHM13-T2T.cds.fasta \
     > asm.cdna.paf
-k8 paftools.js asmgene [-a] [ref.cdna.paf] [asm.cdna.paf]
+```
+
+```
+sbatch -c32 --mem=256G --wrap="k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.cdna.paf > verkko.haplotype1.asmgene.tsv"
 ```
 
 Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your de novo genome assembly is for a species that does not have a reference genome yet. 
