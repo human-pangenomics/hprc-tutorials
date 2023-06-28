@@ -166,7 +166,7 @@ Verkko takes as an input what are called hapmer DBs. These are constructed from 
 
 In the venn diagram above, the maternal hapmer kmers/DB are on the left-hand side (in the purple in red box). The paternal hapmer kmers/DB are on the right-hand side (in the purple in blue box). 
 
-### Let's start by just familiarizing ourselves with Meryl's functionality...
+#### Let's start by just familiarizing ourselves with Meryl's functionality...
 
 **Create a directory**
 ```
@@ -330,3 +330,9 @@ We should also mention that there are other datatypes that can be used for phasi
 Pore-C is a variant of Hi-C which retains the chromatin conformation capture, but the sequencing is done on ONT. This allows long reads sequencing of concatemers. Where Hi-C typically has at most one "contact" per read, Pore-C can have many. The libraries also do not need to be amplified so Pore-C reads can carry base modification calls. 
 
 ### StrandSeq
+StrandSeq is a technique that creates sparse Illumina datasets that are both cell- and strand-specific. Cell specificity is achieved by putting one cell per well into 384 well plates (often multiple). Strand specificity is achieved through selective fragmentation of nascent strands. (During DNA replication, BrdU is incorporated exclusively into nascent DNA strands. In the library preparation the BrdU strand is fragmented and only the other strand amplifies.) This strand specificity gives another way to identify haplotype-specific kmers and use them during assembly phasing.
+
+If you are interested in these phasing approaches, you can read more about them in the following articles:
+> Lorig-Roach, Ryan, et al. "Phased nanopore assembly with Shasta and modular graph phasing with GFAse." bioRxiv (2023): 2023-02.
+
+> Porubsky, David, et al. "Fully phased human genome assembly without parental data using single-cell strand sequencing and long reads." Nature biotechnology 39.3 (2021): 302-308.
