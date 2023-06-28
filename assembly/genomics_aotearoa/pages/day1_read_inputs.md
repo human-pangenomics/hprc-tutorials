@@ -34,8 +34,14 @@ Let's get our hands on some data so we can see with our own eyes what HiFi and U
 
 **Create A Directory**
 ```
+cd ~/lra
 mkdir day1_data
 cd day1_data
+```
+**Load modules**
+```
+module load pigz/2.7
+module load NanoComp/1.20.0-gimkl-2022a-Python-3.10.5
 ```
 **Subset Our Input Data**<br>
 In order to get a feel for the data we only need a small portion of it. Pull the first few thousand reads and write them to new files.
@@ -153,28 +159,71 @@ Now you have "painted" all of the locations in the assembly with unique kmers. T
 
 Today we want to use Meryl in the context of creating databases from Illumina readsets.
 
-**You can create a kmer DB from an Illumina read set**
+**Create a directory**
 ```
+cd ~/lra
+mkdir day1_data/meryl
+cd day1_data/meryl
+```
+
+**Now create a small file to work with**
+```
+zcat /nesi/nobackup/nesi02659/LRA/resources/ilmn/pat/HG003_HiSeq30x_subsampled_R1.fastq.gz \
+    | head -n 20000000 \
+    | pigz > HG003_HiSeq30x_20M_reads_R1.fastq.gz &
+```    
+
+**Create a kmer DB from an Illumina read set**
+```
+module load Merqury/1.3-Miniconda3
+
 meryl count \
     compress \
     k=30 \
-    threads=XX \
-    memory=YY \
-    maternal.*fastq.gz \
-    output maternal_compress.k30.meryl
+    threads=4 \
+    memory=8 \
+    HG003_HiSeq30x_20M_reads_R1.fastq.gz \
+    output paternal_20M_compress.k30.meryl
 ```
+
+This should be pretty fast because we are just using a small amount of data to get a feel for the program. 
+
+**Meryl DBs for Assembly and QC**
+It should be noted that Meryl DBs used for assembly with Verkko and for base-level QC with Merqury are created differently. Here are the current recommendations for kmer size and compression:
+* Verkko: use `k=30` and the `compress` command.
+* Merqury: use `k=21` and do not include the `compress` command
+
+<details>
+    <summary>
+        <strong>Why does Verkko use compressed Meryl DBs while Merqury does not?</strong>
+    </summary>
+    The biggest error type from long read sequencing comes from homopolymer repeats. So assembly graphs are typically constructed from homopolymer compressed data. After the assembly graph is created the homopolymers are added back in. Verkko compresses the HiFi reads for you, but you need to give it homopolymer compressed Meryl DBs so they play nicely together. Merqury on the other hand is used to assess the quality of the resultant assembly, so you want to keep those homopolymers in order to find errors in them.
+</details>
+
+<details>
+    <summary>
+        <strong>Why does Merqury use k=21</strong>
+    </summary>
+    Larger K sizes give more conservative results, but this comes at a cost since you get lower effective coverage. For non-human species, if you know your genome size you can [estimate an optimal K using Meryl itself](https://github.com/marbl/merqury/wiki/1.-Prepare-meryl-dbs#1-get-the-right-k-size). If you are wondering, Verkko uses k=30 in order to be "conservative". And at the time of writing this document, different species typically stick with k=30. Though this hasn't been tested, so it may change in the future.
+</details>
 
 <details>
     <summary>
         <strong>Do Meryl DBs have to be created from Illumina data?</strong>
     </summary>
-    They don't! You can create a Meryl DB from HiFi data, for instance. The one caveat is that you want your input data to have a low error rate. So UL ONT data, for instance, wouldn't work.
+    They don't! You can create a Meryl DB from 10X data or HiFi data, for instance. The one caveat is that you want your input data to have a low error rate. So UL ONT data wouldn't work.
 </details>
 
 ## Hi-C
+Hi-C is a proximity ligation method. It takes intact chromatin and locks it in place, cuts up the DNA, ligates strands that are nearby and then makes libraries from them. It's easiest to just take a look at a cartoon of the process.
+![Hi-C Library Flow](https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/hi-c-flow-2.png?raw=true)
+
+Given that Hi-C is can be used for spatial genomics applicatios
 
 
 ## Other Datatypes
-We should also mention that there are other datatypes out there.
-* PoreC
+We should also mention that there are other datatypes that can be used for phasing, though they are less common.
+### Pore-C
+Pore-C is a variant of Hi-C which retains the chromatin conformation capture, but the sequencing is done on ONT. This allows long reads sequencing of concatemers. Where Hi-C typically has at most one "contact" per read, Pore-C can have many. The libraries also do not need to be amplified so Pore-C reads can carry base modification calls. 
+
 * StrandSeq

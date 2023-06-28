@@ -93,6 +93,35 @@ tar xvf \
 rm /nesi/nobackup/nesi02659/LRA/resources/meryl/*tar.gz
 
 ###############################################################################
+##                               Download Ilmn Data                           ##
+###############################################################################
+
+mkdir -p /nesi/nobackup/nesi02659/LRA/resources/ilmn/pat 
+mkdir -p /nesi/nobackup/nesi02659/LRA/resources/ilmn/mat
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/Illumina/parents/HG003/HG003_HiSeq30x_subsampled_R1.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/ilmn/pat/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/Illumina/parents/HG003/HG003_HiSeq30x_subsampled_R2.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/ilmn/pat/ &
+
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/Illumina/parents/HG004/HG004_HiSeq30x_subsampled_R1.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/ilmn/mat/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/Illumina/parents/HG004/HG004_HiSeq30x_subsampled_R2.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/ilmn/mat/ &
+
+
+###############################################################################
 ##                               Download HiC Data                           ##
 ###############################################################################
 

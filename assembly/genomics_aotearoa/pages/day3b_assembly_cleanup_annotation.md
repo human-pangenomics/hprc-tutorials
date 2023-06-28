@@ -38,9 +38,9 @@ python3 ./fcs.py \
 ```
 Now perform a full run
 ```
-
 cp /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta .
 ```
+
 ```
 nano fcs_full.sl
 ```
@@ -49,16 +49,17 @@ And paste in the following
 #!/bin/bash -e
 
 #SBATCH --account       nesi02659
-#SBATCH --job-name      test_verkko
-#SBATCH --cpus-per-task 8
+#SBATCH --job-name      test_fcs
+#SBATCH --cpus-per-task 24
 #SBATCH --time          03:00:00
-#SBATCH --mem           480G
+#SBATCH --mem           460G
 #SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
 #SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
 
 ## load modules
 module purge
-module load Singularity
+module load Python/3.7.3-gimkl-2018b
+module load Singularity/3.11.3
 export FCS_DEFAULT_IMAGE=/opt/nesi/containers/fcs/fcs-gx-0.4.0.sif
 
 python3 /home/juklucas/day3_qc/fcs/fcs.py \
@@ -66,7 +67,7 @@ python3 /home/juklucas/day3_qc/fcs/fcs.py \
     --fasta ./assembly.haplotype1.fasta \
     --out-dir ./asm_fcs_output \
     --gx-db /nesi/nobackup/nesi02659/LRA/resources/fcs/gxdb \
-    --tax-id 6973 
+    --tax-id 9606 
 ```
 Now execute the job
 ```
