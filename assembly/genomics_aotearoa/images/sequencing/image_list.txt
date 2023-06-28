@@ -9,3 +9,7 @@ HiFi-reads-img.svg
 hi-c-flow-2.png
 	Hi-C Library flow
 	From: https://www.activemotif.com/blog-hi-c	 (pulled 25 June 2023)
+
+meryl_venn.png	
+	kmer venn diagram
+	From: Rhie, Arang, et al. "Merqury: reference-free quality, completeness, and phasing assessment for genome assemblies." Genome biology 21.1 (2020): 1-27.
