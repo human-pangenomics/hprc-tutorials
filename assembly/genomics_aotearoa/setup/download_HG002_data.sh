@@ -208,7 +208,7 @@ mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic
 
 /home/juklucas/bin/aws \
     s3 --no-sign-request cp \
-    s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/hifiasm_v0.19.5/hic/HG002.hap1.fa.gz \
+    s3://human-pangenomics/submissions/53FEE631-4264-4627-8FB6-09D7364F4D3B--ASM-COMP/HG002/assemblies/hifiasm_v0.19.5/hic/HG002.hap2.fa.gz \
     /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic/
 
 ###############################################################################
@@ -217,7 +217,7 @@ mkdir -p /nesi/nobackup/nesi02659/LRA/resources/assemblies/hifiasm/full/hic
 
 mkdir -p /nesi/nobackup/nesi02659/LRA/resources/chm13/
 curl "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_genomic.gff.gz" -o "/nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.gff.gz"
-curl "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_cds_from_genomic.fna.gz" -o "CHM13-T2T.cds.fasta.gz"
+curl "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_cds_from_genomic.fna.gz" -o "/nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.cds.fasta.gz"
 
 /home/juklucas/bin/aws \
     s3 --no-sign-request cp \
