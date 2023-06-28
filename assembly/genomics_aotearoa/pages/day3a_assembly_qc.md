@@ -226,7 +226,7 @@ merqury.sh \
     ../paternal.k30.hapmer.meryl \
     ../maternal.k30.hapmer.meryl \
     ../assembly.haplotype1.fasta \
-    ../assembly.haploype2.fasta \
+    ../assembly.haplotype2.fasta \
     output
 
 cd -
