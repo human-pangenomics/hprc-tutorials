@@ -60,63 +60,75 @@ srun -c 8 gfastats assembly.haplotype1.fasta
     Previously, we submitted a script to the slurm cluster using the sbatch command and a `.sl` script file. You can also submit to the cluster using the `srun` command, which runs the given command as if it were a slurm script submission using the parameters fed to it, which in this case is `-c 8` as we are asking for 8 cores to help gfastats run faster. 
 </details>
 
-The results are a little boring since we only have 1 contig of about 2Mbp, but that lines up with what we expected since this was just a subset of chromosome 11. Note that the results for "scaffolds" and "contigs" are the same here -- that is because gfastats finds scaffolds as regions of known sequence linked by unnknown sequence (represented as N's). Since we only have uninterrupted contigs, those contigs are being reported as "scaffolds" too. Here the statistics look the same, but the statistics can be very different if you have additional scaffolding technology to join your contigs!
-
 
 **Run gfastats on a GFA**
 
-Remember that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats. Since we already know that the primary graph might look kind of uneventful from yesterday's time in Bandage, let's get the statistics for the raw unitig graph.
+Remember that the file we initially got was an assembly *graph* -- what if we wanted to know some graph-specitic stats about our assembly, such as number of nodes or disconnected components? We can also assess that using gfastats. 
 
 ```
-gfastats --discover-paths day2_assembly/hifiasm_test/test.bp.r_utg.gfa
+srun -c 8 gfastats --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/5-untip/unitig-normal-connected-tip.gfa
 ```
 
 <details>
     <summary>
         <strong>What's the `--discover-paths` flag for?</strong>
     </summary>    
-    gfastats tries to clearly distinguish contigs from segments, so it will not pick up on contigs in a GFA without paths defined (such as the GFA output from hifiasm). To get the contig stats as well as graph stats from these GFAs, you'll need to add the `--discover-paths` flag. 
+    gfastats tries to clearly distinguish contigs from segments, so it will not pick up on contigs in a GFA without paths defined. To get the contig stats as well as graph stats from these GFAs, you'll need to add the `--discover-paths` flag. 
 </details>
 
-Now that's more to work with! We can see that it is reporting the unitigs as contigs and we have the statistics such as N50 and auN here. Additionally, there's graph-specific statistics at the end of the output. Like we saw in Bandage, there are 44 segments with 122 edges connecting them. There are 0 disconnected components, so every node has some connection with another node, and only 4 dead ends, so most of the nodes have a connection on both their (+) and (-) end. 
+Check out the graph-specific statistics at the end of the output. 
 
 **Compare two graphs' stats**
 
-Now that we've familiarized ourselves with the output for one assembly, let's compare two assemblies and their statistics. Recall that yesterday we ran a small verkko assembly using HiFi and ONT data. We also looked at what the initial HiFi-resolved graph looked like in Bandage. Let's compare the two graphs statistically now, to try to understand how the ONT data integration improves upon the intial HiFi-only assembly. 
+compare hifi vs ont
 
 ```
-gfastats --discover-paths day2_assembly/verkko_test/assembly/1-buildGraph/hifi-resolved.gfa
-```
-
-You should see that this graph has three contigs (and nodes), while the HiFi+ONT graph we looked at yesterday had only one node. How else does it compare to the previous assembly? It can be hard to scroll back and forth between the results for two different assemblies, so let's use this one-liner that I like:
-
-```
-paste <(gfastats -t --discover-paths day2_assembly/verkko_test/assembly/1-buildGraph/hifi-resolved.gfa) <(gfastats -t --discover-paths day2_assembly/verkko_test/assembly/5-untip/unitig-normal-connected-tip.gfa | cut -f 2)
+paste <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/1-buildGraph/hifi-resolved.gfa) <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/5-untip/unitig-normal-connected-tip.gfa | cut -f 2)
 ```
 1. `paste` is a command that pastes two files side by side
 2. the `<(COMMAND)` syntax is called process substitution, and it passes the output of the command(s) inside the parentheses to another command (here it is passing the `gfastats` output to `paste`), and can be useful when using a pipe (|) might not be possible
 3. the `-t` flag in gfastats specifies that the output should be tab-delimited, which makes it more computer-parseable
-4. the `cut` command in the second gfastats is just getting the actual statistics column from the gfastats output, because the first column is the name of the statistic
+4. the `cut` command in the substitution is just getting the actual statistics column from the gfastats output, because the first column is the name of the statistic
 
 Your output should look something like this:
 ```
-# scaffolds     3       1
-Total scaffold length   3430242 3424280
-Average scaffold length 1143414.00      3424280.00
-Scaffold N50    3421198 3424280
-Scaffold auN    3412189.77      3424280.00
-Scaffold L50    1       1
-Largest scaffold        3421198 3424280
-Smallest scaffold       4518    3424280
+# contigs       68252   2312
+Total contig length     3858601893      4179275425
+Average contig length   56534.63        1807645.08
+Contig N50      223090  10829035
+Contig auN      638121.24       11407399.64
+Contig L50      4232    134
+Largest contig  23667669        38686347
+Smallest contig 1608    1987
+# gaps in scaffolds     0       0
+Total gap length in scaffolds   0       0
+Average gap length in scaffolds 0.00    0.00
+Gap N50 in scaffolds    0       0
+Gap auN in scaffolds    0.00    0.00
+Gap L50 in scaffolds    0       0
+Largest gap in scaffolds        0       0
+Smallest gap in scaffolds       0       0
+Base composition (A:C:G:T)      1089358958:840831652:838233402:1090177881       1180405407:909914907:908088683:1180866428
+GC content %    43.51   43.50
+# soft-masked bases     0       0
+# segments      68252   2312
+Total segment length    3858601893      4179275425
+Average segment length  56534.63        1807645.08
+# gaps  0       0
+# paths 68252   2312
+# edges 181274  5790
+Average degree  2.66    2.50
+# connected components  45      47
+Largest connected component length      496518810       530557693
+# dead ends     684     562
+# disconnected components       18      184
+Total length disconnected components    7267912 60717682
+# separated components  63      231
+# bubbles       4312    8
+# circular segments     31      11
 ```
 
-... where the first column is the stats from the HiFi-only assembly graph, and the second column is the stats from the HiFi+ONT assembly graph. That's interesting: the HiFi-only assembly has more contigs and a lower averange contig length, but the two assemblies have similiar N50 and auN values. Recall that the N50 value means that 50% of the assembly is in contigs of that length or longer, so we know that there is at least one very large contig in the HiFi-only assembly, but what do the other contigs look like? Let's query that by getting a BED file of the contigs for the HiFi-only assembly. 
-
-```
-gfastats -b contigs day2_assembly/verkko_test/assembly/1-buildGraph/hifi-resolved.gfa
-```
-
-Ah, so there is one very large (~3.4Mbp) node and two much smaller (~4Kbp) ones! 
+... where the first column is the stats from the HiFi-only assembly graph, and the second column is the stats from the HiFi+ONT assembly graph. 
 
 ## Correctness (QV using Merqury)
 
