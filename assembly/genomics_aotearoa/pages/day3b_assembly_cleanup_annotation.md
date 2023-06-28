@@ -291,21 +291,6 @@ liftoff \
     chm13.fa
 ```
 
-Then submit it as a job with `sbatch`:
-```
-sbatch -J liftoff -N1 -n1 -c8 --mem=20G -t 0-01:30 -A nesi02659 -o %x.%j.log liftoff.sh
-```
-
-<!-- OTHER POSSIBLE OPTIONS
-    -g chm13-annotations.gff
-    -u unmapped_features.txt
-    -m /path/to/minimap2-installation/bin/minimap2
-    -infer_genes -OR- -infer_transcripts # depending on what the chm13-annotations.gff looks like
-    -chroms chromosomes.csv
-    -unplaced unplaced_seq_names.txt
-    -copies # possibly with -sc 2 # diploid vs haploid assembly liftover
--->
-
 <details>
     <summary>
         <strong>What do each of these options do?</strong>
@@ -319,6 +304,21 @@ sbatch -J liftoff -N1 -n1 -c8 --mem=20G -t 0-01:30 -A nesi02659 -o %x.%j.log lif
     command to see all the options described in more detail:
     <pre><code>liftoff -h</code></pre>
 </details>
+
+<!-- OTHER POSSIBLE OPTIONS
+    -g chm13-annotations.gff
+    -u unmapped_features.txt
+    -m /path/to/minimap2-installation/bin/minimap2
+    -infer_genes -OR- -infer_transcripts # depending on what the chm13-annotations.gff looks like
+    -chroms chromosomes.csv
+    -unplaced unplaced_seq_names.txt
+    -copies # possibly with -sc 2 # diploid vs haploid assembly liftover
+-->
+
+Then submit it as a job with `sbatch`:
+```
+sbatch -J liftoff -N1 -n1 -c8 --mem=20G -t 0-01:30 -A nesi02659 -o %x.%j.log liftoff.sh
+```
 
 **Look at the output GFF3 file**
 
