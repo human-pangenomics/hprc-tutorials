@@ -210,13 +210,17 @@ meryl statistics \
 We see a lot of kmers missing and the histogram has a ton of counts at 1. This makes sense for a heavily downsampled dataset. Great. We just got a feel for how to use Meryl in general on subset data. Now let's actually take a look at how to create Meryl DBs for Verkko assemblies.
 
 **First some background**
-We will be using trio data for phasing. Verkko takes as an input what are called hapmer DBs. These are constructed from the kmers that a child inherits from one parent and not the other. These kmers are useful for phasing assemblies because if an assembler has two very similar sequences it can look for maternal-specific kmers and paternal-specific kmers and use those to determine which haplotype to assing to each sequence.
 
-![Meryl Venn Diagram](https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/meryl_venn.png?raw=true)
+We will be using trio data for phasing. Verkko takes as an input what are called hapmer DBs. These are constructed from the kmers that a child inherits from one parent and not the other. These kmers are useful for phasing assemblies because if an assembler has two very similar sequences it can look for maternal-specific kmers and paternal-specific kmers and use those to determine which haplotype to assign to each sequence.
+
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/meryl_venn.png?raw=true" width="350"/>
+</p>
 
 In the venn diagram above, the maternal hapmer kmers/DB are on the left-hand side (in the purple in red box). The paternal hapmer kmers/DB are on the right-hand side (in the purple in blue box).
 
 **Here is what the slurm script would look like:**
+
 (Don't run this, it is slow! We have made these for you already.
 ```
 #!/bin/bash -e
