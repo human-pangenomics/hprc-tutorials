@@ -164,7 +164,7 @@ That shouldn't take too long to run. Now we have a meryl DB for our HiFi reads. 
     <summary>
         <strong>How would you go about trying to do this with meryl?</strong>
     </summary>    
-    When you want to use a tool to do something (and you are decently confident that the tool can actually do it), then a good point to start is just querying the tool's manual or help dialogue. Try out `meryl --help` and see if there's a function that looks like it could generate the histogram we want. <strikethrough>spoiler alert: it's `meryl histogram read-db.meryl`</strikethrough>
+    When you want to use a tool to do something (and you are decently confident that the tool can actually do it), then a good point to start is just querying the tool's manual or help dialogue. Try out `meryl --help` and see if there's a function that looks like it could generate the histogram we want. <del>spoiler alert: it's `meryl histogram read-db.meryl`</del>
 </details>
 
 If you tried to run that command with the output straight to standard out (*i.e.*, your terminal screen), you'll see it's rather overwhelming and puts you all the way at the high, high coverage *k*-mer counts, which are only one occurance. Let's look at just the first 100 lines instead.
@@ -179,7 +179,7 @@ This is more manageable, and you can even kind of see the histogram forming from
     <summary>
         <strong>What if I want a pretty graph instead of imagining it?</strong>
     </summary>    
-    Good news -- there's <strikethrough>an app</strikethrough> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. 
+    Good news -- there's <del>an app</del> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. 
 </details>
 
 
