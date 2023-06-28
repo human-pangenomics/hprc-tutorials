@@ -1,5 +1,5 @@
 # Day 3a: Assembly Quality Control (QC)
-Now that we have understood our data types (day 1) and put them through an assembly algorithm (day 2), we have this file of A's, T's, C's, and G's, that's supposed to be our assembly. This file is supposed to represent a biological reality, so let's try to assess its quality through several lens, some biological and some more technical. One way to remember the ways we evaluate assemblies is by thinking about the "3C's": contiguity, correctness, and completeness.
+Now that we have understood our data types (day 1) and put them through an assembly algorithm (day 2), we have this file of A's, T's, C's, and G's that's supposed to be our assembly. This file is meant to represent a biological reality, so let's try to assess its quality through several lens, some biological and some more technical. One way to remember the ways we evaluate assemblies is by thinking about the "3C's": contiguity, correctness, and completeness.
 
 !!! question "Food for thought"
 ```
@@ -158,7 +158,32 @@ sbatch -c 8 --job-name=meryl --time=00:15:00 --mem=24G --wrap="meryl count k=30 
     Previously, we used the `sbatch` command to submit a slurm script to the cluster and the slurm job handler. The `sbatch` command can actually take a lot of parameters like the ones we included in the beginning of our script, and one of those parameters is `--wrap` which kind of wraps whatever command you give it in a slurm wrapper so that the cluster can schedule it as if it was a slurm script. 
 </details>
 
-That shouldn't take too long to run.
+That shouldn't take too long to run. Now we have a meryl DB for our HiFi reads. If we're curious about the distribution of our *k*-mers, we can use meryl generate a histogram of the counts to show us how often a *k*-mer occurs only once in the reads, twice, etc. 
+
+<details>
+    <summary>
+        <strong>How would you go about trying to do this with meryl?</strong>
+    </summary>    
+    When you want to use a tool to do something (and you are decently confident that the tool can actually do it), then a good point to start is just querying the tool's manual or help dialogue. Try out `meryl --help` and see if there's a function that looks like it could generate the histogram we want. <strikethrough>spoiler alert: it's `meryl histogram read-db.meryl`</strikethrough>
+</details>
+
+If you tried to run that command with the output straight to standard out (*i.e.*, your terminal screen), you'll see it's rather overwhelming and puts you all the way at the high, high coverage *k*-mer counts, which are only one occurance. Let's look at just the first 100 lines instead.
+
+```
+srun -c 8 meryl histogram read-db.meryl/ | head -n 100
+```
+
+This is more manageable, and you can even kind of see the histogram forming from the count values. There's a lot of *k*-mers that are present at only one copy (or otherwise very low copy) in the read set: these are usually sequencing errors, because there's a lot of these *k*-mers present at low copy. Because the sequence isn't actually real (*i.e.*, it isn't actually in the genome and isn't actually serving as sequencing template), these *k*-mers stay at low copy. After these error *k*-mers, there's a dip in the histogram until about the 24-28 copy range. This peak is the coverage of the actual *k*-mers coming from the genome that you sequenced, thus it corresponds to having coverage of ~26X in this read set. We only have one peak here because this is a haploid dataset, but if your dataset is diploid then expect two peaks with the first peak varying in height depending on heterozygosity of your sample. 
+
+<details>
+    <summary>
+        <strong>What if I want a pretty graph instead of imagining it?</strong>
+    </summary>    
+    Good news -- there's <strikethrough>an app</strikethrough> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. 
+</details>
+
+
+TRANSITION TO MERQURY
 
 Use your text editor of choice to make a slurm script (`run_merqury.sl`) to run the actual merqury program with the following contents:
 ```
@@ -232,18 +257,7 @@ merqury.sh \
 cd -
 ```
 
-
-```
-### if we want to run merqury with the paternal info too, I like looking at blob plots to understand phasing
-sbatch -c[cores] merqury.sh \
-    [readDB.meryl]          \
-    [pat hapmer DB]         \
-    [mat hapmer DB]         \
-    [asm.fasta]             \
-    [output]
-```
-
-** Switch errors **
+**Switch errors**
 
 ```
 #!/bin/bash -e
@@ -313,5 +327,5 @@ minimap2 -cxsplice:hq -t32 \
 sbatch -c32 --mem=256G --wrap="k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.cdna.paf > verkko.haplotype1.asmgene.tsv"
 ```
 
-Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your de novo genome assembly is for a species that does not have a reference genome yet. 
+Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your *de novo* genome assembly is for a species that does not have a reference genome yet. 
 
