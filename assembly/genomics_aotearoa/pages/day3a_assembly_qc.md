@@ -40,15 +40,25 @@ auN tries to capture the nature of this curve, instead of a value from an arbitr
 
 **Run gfastats on a FASTA**
 
-Let's get some basic statistics for our assembly using a tool called **gfastats**, which will output metrics such as N50, auN, total size, etc. We can try it out on that small hifiasm assembly we did earlier of some of chromosome 11. 
+Let's get some basic statistics for an assembly using a tool called **gfastats**, which will output metrics such as N50, auN, total size, etc. We can try it out on a verkko trio assembly of HG002 that's already been downloaded onto NeSI.
 
 ```
-## let's make sure we know where we put that test assembly, first
-ls day2_assembly/hifiasm_test
-## if you have the test.* outputs in there, then you're good to go!
+## let's symlink the file in a way that's easier to refer to
+mkdir -p day3_assembly_qc/gfastats
+cd day3_assembly_qc/gfastats
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.*.fasta .
+ls -la          # you should see a bunch of "files" that are actually symlinks pointing to their actual content
+## ready to roll!
 module load gfastats
-gfastats day2_assembly/hifiasm_test/test.p_ctg.fa
+srun -c 8 gfastats assembly.haplotype1.fasta
 ```
+
+<details>
+    <summary>
+        <strong>srun?</strong>
+    </summary>    
+    Previously, we submitted a script to the slurm cluster using the sbatch command and a `.sl` script file. You can also submit to the cluster using the `srun` command, which runs the given command as if it were a slurm script submission using the parameters fed to it, which in this case is `-c 8` as we are asking for 8 cores to help gfastats run faster. 
+</details>
 
 The results are a little boring since we only have 1 contig of about 2Mbp, but that lines up with what we expected since this was just a subset of chromosome 11. Note that the results for "scaffolds" and "contigs" are the same here -- that is because gfastats finds scaffolds as regions of known sequence linked by unnknown sequence (represented as N's). Since we only have uninterrupted contigs, those contigs are being reported as "scaffolds" too. Here the statistics look the same, but the statistics can be very different if you have additional scaffolding technology to join your contigs!
 
@@ -169,7 +179,10 @@ merqury.sh \
     Merqury as a package ships with a lot of scripts, especially for plotting. The `merqury.sh` command that we're using is calling those scripts, but we need to tell it where we installed Merqury. 
 </details>
 
-
+output.qv:
+```
+assembly	171	4655969	59.1213	1.22426e-06
+```
 
 
 ### if we want to run merqury with the paternal info too, I like looking at blob plots to understand phasing
@@ -181,7 +194,7 @@ sbatch -c[cores] merqury.sh \
     [output]
 ```
 
-If we have parental data, we can also evaluate for switch errors using yak..
+COMPARE HIC ASSEMBLY SWITCH ERRORS TO TRIO
 ```
 ## yak trioeval for switch errors
 yak trioeval -t [threads] \
@@ -189,6 +202,8 @@ yak trioeval -t [threads] \
     [asm.fasta]           \
     > trioeval.out
 ```
+
+sbatch -c 8 -p milan --account=nesi02659 --job-name=yak --time=00:15:00 --mem=24G --wrap="yak trioeval ../yak/pat.HG003.yak ../yak/mat.HG004.yak ../assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta > verkko.trio.hap1.trioveal"
 
 ## Completeness (gene content using asmgene)
 
