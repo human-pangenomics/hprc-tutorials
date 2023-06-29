@@ -2,7 +2,7 @@
 
 **Genome In A Bottle & HG002** 
 
-In this workshop we will be using data from HG002 which is a reference sample from the [Genome In A Bottle (GIAB)](https://www.nist.gov/programs-projects/genome-bottle) project. If you aren't familiar, the GIAB project releases benchmark data for genomic characterization. You may have seen their high confidence variant calls and regions out in the wild. As part of their benchmarking material generation they release datasets for their reference samples. We will be using those in this workshop.
+In this workshop we will be using data from HG002 which is a reference sample from the [Genome In A Bottle (GIAB)](https://www.nist.gov/programs-projects/genome-bottle) consortium. If you aren't familiar, the GIAB project releases benchmark data for genomic characterization. You may have seen their high confidence variant calls and regions out in the wild. As part of their benchmarking material generation they release datasets for their reference samples. We will be using those in this workshop.
 
 **Family Structure**
 
