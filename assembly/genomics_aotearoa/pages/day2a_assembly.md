@@ -234,3 +234,30 @@ Open the `assembly/1-buildGraph/hifi-resolved.gfa` file in Bandage. You will see
 
 Open the `assembly/5-untip/unitig-normal-connected-tip.gfa` file in Bandage. Now our three nodes have been resolved into one. 
 
+# Comparison of Runtime Parameters
+
+## Hifiasm
+
+Hifiasm is written as a binary file. You can run it the same on a VM in the cloud or in an HPC. 
+
+For a human sample with around 40X HiFi and 30X UL and either HiC or trio phasing Hifiasm can assemble with:
+* 64 cores
+* 240GB of memory (most samples will use less)
+* Around 24 hours of total runtime
+
+So Hifiasm takes about 1500 cpu hours to assemble this sample. On a cluster you can just execute the run command. If you are on a cloud and would like to take advantage of pre-emptible instances, you can break the run command into three parts (each take around 8 hours).
+
+
+## Verkko
+
+Verkko is a bit tougher to profile. It can be run on an HPC where it launches many different jobs (as we saw above). If the cluster is not too busy the run can finish in around a day. Most of the compute is done in the overlap and graph aligner jobs. So we can break the runtimes into steps that revolve around the big jobs. That looks something like this:
+
+| <sub>**Step**</sub> | <sub>**CPUs**</sub> | <sub>**Shards**</sub> | <sub>**Time/Shard (est)**</sub> |<sub>**Total CPU Hours**</sub> |
+| :-------- | :-------- | :------ | :------ | :------ |
+| <sub> pre overlap </sub> | <sub> 24 </sub> | <sub> 1 </sub> | <sub> 3 </sub> |<sub> 72 </sub> |
+| <sub> overlap </sub> | <sub> 8 </sub> | <sub> 600 </sub> | <sub> 1 </sub> |<sub> 4800 </sub> |
+| <sub> create graph </sub> | <sub> 80 </sub> | <sub> 1 </sub> | <sub> 13 </sub> |<sub> 1040 </sub> |
+| <sub> graph aligner </sub> | <sub> 12 </sub> | <sub> 100 </sub> | <sub> 2 </sub> |<sub> 2400 </sub> |
+| <sub> complete asm </sub> | <sub> 64 </sub> | <sub> 1 </sub> | <sub> 12 </sub> |<sub> 768 </sub> |
+
+This gives an estimate of around 9000 cpu hours for the same data as above. This is almost certainly an overestimate, but not by more than a factor of 2. 
