@@ -244,12 +244,12 @@ cd liftoff-annotation
 **Gather the necessary files**
 
 ```shell
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/CHM13-T2T.renamed.gff.gz chm13-annotations.gff.gz
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/CHM13-T2T.renamed.gff.liftoff.sqlite3 chm13-annotations.gff.liftoff.sqlite3
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/chm13v2.0.fa chm13.fa
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/chm13v2.0.fa.fai chm13.fa.fai
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa.fai
+ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.renamed.gff.gz chm13-annotations.gff.gz
+ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.renamed.gff.liftoff.sqlite3 chm13-annotations.gff.liftoff.sqlite3
+ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa chm13.fa
+ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa.fai chm13.fa.fai
+ln -s /nesi/nobackup/nesi02659/LRA/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa
+ln -s /nesi/nobackup/nesi02659/LRA/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa.fai
 ```
 
 <details>
