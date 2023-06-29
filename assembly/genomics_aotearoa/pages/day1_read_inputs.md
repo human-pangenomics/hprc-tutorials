@@ -1,3 +1,22 @@
+# Preamble: What Data Are We Using?
+
+**Genome In A Bottle & HG002** 
+
+In this workshop we will be using data from HG002 which is a reference sample from the [Genome In A Bottle (GIAB)](https://www.nist.gov/programs-projects/genome-bottle) project. If you aren't familiar, the GIAB project releases benchmark data for genomic characterization. You may have seen their high confidence variant calls and regions out in the wild. As part of their benchmarking material generation they release datasets for their reference samples. We will be using those in this workshop.
+
+**Family Structure**
+
+HG002 is actually part of a trio of reference samples. Below is the family listing:
+* HG002: Son
+* HG003: Father
+* HG004: Mother
+
+If you'd like to use data from any of the Ashkenazim trio, there is a set of [index files on the GIAB github](https://github.com/genome-in-a-bottle/giab_data_indexes).
+
+**There is an excellent HG002 assembly available**
+
+Since HG002 has so much data to compare against, it is pretty common for new technologies to benchmark on HG002 -- making even more HG002 data. It has grown into a data ecosystem. This is part of the reason that it was chosen the the T2T consortium as the target for one of it's next big pushes: a [high-quality diploid T2T genome](https://github.com/marbl/HG002). This assembly has been worked on by many leading people in the field. And while it is undergoing polishing and is talked about as a draft, it is gapless outside of rDNA arrays and is very good. This makes HG002 a very good sample for testing assembly processes. You can always go back and compare your results against the draft from the T2T consortium.
+
 # Graph Building: PacBio & ONT Data
 
 We are going to start by introducing the two long read sequencing technologies that we will be using: PacBio's HiFi and Oxford Nanopore's Ultralong. These two technologies are complementary and each have their own strengths leading. You can answer some questions more easily with HiFi and some more easily with ONT UL. They can also be used together and this is important for the concept of a hybrid assembly algorithm where accurate reads are used to create a draft assembly and long reads are used to extend that assembly. 
@@ -142,7 +161,7 @@ zcat LRA_ONTUL_1k_reads.50kb.fq.gz | wc -l
     <summary>
         <strong>Why do you think an assembler might want to include only reads over 50kb?</strong>
     </summary>
-    Answer
+    
 </details>
 
 # Phasing Data: Trio DBs and Hi-C
@@ -213,7 +232,7 @@ meryl statistics \
     | head -n 20
 ```
 
-We see a lot of kmers missing and the histogram has a ton of counts at 1. This makes sense for a heavily downsampled dataset. Great. We just got a feel for how to use Meryl in general on subset data. Now let's actually take a look at how to create Meryl DBs for Verkko assemblies.
+We see a lot of kmers missing and the histogram (frequency column) has a ton of counts at 1. This makes sense for a heavily downsampled dataset. Great. We just got a feel for how to use Meryl in general on subset data. Now let's actually take a look at how to create Meryl DBs for Verkko assemblies.
 
 #### How would we run Meryl for Verkko?
 
@@ -281,7 +300,7 @@ It should be noted that Meryl DBs used for assembly with Verkko and for base-lev
 
 <details>
     <summary>
-        <strong>Do Meryl DBs have to be created from Illumina data?</strong>
+        <strong>Do Meryl DBs have to be created from Illumina data? Could HiFi data be used an an input to Meryl?</strong>
     </summary>
     They don't! You can create a Meryl DB from 10X data or HiFi data, for instance. The one caveat is that you want your input data to have a low error rate. So UL ONT data wouldn't work.
 </details>
