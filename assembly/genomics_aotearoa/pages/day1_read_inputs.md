@@ -1,4 +1,55 @@
-# Preamble: What Data Are We Using?
+# Preamble: How Are Assemblies Created?
+
+We are about to start learning about the sequencing data types that are used in assembly, but it can be a bit hard to appreciate what these data types are without knowing how we will use them. In this section we will go over the rough outline of Verkko's approach to assembly. Hopefully this will help put the data types in context.
+
+Both Verkko and Hifiasm can use a variety of data sources:
+* PacBio HiFi: >10kbp, around 99.9% accuracty
+* Oxford Nanopore Ultralong: >100kb, around 97% accuracty
+* Phasing data from Hi-C or trio Illumina data
+
+PacBio HiFi data is required for both assemblers. Other data types are optional -- but they lead to much better assemblies. So let's jump ahead a bit and take a peak at how Verkko creates assemblies. It's ok if this is a bit confusing, we will come back to this in day 2.
+
+**PacBio HiFi is used to create the initial graph** 
+
+Verkko's first theoretical task is to create an assembly graph from HiFi data, but it has to prepare the HiFi reads first. HiFi data is less accurate in homopolymer repeats and microsattelites, so before creating an assembly graph, the reads are "compressed" in these regions:
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly/verkko_process_hifi_repeat_compr.png?raw=true" width="350"/>
+</p>
+
+The reads are then error corrected. You don't have to worry about how this works (just know that it is very computationally intensive). Once that is done, a graph is created from the HiFi reads:
+
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly/verkko_process_hifi_graph.png?raw=true" width="350"/>
+</p>
+
+If you aren't familiar with what an assembly graph is, that is also ok! The annoying thing is that there are different ways to make assembly graphs, but they all have the common feature of linking together reads by their overlaps. In this graph the boxes (also called nodes) represent sequences and the lines (also called edges) represent the relationship between those overlaps.
+
+Note that in the middle section the orange and blue lines represent the ONT reads aligned to the graph. 
+
+**Oxford Nanopore Data (which is long) helps simplify the graph**
+
+Using these alignments, nodes that are linked (or phased) by a read are combined. This "simplifies" the graph -- in other words, you get nice long nodes where you previously had shorter nodes. (Long nodes are good, they mean you have longer sequences that are assembled.)
+
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly/verkko_process_ont_resolved.png?raw=true" width="350"/>
+</p>
+
+**The graph can now be phased with Hi-C or trio data**
+
+By looking at the nodes and trying to find maternal-specific or paternal-specific sequences of DNA, the assembler phases nodes into maternal and paternal. Hi-C data does something very similar -- which we will learn about later.
+
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly/verkko_process_phasing.png?raw=true" width="350"/>
+</p>
+
+Finally the assembly graph can be converted into two haplotypes which are represented with maternal and paternal contigs.
+
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly/verkko_process_contigs.png?raw=true" width="350"/>
+</p>
+
+
+# More Preamble: What Data Are We Using?
 
 **Genome In A Bottle & HG002** 
 
