@@ -6,7 +6,10 @@
 
 This long read assembly workshop aims to work through an entire assembly workflow including data QC, assembly, and assembly QC.
 
-## Human Pangenome Reference Consortium
+## We Need More Human Genomes
+
+No single genome can represent the diversity in the human population. Using a single reference genome creates reference biases, adversely affecting variant discovery, gene–disease association studies and the accuracy of genetic analyses.
+
 
 <p align="center">
     <img src="https://s3-us-west-2.amazonaws.com/human-pangenomics/backup/logo-proof-full.png" width="450"/>
@@ -16,14 +19,14 @@ The Human Pangenome Reference Consortium (HPRC) is a project funded by the Natio
 
 ## Why Do Good Assemblies Matter?
 
-You can do things with assemblies that you can't with their constituant data. And the better the assembly, the more you can do. The figure below shows a region of the genome with medically relevant loci. The assemblies on the left which use older data and assembly methods can't resolve these loci while the assemblies on the right which use PacBio HiFi data and Hifiasm with trio phasing can.
+You can do things with assemblies that you can't with their constituant data. And the better the assembly, the more you can do. For example the figure below shows a region of the genome with medically relevant loci (Prader Willi) that has regions of long repeats (segmental duplications) that have high sequence similarity. The assemblies on the left which use older data and assembly methods can't resolve these loci while the assemblies on the right which use PacBio HiFi data and Hifiasm with trio phasing can.
 
 <p align="center">
     <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/intro/Porubsky_Gaps_Figure1D.png?raw=true" width="450"/>
 </p>
 
 
-In this workshop we will show you how to make assemblies just as good if not better than these assemblies.
+In this workshop we will show you how to make assemblies with PacBio hifi data, but we will add in ultralong oxford nanopore reads. The resultant assemblies will just as good if not better than the assemblies shown on the right.
 
 ## Assembly Workflows & Our Approach
 
