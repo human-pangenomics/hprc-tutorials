@@ -2,7 +2,7 @@ PAN027_bandage.png
 	Diploid Assembly Bandage
 	from: made from in-house data
 	
-Assembly_Workflow.png
+Assembly_Workflow.svg
 	Assembly workflow
 	from: made in lucid charts
 	

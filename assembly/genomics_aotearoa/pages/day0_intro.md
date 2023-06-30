@@ -30,7 +30,7 @@ In this workshop we will show you how to make assemblies just as good if not bet
 The approach we take in this workshop will reflect a normal assembly workflow.
 
 <p align="center">
-    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/intro/Assembly_Workflow.png?raw=true" width="650"/>
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/intro/Assembly_Workflow.svg?raw=true" width="750"/>
 </p>
 
 On day one we will learn about the type of data that goes into current assemblers. On day two we will use two of the most popular and powerful assemblers out right now. And on day three we will take a look at the assemblies to see how good they are and what we can do with them.
