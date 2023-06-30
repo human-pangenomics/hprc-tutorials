@@ -293,7 +293,13 @@ merqury.sh \
 cd -
 ```
 
-**Switch errors**
+**Switch and Hamming errors**
+
+Two more types of errors we use to assess assemblies are switch errors and Hamming errors. Hamming errors represent the percentage of SNPs wrongly phased (compared to ground truth), while switch errors represent the percentage of *adjacent* SNP pairs wrongly phased. See the following graphic:
+
+![switch errors](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/yak_switcherror.png)
+
+As the image illustrates, switch errors occur when an assembly *switches* between haplotypes. These errors are more prevalent in pseudohaplotype (*e.g.*, primary/alternate) assemblies that did not use any phasing data, as the assembler has no way of properly linking haplotype blocks, which can result in mixed hapmer content contigs that are a chimera of parental sequences. 
 
 ```
 #!/bin/bash -e
