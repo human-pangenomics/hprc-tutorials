@@ -136,9 +136,7 @@ Correctness refers to the base pair accuracy, and can be measured by comparing o
 
 ![QV formula](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/merqury_qvformula.png)
 
-*One important caveat to note*: this calculation uses HiFi *k*-mers to evaluate sequence derived from those same HiFi *k*-mers. This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly. 
-
-![fScoJap1 GenomeScope comparison HiFi vs. Illumina](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/genomescope_fScoJap1_HiFivsIllu.png)
+*One important caveat to note*: this calculation uses HiFi *k*-mers to evaluate sequence derived from those same HiFi *k*-mers. This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly.
 
 Merqury operates using *k*-mer databases like the ones we generated using meryl, so that's what we'll do now. 
 
@@ -205,7 +203,7 @@ Compare this to the previous examples. Does this look like a good dataset? Ignor
 
 ![xbAnaTube1 genomescope 2](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/genomescope_xbAnaTube1_good.png)
 
-Wow, more data! This result is from after adding one more (notably more successful) SMRT cell of HiFi data and re-running GenomeScope. We can see the resolultion of the peaks much more cleanly, and the GenomeScope model fits the data much better now, so we can trust the genome characteristic estimates here more than before. If you noted the comparatively small genome size and wondered what this was, it's *Anadara tuberculosa*, the piangua.
+Wow, more data! This result is from after adding one more (notably more successful) SMRT cell of HiFi data and re-running GenomeScope. We can see the resolution of the peaks much more cleanly, and the GenomeScope model fits the data much better now, so we can trust the genome characteristic estimates here more than before. If you noted the comparatively small genome size and wondered what this was, it's *Anadara tuberculosa*, the piangua.
 
 Now you might be wondering: what happens if I try to assemble data without enough coverage? Answer: a headache. The assembly that results from the dataset that made the first GenomeScope plot resulted in two haplotypes of over 3,000 contigs each, which is very fragmented for a genome this small, recapitulated by their auN values being ~0.5 Mbp. In comparison, an assembly with the dataset pictured in the second GenomeScope plot resulted in two haplotypes of 500-800 contigs with auN values of 3.6-3.9 Mbp! The improvement in contiguity can also be visualized in the Bandage plots:
 
