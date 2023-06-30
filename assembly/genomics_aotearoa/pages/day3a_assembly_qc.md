@@ -132,13 +132,13 @@ Total length disconnected components    7267912 60717682
 
 ## Correctness (QV using Merqury)
 
-Correctness refers to the base pair accuracy, and can be measured by comparing one's assembly to a gold standard reference genome. This approach is limited by 1) an assumption about the quality of the reference itself and the closeness between it and the assembly being compared, and 2) the need for a reference genome at all, which many species do not have (yet). To avoid this, we can use **Merqury**: a reference-free suite of tools for assessing assembly quality (particularly w.r.t. error rate) using *k*-mers and the read set that generated that assembly. If an assembly is made up from the same sequences that were in the sequencing reads, then we would not expect any sequences (*k*-mers) in the assembly that aren't present in the read set -- but we do find those sometimes, and those are what Merqury flags as error *k*-mers. It uses the following formula to calculate QV value: 
+Correctness refers to the base pair accuracy, and can be measured by comparing one's assembly to a gold standard reference genome. This approach is limited by 1) an assumption about the quality of the reference itself and the closeness between it and the assembly being compared, and 2) the need for a reference genome at all, which many species do not have (yet). To avoid this, we can use **Merqury**: a reference-free suite of tools for assessing assembly quality (particularly w.r.t. error rate) using *k*-mers and the read set that generated that assembly. If an assembly is made up from the same sequences that were in the sequencing reads, then we would not expect any sequences (*k*-mers) in the assembly that aren't present in the read set -- but we do find those sometimes, and those are what Merqury flags as error *k*-mers. **It uses the following formula to calculate QV value, which typically results in QVs of 50-60**: 
 
 ![QV formula](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/merqury_qvformula.png)
 
+*One important caveat to note*: this calculation uses HiFi *k*-mers to evaluate sequence derived from those same HiFi *k*-mers. This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly. 
 
-
-
+![fScoJap1 GenomeScope comparison HiFi vs. Illumina](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/genomescope_fScoJap1_HiFivsIllu.png)
 
 Merqury operates using *k*-mer databases like the ones we generated using meryl, so that's what we'll do now. 
 
@@ -184,7 +184,7 @@ This is more manageable, and you can even kind of see the histogram forming from
 
 What if I want a pretty graph instead of imagining it? Good news -- there's <del>an app</del> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. Let's try it out! Download the `read-db.hist` file and throw it into the GenomeScope website: http://qb.cshl.edu/genomescope/genomescope2.0/ and adjust the parameters accordingly.
 
-**Can I use GenomeScope to QC my raw data before assembly?**
+**Can I use GenomeScope to QC my raw data before assembly?** (hi Dini I think maybe this section can be a large detail drop down? I'm not sure if it breaks the flow of the tutorial)
 
 As you can see here, GenomeScope can be useful for getting an idea of what your raw dataset looks like, as well as feeling out the genome that should be represented by those sequencing reads. This can be useful as a QC step before even running the assembly, to make sure that your dataset is good enough to use. Here's an example of a good diploid dataset of HiFi reads:
 
@@ -323,8 +323,6 @@ yak trioeval -t 32 \
     > hifiasm.trio.mat.trioeval
 ```
 
-**Note about orthogonal datasets for QV**
-
 
 ## Completeness (gene content using asmgene)
 
@@ -367,3 +365,4 @@ sbatch -c32 --mem=256G --wrap="k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-
 
 Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your *de novo* genome assembly is for a species that does not have a reference genome yet. 
 
+now it's even faster with minibusco!
