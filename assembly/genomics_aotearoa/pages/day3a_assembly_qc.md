@@ -136,9 +136,9 @@ Correctness refers to the base pair accuracy, and can be measured by comparing o
 
 **Merqury** is a reference-free suite of tools for assessing assembly quality using *k*-mers and the read set that generated that assembly. 
 
-**Running Merqury on the yeast verkko assembly**
+**Running Merqury on the *E. coli* verkko assembly**
 
-Let's try this out on the yeast verkko assembly. First we need a meryl database, so let's generate that 
+Let's try this out on the *E. coli* verkko assembly. First we need a meryl database, so let's generate that 
 ```
 cd ~
 mkdir -p day3_assembly_qc/merqury
