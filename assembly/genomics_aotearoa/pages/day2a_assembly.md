@@ -1,6 +1,17 @@
+# Day 2: Assembly
+
+Here is a rundown of what we are doing today:
+* Run Hifiasm with test data (HiFi only)
+* Run Verkko with test data (HiFi + ONT)
+* See how to run both with full datasets
+* Compare the two assemblers
+* Talk about how much data we need 
+
+At the end of the day you will hopefully have a feel for how to actually run each assembler, what data to give them, and when to choose one over the other.
 
 # Playing With Test Data
 Running assemblers is very computationally intensive and the output files can be big. Let's not jump straight into assembling human genomes. Instead we can use the test data that both assemblers provide as a way to both ensure that we know how to run the tool (which is easy) and we can start to get a feel for the process and outputs in real life. 
+
 ## Run Hifiasm With Test Data
 
 **Create A Directory**
