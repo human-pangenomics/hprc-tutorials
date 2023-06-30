@@ -1,7 +1,7 @@
 # Long Read Assembly Workshop
 
 <p align="center">
-    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/intro/PAN027_bandage.png?raw=true" width="250"/>
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/intro/HG002_bandage.png?raw=true" width="250"/>
 </p>
 
 This long read assembly workshop aims to work through an entire assembly workflow including data QC, assembly, and assembly QC.
