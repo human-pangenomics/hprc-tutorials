@@ -328,9 +328,7 @@ yak trioeval -t 32 \
 ## Completeness (asmgene)
 Another way to assess an assembly is via **completeness**, particularly with regard to expected gene content. If you have a reference genome that's been annotated with coding sequences, then you can use the tool *asmgene* to align multi-copy genes to your assembly and see if they remain multi-copy, or if the assembler has created a misassembly. asmgene works by aligning annotated transcripts to the reference genome, and record hits if the transcript is mapped at or over 99% identity over 99% or greater of the transcript length. If the transcript only has one hit, then it is single-copy (SC), otherwise it's multi-copy (MC). The same is then done for your assembly, and the fraction of missing multi-copy (%MMC) gene content is computed. 
 
-
 A perfect asesmbly would have %MMC be zero, while a higher fraction indicates the assembly has collapsed some of these multi-copy genes.
-
 
 ```
 ## asmgene
@@ -342,6 +340,7 @@ ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.cds.fasta .
 ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta .
 ```
 
+Now that we have our files
 
 ```
 #!/bin/bash -e
