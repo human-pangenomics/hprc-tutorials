@@ -170,18 +170,13 @@ That shouldn't take too long to run. Now we have a meryl DB for our HiFi reads. 
 If you tried to run that command with the output straight to standard out (*i.e.*, your terminal screen), you'll see it's rather overwhelming and puts you all the way at the high, high coverage *k*-mer counts, which are only one occurance. Let's look at just the first 100 lines instead.
 
 ```
-srun -c 8 meryl histogram read-db.meryl > read-db.meryl
-head -n 100 read-db.meryl
+srun -c 8 meryl histogram read-db.meryl > read-db.hist
+head -n 100 read-db.hist
 ```
 
 This is more manageable, and you can even kind of see the histogram forming from the count values. There's a lot of *k*-mers that are present at only one copy (or otherwise very low copy) in the read set: these are usually sequencing errors, because there's a lot of these *k*-mers present at low copy. Because the sequence isn't actually real (*i.e.*, it isn't actually in the genome and isn't actually serving as sequencing template), these *k*-mers stay at low copy. After these error *k*-mers, there's a dip in the histogram until about the 24-28 copy range. This peak is the coverage of the actual *k*-mers coming from the genome that you sequenced, thus it corresponds to having coverage of ~26X in this read set. We only have one peak here because this is a haploid dataset, but if your dataset is diploid then expect two peaks with the first peak varying in height depending on heterozygosity of your sample. 
 
-<details>
-    <summary>
-        <strong>DROPDOWN NOTE: What if I want a pretty graph instead of imagining it?</strong>
-    </summary>    
-    Good news -- there's <del>an app</del> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. 
-</details>
+What if I want a pretty graph instead of imagining it? Good news -- there's <del>an app</del> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. Let's try it out! Download the `read-db.hist` file and throw it into the GenomeScope website: http://qb.cshl.edu/genomescope/genomescope2.0/ and adjust the parameters accordingly.
 
 
 TRANSITION TO MERQURY
