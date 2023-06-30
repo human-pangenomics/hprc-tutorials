@@ -138,6 +138,17 @@ Correctness refers to the base pair accuracy, and can be measured by comparing o
 
 *One important caveat to note*: this calculation uses HiFi *k*-mers to evaluate sequence derived from those same HiFi *k*-mers. This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly. In my experience with non-human vertebrates, this often results in the QV dropping from 50-60 to 35-45, depending on the genome in question. 
 
+<details>
+    <summary>
+        <strong>DROPDOWN NOTE: OK, but what does 'QV' mean, anyway?</strong>
+    </summary>    
+    The QV that Merqury is interpreted similarly to the commonly used Phred quality scale, which might be familiar to those who have done short-read sequencing or are otherwise acquainted with FASTQ files. Phred quality scores are logarithmically related to error-probability, such that:
+    - Phred score of 30 represents a 1 in 1,000 error probability (*i.e.*, 99.9% accuracy)
+    - Phred score of 40 represents a 1 in 10,000 error probability (*i.e.*, 99.99% accuracy)
+    - Phred score of 50 represents a 1 in 100,000 error probability (*i.e.*, 99.999% accuracy)
+    - Phred score of 60 represents a 1 in 1,000,000 error probability (*i.e.*, 99.9999% accuracy)
+</details>
+
 Merqury operates using *k*-mer databases like the ones we generated using meryl, so that's what we'll do now. 
 
 **Running Meryl and GenomeScope on the *E. coli* verkko assembly**
@@ -324,7 +335,6 @@ yak trioeval -t 32 \
     > hifiasm.trio.mat.trioeval
 ```
 
-
 ## Completeness (asmgene)
 Another way to assess an assembly is via **completeness**, particularly with regard to expected gene content. If you have a reference genome that's been annotated with coding sequences, then you can use the tool *asmgene* to align multi-copy genes to your assembly and see if they remain multi-copy, or if the assembler has created a misassembly. asmgene works by aligning annotated transcripts to the reference genome, and record hits if the transcript is mapped at or over 99% identity over 99% or greater of the transcript length. If the transcript only has one hit, then it is single-copy (SC), otherwise it's multi-copy (MC). The same is then done for your assembly, and the fraction of missing multi-copy (%MMC) gene content is computed. 
 
@@ -377,6 +387,4 @@ k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene 
 k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.hap2.cdna.paf > verkko.haplotype2.asmgene.tsv
 ```
 
-Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your *de novo* genome assembly is for a species that does not have a reference genome yet. 
-
-now it's even faster with minibusco!
+Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your *de novo* genome assembly is for a species that does not have a reference genome yet. And it's even faster now with the recently developed tool *minibusco*!
