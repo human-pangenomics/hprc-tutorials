@@ -1,0 +1,19 @@
+bandage_xbAnaTube1_bad.png
+    bandage visualization of hifiasm raw unitig graph for Anadara tuberculosa assembly with poor HiFi coverage
+bandage_xbAnaTube1_good.png
+    bandage visualization of hifiasm raw unitig graph for Anadara tuberculosa assembly with good HiFi coverage
+genomescope_mMicPen1.png
+    genomescope output for Microtus pennsylvaticus HiFi data
+genomescope_xbAnaTube1_bad.png
+    genomescope output for Microtus pennsylvaticus HiFi data with poor coverage
+genomescope_xbAnaTube1_good.png
+    genomescope output for Microtus pennsylvaticus HiFi data with good coverage
+N50.png
+    illustration of how to calculate N50
+    adapted from Elin Videvall at The Molecular Ecologist
+NGx_plot.png
+    illustration of multiple assemblies' NGx curves to show that they all have the same N50 value despite being wildly different
+    adapted from Heng Li's blog, which in turn adapted it from a NIBS workshop
+yak_switcherror.png
+    illustration of switch error
+    adapted from Heng Li's blog

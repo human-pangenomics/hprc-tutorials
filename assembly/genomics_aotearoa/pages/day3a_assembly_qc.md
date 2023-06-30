@@ -132,9 +132,15 @@ Total length disconnected components    7267912 60717682
 
 ## Correctness (QV using Merqury)
 
-Correctness refers to the base pair accuracy, and can be measured by comparing one's assembly to a gold standard reference genome. This approach is limited by 1) an assumption about the quality of the reference itself and the closeness between it and the assembly being compared, and 2) the need for a reference genome at all, which many species do not have (yet). 
+Correctness refers to the base pair accuracy, and can be measured by comparing one's assembly to a gold standard reference genome. This approach is limited by 1) an assumption about the quality of the reference itself and the closeness between it and the assembly being compared, and 2) the need for a reference genome at all, which many species do not have (yet). To avoid this, we can use **Merqury**: a reference-free suite of tools for assessing assembly quality (particularly w.r.t. error rate) using *k*-mers and the read set that generated that assembly. If an assembly is made up from the same sequences that were in the sequencing reads, then we would not expect any sequences (*k*-mers) in the assembly that aren't present in the read set -- but we do find those sometimes, and those are what Merqury flags as error *k*-mers. It uses the following formula to calculate QV value: 
 
-**Merqury** is a reference-free suite of tools for assessing assembly quality using *k*-mers and the read set that generated that assembly. 
+![QV formula](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/merqury_qvformula.png)
+
+
+
+
+
+Merqury operates using *k*-mer databases like the ones we generated using meryl, so that's what we'll do now. 
 
 **Running Meryl and GenomeScope on the *E. coli* verkko assembly**
 
@@ -210,6 +216,10 @@ The above is the hifiasm unitig graph for the assembly done without good HiFi co
 ![xbAnaTube1 bandage 2](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/bandage_xbAnaTube1_good.png)
 
 The above is the hifiasm unitig graph for the assembly done with good (~56X) HiFi coverage.
+
+**OK cool, now back to Merqury**
+
+
 
 TRANSITION TO MERQURY
 
