@@ -2,11 +2,11 @@
 
 **Genome In A Bottle & HG002** 
 
-In this workshop we will be using data from HG002 which is a reference sample from the [Genome In A Bottle (GIAB)](https://www.nist.gov/programs-projects/genome-bottle) consortium. If you aren't familiar, the GIAB project releases benchmark data for genomic characterization. You may have seen their benchmark variant calls and regions out in the wild. As part of their benchmarking material generation they release datasets for their reference samples. We will be using those in this workshop.
+In this workshop we will be using data from HG002, which is a reference sample from the [Genome In A Bottle (GIAB)](https://www.nist.gov/programs-projects/genome-bottle) consortium. The GIAB project releases benchmark data for genomic characterization, and you may have seen their benchmark variant calls and regions out in the wild. As part of their benchmarking material generation, they release datasets for their reference samples. We will be using those in this workshop.
 
 **Family Structure**
 
-HG002 is actually part of a trio of reference samples. Below is the family listing:
+HG002 is actually part of a trio of reference samples. Below is the family listing, also known as the Ashkenazim trio:
 * HG002: Son
 * HG003: Father
 * HG004: Mother
@@ -15,38 +15,35 @@ If you'd like to use data from any of the Ashkenazim trio, there is a set of [in
 
 **There is an excellent HG002 assembly available**
 
-Since HG002 has so much data to compare against, it is pretty common for new technologies to benchmark on HG002 -- making even more HG002 data. It has grown into a data ecosystem. This is part of the reason that it was chosen the the T2T consortium as the target for one of it's next big pushes: a [high-quality diploid T2T genome](https://github.com/marbl/HG002). This assembly has been worked on by many leading people in the field. And while it is undergoing polishing and is talked about as a draft, it is gapless outside of rDNA arrays and is very good. This makes HG002 a very good sample for testing assembly processes. You can always go back and compare your results against the draft from the T2T consortium.
+Since HG002 has so much data to compare against, it is pretty common for new technologies to benchmark on HG002 -- making even more HG002 data. It has grown into a data ecosystem. This is part of the reason why it was chosen for the T2T consortium as the target for one of its next big pushes: a [high-quality diploid T2T genome](https://github.com/marbl/HG002). This assembly has been worked on by many leading people in the field. And while it is undergoing polishing and is talked about as a draft, it is gapless outside of rDNA arrays and is very good. This makes HG002 a very good sample for testing assembly processes. You can always go back and compare your results against the draft from the T2T consortium.
 
 # Graph Building: PacBio & ONT Data
 
-We are going to start by introducing the two long read sequencing technologies that we will be using: PacBio's HiFi and Oxford Nanopore's Ultralong. These two technologies are complementary and each have their own strengths leading. You can answer some questions more easily with HiFi and some more easily with ONT UL. They can also be used together and this is important for the concept of a hybrid assembly algorithm where accurate reads are used to create a draft assembly and long reads are used to extend that assembly. 
+We are going to start by introducing the two long read sequencing technologies that we will be using: PacBio's HiFi and Oxford Nanopore's Ultralong. These two technologies are complementary and each have their own strengths. You can answer some questions more easily with HiFi and some more easily with ONT UL. They can also be used together, and this is important for the concept of a hybrid assembly algorithm where accurate reads are used to create a draft assembly and long reads are used to extend that assembly. 
 
-In this section we will learn about both technologies then we create plots showing their characteristic read lengths and qualities. This will help us get a feel for what the data actually looks like in the wild. Lastly we will prepare this data for use in our assembly section.
-
-This section is important because as someone who is about to make an assembly you have the most control over what type of data you put into the assembly algorithm. The more you know about the data, the better your assembly will be.
+In this section, we will learn about both technologies and then create plots showing their characteristic read lengths and qualities. This will help us get a feel for what the data actually looks like in the wild. Lastly, we will prepare this data for use in our assembly section. As someone who is about to make an assembly, you have the most control over what type of data you put into the assembly algorithm. The more you know about the data, the better your assembly will be.
 
 
 ## PacBio Hifi: Illumina-Like Quality With Long Reads
 **What is PacBio HiFi**
-Pacbio's high fidelity (or HiFi) reads are long (~15kb) and accurate (~99.9%). PacBio produces such high quality reads (with their single-molecule real-time, or SMRT, sequencing) by reading the same sequence over and over again in order to create a circular consensus sequence (or CCS) as shown below. 
+PacBio's high fidelity (or HiFi) reads are long (~15kb) and accurate (~99.9%). PacBio produces such high quality reads (with their single-molecule real-time, or SMRT, sequencing) by reading the same sequence over and over again in order to create a circular consensus sequence (or CCS) as shown below. 
 
 **PacBio's CCS Process**
 ![PacBio CCS Process](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/sequencing/HiFi-reads-img.svg)
 
-Long, highly accurate reads allows for a number of analyses that were difficult or impossible in the context of short reads. For instance, variants can be more easily phased as you can just look for variants that are seen in the same sequencing read. In our context, long accurate reads allow assembly algorithms to build assembly graphs across difficult regions. But it turns out that HiFi reads aren't long enough to span exact repeats in regions like human centromeres.
+Long, highly accurate reads allows for a number of analyses that were difficult or impossible in the context of short reads. For instance, variants can be more easily phased as you can just look for variants that are seen in the same sequencing read since HiFi read lengths span much more than short read lengths. In our context, long accurate reads allow assembly algorithms to build assembly graphs across difficult regions. But it turns out that HiFi reads aren't long enough to span exact repeats in regions like human centromeres.
 
 ## ONT Ultralong: Lower Quality But Really Long Reads
-Oxford Nanopore's ultralong (UL) sequencing has lower accuracy (~97%), but is really long (even longer than normal ONT). This is achieved though a different library prep -- as compared to normal DNA sequencing with ONT. UL library prep uses a transposase to cut DNA at non specific sites where it can then be adapted for sequencing. 
+Oxford Nanopore's ultralong (UL) sequencing has lower accuracy (~97%), but is really long (even longer than normal ONT). This is achieved though a different library prep -- as compared to normal DNA sequencing with ONT. UL library prep uses a transposase to cut DNA at non-specific sites where it can then be adapted for sequencing. 
 
 **ONT Ultralong Library Prep**
 <p align="center">
     <img src="https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/sequencing/ULK114_workflow_V1-3.svg" width="350"/>
 </p>
 
+The time, transposase amount, and temperature are all factors that affect transposase activity. The more you cut, the shorter the reads. ONT's standard DNA library prep, on the other hand, shears DNA then ligates adapters. (If you've created DNA libraries using Illumina's TruSeq kits, then you get the idea.)
 
-The time, transposase amount, and temperature are all factors that effect transposase activity. The more you cut, the shorter the reads. ONT's standard DNA library prep, on the other hand, shears DNA then ligates adapters. (If you've created DNA libraries using Illumina's TruSeq kits, then you get the idea.)
-
-These UL reads, while less accurate than HiFi, span tricky regions making UL and HiFi data highly complementary, especially in the context of denovo assembly, as we will see.
+These UL reads, while less accurate than HiFi, span tricky regions, which makes UL and HiFi data highly complementary, especially in the context of *de novo* assembly, as we will soon see.
 
 ## Familiarize Ourselves With The Data
 Let's get our hands on some data so we can see with our own eyes what HiFi and UL data look like.
@@ -63,13 +60,13 @@ module load pigz/2.7
 module load NanoComp/1.20.0-gimkl-2022a-Python-3.10.5
 ```
 **Subset Our Input Data**<br>
-In order to get a feel for the data we only need a small portion of it. Pull the first few thousand reads and write them to new files.
+In order to get a feel for the data, we only need a small portion of it. Pull the first few thousand reads of the HiFi reads and write them to new files.
 ```
 zcat /nesi/nobackup/nesi02659/LRA/resources/LRA_hifi.fq.gz \
     | head -n 200000 \
     | pigz > LRA_hifi_50k_reads.fq.gz &
 ```
-Also downsample the UL reads
+Next, downsample the ONT UL reads, too.
 ```
 zcat /nesi/nobackup/nesi02659/LRA/resources/LRA_ONTUL.fq.gz \
     | head -n 4000 \
@@ -91,7 +88,7 @@ Once the run is complete, navigate in your file browser to the NanoComp-report.h
     <summary>
         <strong>What is the range of Q-scores seen in HiFi data?</strong>
     </summary>
-    While most HiFi data is Q30, there is a spread. The CCS process actually produces different data based on a number of different factors including the number of times a molecule is read (also called subread passes). Raw CCS data is usually filtered for >Q20 reads at which point it is by convention called HiFi. (Note that some people use CCS data below Q20!)
+    While most HiFi data is Q30, there is a spread. The CCS process actually produces different data based on a number of different factors, including the number of times a molecule is read (also called subread passes). Raw CCS data is usually filtered for >Q20 reads at which point it is by convention called HiFi. (Note that some people use CCS data below Q20!)
 </details>
 
 <details>
@@ -103,10 +100,9 @@ Once the run is complete, navigate in your file browser to the NanoComp-report.h
 
 # Cleaning Data For Assembly
 ## PacBio Adapter Trimming
-PacBio's CCS software attempts to identify adapters and remove them. This process is getting better all the time, but some datasets (especially older ones) can have adapters remaining. If this is the case adapters can find their way into the assemblies. 
+PacBio's CCS software attempts to identify adapters and remove them. This process is getting better all the time, but some datasets (especially older ones) can have adapters remaining. If this is the case, adapters can find their way into the assemblies. 
 
-Run CutAdapt to check for adapter sequences**
- in the downsampled data that we are currently using. (The results will print to stdout on your terminal screen.)
+Run CutAdapt to check for adapter sequences in the downsampled data that we are currently using. (The results will print to stdout on your terminal screen.)
 ```
 module load cutadapt/4.1-gimkl-2022a-Python-3.10.5
 
@@ -120,7 +116,7 @@ cutadapt \
     --revcomp \
     -e 0.05
 ```
-Notice that we are writing output to `/dev/null`. We are working on a subset of these reads so the runtime is reasonable. There is no need to hold onto the reads that we are filtering on just a subset of the data.
+Notice that we are writing output to `/dev/null`. We are working on a subset of these reads so the runtime is reasonable. There is no need to hold onto the reads that we are filtering on, just a subset of the data.
 
 <details>
     <summary>
@@ -140,7 +136,7 @@ Notice that we are writing output to `/dev/null`. We are working on a subset of 
     <summary>
         <strong>What would happen if we left adapter sequences in the reads?</strong>
     </summary>
-    If there are enough adapters present, you can get entire contigs comprised of adapters. This is not the worst, actually because they are easy to identify and remove wholesale. It is trickier (and this happens more often) when adapter sequences end up embedded in the final assemblies. If/when you upload assemblies to repositories like Genbank they check for these adapters and force you to mask them out with N's. This is confusing to users because it is common to use N's to signify gaps in scaffolded assemblies. So users don't know if they are looking at a scaffolded assembly or masked out sequence.
+    If there are enough adapters present, you can get entire contigs comprised of adapters. This is not the worst, actually, because they are easy to identify and remove wholesale. It is trickier (and this happens more often) when adapter sequences end up embedded in the final assemblies. If/when you upload assemblies to repositories like Genbank they check for these adapters and force you to mask them out with N's. This is confusing to users because it is common to use N's to signify gaps in scaffolded assemblies. So users don't know if they are looking at a scaffolded assembly or masked out sequence.
 </details>
 
 
@@ -152,7 +148,7 @@ seqkit seq \
     LRA_ONTUL_1k_reads.fq.gz \
     | pigz > LRA_ONTUL_1k_reads.50kb.fq.gz &
 ```
-Now we can quickly check how many reads are retained
+Now we can quickly check how many reads are retained.
 ```
 zcat LRA_ONTUL_1k_reads.50kb.fq.gz | wc -l
 ```
@@ -168,16 +164,16 @@ zcat LRA_ONTUL_1k_reads.50kb.fq.gz | wc -l
 Now that we've introduced the data that creates the graphs, it's time to talk about data types that can phase them in order to produce fully phased diploid assemblies (in the case of human assemblies). 
 
 ## Trio Data
-At the moment the easiest and most effective way to phase human assemblies is with trio information. Meaning you sequence a sample, then you also sequence its parents. You then look at which parts of the genome the sample inherited from one parent and not the other. This is done with kmer DBs. In our case with either Meryl (for Verkko) or YAK (for Hifiasm) so let's take a moment to learn about kmer DBs.
+At the moment the easiest and most effective way to phase human assemblies is with trio information. Meaning you sequence a sample, and then you also sequence its parents. You then look at which parts of the genome the sample inherited from one parent and not the other. This is done with kmer databases (DBs). In our case, we will use both Meryl (for Verkko) and yak (for hifiasm) so let's take a moment to learn about kmer DBs.
 
 ### Meryl
-[Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. It creates kmer databases (DBs) but it is also a toolset that you can use for finding kmers and manipulating kmer count sets. Meryl is to kmers what BedTools is to genomic regions.
+[Meryl](https://github.com/marbl/meryl) is a kmer counter that dates back to Celera. It creates kmer DBs, but it is also a toolset that you can use for finding kmers and manipulating kmer count sets. Meryl is to kmers what BedTools is to genomic regions.
 
 Today we want to use Meryl in the context of creating databases from PCR-free Illumina readsets. These can be used both during the assembly process and during the post-assembly QC. 
 
 **Some background on assembly phasing with trios**
 
-Verkko takes as an input what are called hapmer DBs. These are constructed from the kmers that a child inherits from one parent and not the other. These kmers are useful for phasing assemblies because if an assembler has two very similar sequences it can look for maternal-specific kmers and paternal-specific kmers and use those to determine which haplotype to assign to each sequence.
+Verkko takes as an input what are called hapmer DBs. These are constructed from the kmers that a child inherits from one parent and not the other. These kmers are useful for phasing assemblies because if an assembler has two very similar sequences, it can look for maternal-specific kmers and paternal-specific kmers and use those to determine which haplotype to assign to each sequence.
 
 <p align="center">
     <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/meryl_venn.png?raw=true" width="350"/>
@@ -293,7 +289,7 @@ It should be noted that Meryl DBs used for assembly with Verkko and for base-lev
 
 <details>
     <summary>
-        <strong>Why does Merqury use k=21</strong>
+        <strong>Why does Merqury use k=21?</strong>
     </summary>
     Larger K sizes give more conservative results, but this comes at a cost since you get lower effective coverage. For non-human species, if you know your genome size you can [estimate an optimal K using Meryl itself](https://github.com/marbl/merqury/wiki/1.-Prepare-meryl-dbs#1-get-the-right-k-size). If you are wondering, Verkko uses k=30 in order to be "conservative". And at the time of writing this document, different species typically stick with k=30. Though this hasn't been tested, so it may change in the future.
 </details>
@@ -317,7 +313,7 @@ Now you have "painted" all of the locations in the assembly with unique kmers. T
 Hi-C is a proximity ligation method. It takes intact chromatin and locks it in place, cuts up the DNA, ligates strands that are nearby and then makes libraries from them. It's easiest to just take a look at a cartoon of the process.
 ![Hi-C Library Flow](https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/sequencing/hi-c-flow-2.png?raw=true)
 
-Given that Hi-C ligating molecules that are nearby it can be used for spatial genomics applications. In assembly we take advantage of the fact that most nearby molecules are on the same strand (or haplotype) of DNA. 
+Given that Hi-C ligates molecules that are proximate (nearby) to each other, it can be used for spatial genomics applications. In assembly, we take advantage of the fact that most nearby molecules are on the same strand (or haplotype) of DNA. 
 
 <details>
     <summary>
@@ -330,23 +326,22 @@ Given that Hi-C ligating molecules that are nearby it can be used for spatial ge
     <summary>
         <strong>So why wouldn't you always use trio data for phasing?</strong>
     </summary>
-    It can be hard to get trio data. If a sample has already been collected it may be hard to go back and indentify the parents and collect sample from them. In non-human samples, trios can also be difficult. 
+    It can be hard to get trio data. If a sample has already been collected it may be hard to go back and identify the parents and collect sample from them. In non-human samples, trios can also be difficult particularly with samples taken from the wild. 
 </details>
 
 <details>
     <summary>
         <strong>Are there any difficulties in preparing Hi-C data?</strong>
     </summary>
-    Yes! As you can see in the cartoon above Hi-C relies on having intact chromatin as an input. This means that cell lines are an excellent input source, but frozen blood is less good, for instance.
+    Yes! As you can see in the cartoon above Hi-C relies on having intact chromatin as an input, which means it needs whole, non-lysed cells. This means that cell lines are an excellent input source, but frozen blood is less good, for instance.
 </details>
-
 
 
 ## Other Datatypes
 We should also mention that there are other datatypes that can be used for phasing, though they are less common.
 
 ### Pore-C
-Pore-C is a variant of Hi-C which retains the chromatin conformation capture, but the sequencing is done on ONT. This allows long reads sequencing of concatemers. Where Hi-C typically has at most one "contact" per read, Pore-C can have many. The libraries also do not need to be amplified so Pore-C reads can carry base modification calls. 
+Pore-C is a variant of Hi-C which retains the chromatin conformation capture aspect, but the sequencing is done on ONT. This allows long reads sequencing of concatemers. Where Hi-C typically has at most one "contact" per read, Pore-C can have many contacts per read. The libraries also do not need to be amplified, so Pore-C reads can carry base modification calls. 
 
 ### StrandSeq
 StrandSeq is a technique that creates sparse Illumina datasets that are both cell- and strand-specific. Cell specificity is achieved by putting one cell per well into 384 well plates (often multiple). Strand specificity is achieved through selective fragmentation of nascent strands. (During DNA replication, BrdU is incorporated exclusively into nascent DNA strands. In the library preparation the BrdU strand is fragmented and only the other strand amplifies.) This strand specificity gives another way to identify haplotype-specific kmers and use them during assembly phasing.
