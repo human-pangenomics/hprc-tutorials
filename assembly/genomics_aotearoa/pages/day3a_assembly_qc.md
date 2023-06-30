@@ -80,7 +80,7 @@ Check out the graph-specific statistics at the end of the output.
 
 **Compare two graphs' stats**
 
-Now that we know how to get the statistics for one assembly, let's get them for two so we can actually compare them. We already compared a verkko hifi-only and hifi+ONT graph visually, so let's do it with assembly stats this time. We're going to use a one-liner that I like to put the assembly stats side-by-side, because it can be kind of cumbersome to scroll up and down between two separate command line runs and their outputs.
+Now that we know how to get the statistics for one assembly, let's get them for two so we can actually compare them. We already compared a verkko hifi-only and hifi+ONT graph visually, so let's do it with assembly stats this time. We're going to use a one-liner to put the assembly stats side-by-side, because it can be kind of cumbersome to scroll up and down between two separate command line runs and their outputs.
 
 ```
 paste <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/1-buildGraph/hifi-resolved.gfa) <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/5-untip/unitig-normal-connected-tip.gfa | cut -f 2)
@@ -136,8 +136,6 @@ Correctness refers to the base pair accuracy, and can be measured by comparing o
 
 ![QV formula](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/merqury_qvformula.png)
 
-*One important caveat to note*: this calculation uses HiFi *k*-mers to evaluate sequence derived from those same HiFi *k*-mers. This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly. In my experience with non-human vertebrates, this often results in the QV dropping from 50-60 to 35-45, depending on the genome in question. 
-
 <details>
     <summary>
         <strong>DROPDOWN NOTE: OK, but what does 'QV' mean, anyway?</strong>
@@ -191,7 +189,7 @@ head -n 100 read-db.hist
 
 This is more manageable, and you can even kind of see the histogram forming from the count values. There's a lot of *k*-mers that are present at only one copy (or otherwise very low copy) in the read set: these are usually sequencing errors, because there's a lot of these *k*-mers present at low copy. Because the sequence isn't actually real (*i.e.*, it isn't actually in the genome and isn't actually serving as sequencing template), these *k*-mers stay at low copy. After these error *k*-mers, there's a dip in the histogram until about the 24-28 copy range. This peak is the coverage of the actual *k*-mers coming from the genome that you sequenced, thus it corresponds to having coverage of ~26X in this read set. We only have one peak here because this is a haploid dataset, but if your dataset is diploid then expect two peaks with the first peak varying in height depending on heterozygosity of your sample. 
 
-What if I want a pretty graph instead of imagining it? Good news -- there's <del>an app</del> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. Let's try it out! Download the `read-db.hist` file and throw it into the GenomeScope website: http://qb.cshl.edu/genomescope/genomescope2.0/ and adjust the parameters accordingly.
+"What if I want a pretty graph instead of imagining it?" Good news -- there's <del>an app</del> a program for that. GenomeScope is a straightforward program with an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. Let's try it out! Download the `read-db.hist` file and throw it into the GenomeScope website: http://qb.cshl.edu/genomescope/genomescope2.0/ and adjust the parameters accordingly.
 
 **Can I use GenomeScope to QC my raw data before assembly?** (hi Dini I think maybe this section can be a large detail drop down? I'm not sure if it breaks the flow of the tutorial)
 
@@ -203,7 +201,7 @@ As you can see here, GenomeScope can be useful for getting an idea of what your 
     <summary>
         <strong>DROPDOWN QUESTION: How does the data look? What does the coverage look to be? How many peaks are there in the data and what do they represent? What are some characteristics of the genome as inferred by GenomeScope?</strong>
     </summary>    
-    This data looks good, and you know that 1) because I already called it good previously, and 2) there's a good amount of coverage, around 40X diploid coverage in fact. Additionally, the peaks are all very clear and distinct from each other and from the error *k*-mer slope on the left. Recall that the first peak represents haploid coverage (i.e., coverage of heterozygous loci) and the second peak is diploid coverage. GenomeScope is predicting the total size of the genome to be about 2.2 Gbp with 1.23% heterozygosity. This is data for <i>Microtus pennsylvaticus</i>, the eastern meadow vole. 
+    This data looks good, and you know that 1) because this tutorial text already called it good previously, and 2) there's a good amount of coverage, around 40X diploid coverage in fact. Additionally, the peaks are all very clear and distinct from each other and from the error *k*-mer slope on the left. Recall that the first peak represents haploid coverage (i.e., coverage of heterozygous loci) and the second peak is diploid coverage. GenomeScope is predicting the total size of the genome to be about 2.2 Gbp with 1.23% heterozygosity. This is data for <i>Microtus pennsylvaticus</i>, the eastern meadow vole. 
 </details>
 
 Here's an example of another HiFi dataset:
@@ -265,10 +263,7 @@ cd -
     Merqury as a package ships with a lot of scripts, especially for plotting. The `merqury.sh` command that we're using is calling those scripts, but we need to tell it where we installed Merqury. 
 </details>
 
-output.qv:
-```
-assembly	171	4655969	59.1213	1.22426e-06
-```
+To find out the QV, we want the file named `output.qv`. Take a look at it and try to interpret the QV value you find (third column). If we recall the Phred scale system, this would mean that this QV value is great! Which is not surprising, considering we used HiFi data. **It's worth noting, though, that we are using HiFi *k*-mers to evaluate sequences derived from those same HiFi reads.** This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly. For non-human vertebrates, this often results in the QV dropping from 50-60 to 35-45, depending on the genome in question. 
 
 ```
 #!/bin/bash -e
