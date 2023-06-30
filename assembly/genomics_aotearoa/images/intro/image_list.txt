@@ -1,3 +1,7 @@
+HG002_bandage.png
+	Diploid Assembly Bandage (subset to one area)
+	from: made from in-house data
+
 PAN027_bandage.png
 	Diploid Assembly Bandage
 	from: made from in-house data
