@@ -80,7 +80,7 @@ Check out the graph-specific statistics at the end of the output.
 
 **Compare two graphs' stats**
 
-compare hifi vs ont
+Now that we know how to get the statistics for one assembly, let's get them for two so we can actually compare them. We already compared a verkko hifi-only and hifi+ONT graph visually, so let's do it with assembly stats this time. We're going to use a one-liner that I like to put the assembly stats side-by-side, because it can be kind of cumbersome to scroll up and down between two separate command line runs and their outputs.
 
 ```
 paste <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/1-buildGraph/hifi-resolved.gfa) <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/5-untip/unitig-normal-connected-tip.gfa | cut -f 2)
@@ -128,7 +128,7 @@ Total length disconnected components    7267912 60717682
 # circular segments     31      11
 ```
 
-... where the first column is the stats from the HiFi-only assembly graph, and the second column is the stats from the HiFi+ONT assembly graph. 
+... where the first column is the stats from the HiFi-only assembly graph, and the second column is the stats from the HiFi+ONT assembly graph. Notice how the HiFi-only graphhas way more nodes than the HiFi+ONT one, like we'd seen in Bandage. Stats-wise, this results in the HiFi-only graph having a N50 value of 223 Kbp while the HiFi+ONT one is 10.8 Mbp, a whole order of magnitude larger. For the HiFi-only graph, though, there's a bigger difference between its N50 value and its auN value: 223 Kbp vs. 638 Kbp, while the HiFi+ONT stats have a smaller difference of 10.8 Mbp vs. 11.4 Mbp. This might be due to the HiFi-only graph having on average shorter segments and more of the shorter ones, since it doesn't have the ONT data to resolve the segments into larger ones. 
 
 ## Correctness (QV using Merqury)
 
