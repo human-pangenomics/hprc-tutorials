@@ -7,7 +7,7 @@ Both Verkko and Hifiasm can use a variety of data sources:
 * Oxford Nanopore Ultralong: >100kb, around 97% accuracy
 * Phasing data from Hi-C or trio Illumina data
 
-PacBio HiFi data is required for both assemblers. Other data types are optional -- but they lead to much better assemblies. So let's jump ahead a bit and take a peak at how Verkko creates assemblies. It's ok if this is a bit confusing, we will come back to this in day 2.
+PacBio HiFi data is required for both assemblers. Other data types are optional -- but they lead to much better assemblies. So let's jump ahead a bit and take a peak at how Verkko creates assemblies using figure 1 from the recent Verkko paper (Rautiainen, Mikko, et al.). It's ok if this is a bit confusing, we will come back to this in day 2.
 
 **PacBio HiFi is used to create the initial graph** 
 
