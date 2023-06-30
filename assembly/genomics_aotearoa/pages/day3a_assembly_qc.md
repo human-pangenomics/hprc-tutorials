@@ -218,9 +218,6 @@ The above is the hifiasm unitig graph for the assembly done with good (~56X) HiF
 **OK cool, now back to Merqury**
 
 
-
-TRANSITION TO MERQURY
-
 Use your text editor of choice to make a slurm script (`run_merqury.sl`) to run the actual merqury program with the following contents:
 ```
 #!/bin/bash -e
@@ -293,7 +290,7 @@ merqury.sh \
 cd -
 ```
 
-**Switch and Hamming errors**
+**Switch and Hamming errors using yak**
 
 Two more types of errors we use to assess assemblies are switch errors and Hamming errors. Hamming errors represent the percentage of SNPs wrongly phased (compared to ground truth), while switch errors represent the percentage of *adjacent* SNP pairs wrongly phased. See the following graphic:
 
@@ -328,7 +325,12 @@ yak trioeval -t 32 \
 ```
 
 
-## Completeness (gene content using asmgene)
+## Completeness (asmgene)
+Another way to assess an assembly is via **completeness**, particularly with regard to expected gene content. If you have a reference genome that's been annotated with coding sequences, then you can use the tool *asmgene* to align multi-copy genes to your assembly and see if they remain multi-copy, or if the assembler has created a misassembly. asmgene works by aligning annotated transcripts to the reference genome, and record hits if the transcript is mapped at or over 99% identity over 99% or greater of the transcript length. If the transcript only has one hit, then it is single-copy (SC), otherwise it's multi-copy (MC). The same is then done for your assembly, and the fraction of missing multi-copy (%MMC) gene content is computed. 
+
+
+A perfect asesmbly would have %MMC be zero, while a higher fraction indicates the assembly has collapsed some of these multi-copy genes.
+
 
 ```
 ## asmgene
