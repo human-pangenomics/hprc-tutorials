@@ -328,7 +328,11 @@ yak trioeval -t 32 \
 ## Completeness (asmgene)
 Another way to assess an assembly is via **completeness**, particularly with regard to expected gene content. If you have a reference genome that's been annotated with coding sequences, then you can use the tool *asmgene* to align multi-copy genes to your assembly and see if they remain multi-copy, or if the assembler has created a misassembly. asmgene works by aligning annotated transcripts to the reference genome, and record hits if the transcript is mapped at or over 99% identity over 99% or greater of the transcript length. If the transcript only has one hit, then it is single-copy (SC), otherwise it's multi-copy (MC). The same is then done for your assembly, and the fraction of missing multi-copy (%MMC) gene content is computed. 
 
-A perfect asesmbly would have %MMC be zero, while a higher fraction indicates the assembly has collapsed some of these multi-copy genes.
+A perfect asesmbly would have %MMC be zero, while a higher fraction indicates the assembly has collapsed some of these multi-copy genes. Additionally, you can look at the presence (or absence!) of expected single-copy genes in order to check gene completeness of the assembly. 
+
+The output will be a tab-delimed list of metrics and the value of that metric for the reference and for your given assembly. The line **full_sgl** gives the number of single-copy genes present in the reference and your assembly -- if these numbers are off-balanced, then you might have false duplications, which are also pointed out on the **full_dup** line. For the multi-copy genes, you can look at **dup_cnt** to see the number of multi-copy genes in the reference and see how many of those genes are still multi-copy in your assembly. You can then use these values to calculate %MMC via the formula `1 - (dup_cnt asm / dup_cnt ref)`. 
+
+Let's try running asmgene on `haplotype1` and `haplotype2` from the pre-baked verkko trio assemblies. 
 
 ```
 ## asmgene
@@ -338,16 +342,17 @@ cd day3_assembly_qc/asmgene
 ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa .
 ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.cds.fasta .
 ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta .
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype2.fasta .
 ```
 
-Now that we have our files
+Now that we have our files, we're ready to go. Make a script with the following content and run it in the directory with the appropriate files: 
 
 ```
 #!/bin/bash -e
 
 #SBATCH --job-name      asmgene
 #SBATCH --cpus-per-task 32
-#SBATCH --time          01:00:00
+#SBATCH --time          05:00:00
 #SBATCH --mem           256G
 #SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
 #SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
@@ -355,17 +360,21 @@ Now that we have our files
 ## load modules
 module load minimap2
 
-## run minimap2 
+## run minimap2 on ref, hap1, and hap2
 minimap2 -cxsplice:hq -t32 \
     chm13v2.0.fa CHM13-T2T.cds.fasta \
     > ref.cdna.paf
 minimap2 -cxsplice:hq -t32 \
     assembly.haplotype1.fasta CHM13-T2T.cds.fasta \
-    > asm.cdna.paf
-```
+    > asm.hap1.cdna.paf
+minimap2 -cxsplice:hq -t32 \
+    assembly.haplotype2.fasta CHM13-T2T.cds.fasta \
+    > asm.hap2.cdna.paf
 
-```
-sbatch -c32 --mem=256G --wrap="k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.cdna.paf > verkko.haplotype1.asmgene.tsv"
+## run asmgene
+
+k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.hap1.cdna.paf > verkko.haplotype1.asmgene.tsv
+k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.hap2.cdna.paf > verkko.haplotype2.asmgene.tsv
 ```
 
 Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your *de novo* genome assembly is for a species that does not have a reference genome yet. 
