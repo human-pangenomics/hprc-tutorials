@@ -25,7 +25,7 @@ Another statistic that is often reported with N50 is the *L50*, which is the ran
 
 <details>
     <summary>
-        <strong>N50 or NG50?</strong>
+        <strong>DROPDOWN NOTE: N50 or NG50?</strong>
     </summary>    
     Another measurement you might see is NG50. This is the N50 value, just calculated using a given genome size instead of the sum of the contigs.
 </details>
@@ -55,7 +55,7 @@ srun -c 8 gfastats assembly.haplotype1.fasta
 
 <details>
     <summary>
-        <strong>srun?</strong>
+        <strong>DROPDOWN NOTE: srun?</strong>
     </summary>    
     Previously, we submitted a script to the slurm cluster using the sbatch command and a `.sl` script file. You can also submit to the cluster using the `srun` command, which runs the given command as if it were a slurm script submission using the parameters fed to it, which in this case is `-c 8` as we are asking for 8 cores to help gfastats run faster. 
 </details>
@@ -71,7 +71,7 @@ srun -c 8 gfastats --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assem
 
 <details>
     <summary>
-        <strong>What's the `--discover-paths` flag for?</strong>
+        <strong>DROPDOWN NOTE: What's the `--discover-paths` flag for?</strong>
     </summary>    
     gfastats tries to clearly distinguish contigs from segments, so it will not pick up on contigs in a GFA without paths defined. To get the contig stats as well as graph stats from these GFAs, you'll need to add the `--discover-paths` flag. 
 </details>
@@ -153,7 +153,7 @@ sbatch -c 8 --job-name=meryl --time=00:15:00 --mem=24G --wrap="meryl count k=30 
 
 <details>
     <summary>
-        <strong>Wrap???</strong>
+        <strong>DROPDOWN NOTE: Wrap???</strong>
     </summary>    
     Previously, we used the `sbatch` command to submit a slurm script to the cluster and the slurm job handler. The `sbatch` command can actually take a lot of parameters like the ones we included in the beginning of our script, and one of those parameters is `--wrap` which kind of wraps whatever command you give it in a slurm wrapper so that the cluster can schedule it as if it was a slurm script. 
 </details>
@@ -162,7 +162,7 @@ That shouldn't take too long to run. Now we have a meryl DB for our HiFi reads. 
 
 <details>
     <summary>
-        <strong>How would you go about trying to do this with meryl?</strong>
+        <strong>DROPDOWN QUESTION: How would you go about trying to do this with meryl?</strong>
     </summary>    
     When you want to use a tool to do something (and you are decently confident that the tool can actually do it), then a good point to start is just querying the tool's manual or help dialogue. Try out `meryl --help` and see if there's a function that looks like it could generate the histogram we want. <del>spoiler alert: it's `meryl histogram read-db.meryl`</del>
 </details>
@@ -177,7 +177,7 @@ This is more manageable, and you can even kind of see the histogram forming from
 
 <details>
     <summary>
-        <strong>What if I want a pretty graph instead of imagining it?</strong>
+        <strong>DROPDOWN NOTE: What if I want a pretty graph instead of imagining it?</strong>
     </summary>    
     Good news -- there's <del>an app</del> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. 
 </details>
@@ -216,7 +216,7 @@ cd -
 
 <details>
     <summary>
-        <strong>What's that export command doing there?</strong>
+        <strong>DROPDOWN NOTE: What's that export command doing there?</strong>
     </summary>    
     Merqury as a package ships with a lot of scripts, especially for plotting. The `merqury.sh` command that we're using is calling those scripts, but we need to tell it where we installed Merqury. 
 </details>
