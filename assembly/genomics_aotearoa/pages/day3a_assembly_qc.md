@@ -80,7 +80,7 @@ Check out the graph-specific statistics at the end of the output.
 
 **Compare two graphs' stats**
 
-Now that we know how to get the statistics for one assembly, let's get them for two so we can actually compare them. We already compared a verkko hifi-only and hifi+ONT graph visually, so let's do it with assembly stats this time. We're going to use a one-liner that I like to put the assembly stats side-by-side, because it can be kind of cumbersome to scroll up and down between two separate command line runs and their outputs.
+Now that we know how to get the statistics for one assembly, let's get them for two so we can actually compare them. We already compared a verkko hifi-only and hifi+ONT graph visually, so let's do it with assembly stats this time. We're going to use a one-liner to put the assembly stats side-by-side, because it can be kind of cumbersome to scroll up and down between two separate command line runs and their outputs.
 
 ```
 paste <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/1-buildGraph/hifi-resolved.gfa) <(gfastats -t --discover-paths /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/5-untip/unitig-normal-connected-tip.gfa | cut -f 2)
@@ -136,7 +136,16 @@ Correctness refers to the base pair accuracy, and can be measured by comparing o
 
 ![QV formula](https://raw.githubusercontent.com/human-pangenomics/hprc-tutorials/GA-workshop/assembly/genomics_aotearoa/images/qc/merqury_qvformula.png)
 
-*One important caveat to note*: this calculation uses HiFi *k*-mers to evaluate sequence derived from those same HiFi *k*-mers. This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly. In my experience with non-human vertebrates, this often results in the QV dropping from 50-60 to 35-45, depending on the genome in question. 
+<details>
+    <summary>
+        <strong>DROPDOWN NOTE: OK, but what does 'QV' mean, anyway?</strong>
+    </summary>    
+    The QV that Merqury is interpreted similarly to the commonly used Phred quality scale, which might be familiar to those who have done short-read sequencing or are otherwise acquainted with FASTQ files. Phred quality scores are logarithmically related to error-probability, such that:
+    - Phred score of 30 represents a 1 in 1,000 error probability (*i.e.*, 99.9% accuracy)
+    - Phred score of 40 represents a 1 in 10,000 error probability (*i.e.*, 99.99% accuracy)
+    - Phred score of 50 represents a 1 in 100,000 error probability (*i.e.*, 99.999% accuracy)
+    - Phred score of 60 represents a 1 in 1,000,000 error probability (*i.e.*, 99.9999% accuracy)
+</details>
 
 Merqury operates using *k*-mer databases like the ones we generated using meryl, so that's what we'll do now. 
 
@@ -180,7 +189,7 @@ head -n 100 read-db.hist
 
 This is more manageable, and you can even kind of see the histogram forming from the count values. There's a lot of *k*-mers that are present at only one copy (or otherwise very low copy) in the read set: these are usually sequencing errors, because there's a lot of these *k*-mers present at low copy. Because the sequence isn't actually real (*i.e.*, it isn't actually in the genome and isn't actually serving as sequencing template), these *k*-mers stay at low copy. After these error *k*-mers, there's a dip in the histogram until about the 24-28 copy range. This peak is the coverage of the actual *k*-mers coming from the genome that you sequenced, thus it corresponds to having coverage of ~26X in this read set. We only have one peak here because this is a haploid dataset, but if your dataset is diploid then expect two peaks with the first peak varying in height depending on heterozygosity of your sample. 
 
-What if I want a pretty graph instead of imagining it? Good news -- there's <del>an app</del> a program for that. I am partial to GenomeScope, especially because there's an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. Let's try it out! Download the `read-db.hist` file and throw it into the GenomeScope website: http://qb.cshl.edu/genomescope/genomescope2.0/ and adjust the parameters accordingly.
+"What if I want a pretty graph instead of imagining it?" Good news -- there's <del>an app</del> a program for that. GenomeScope is a straightforward program with an online web page where you can just drop in your meryl histogram file and it will draw the histogram for you as well as use the GenomeScope model to predict some genome characteristics of your data, given the expected ploidy. Let's try it out! Download the `read-db.hist` file and throw it into the GenomeScope website: http://qb.cshl.edu/genomescope/genomescope2.0/ and adjust the parameters accordingly.
 
 **Can I use GenomeScope to QC my raw data before assembly?** (hi Dini I think maybe this section can be a large detail drop down? I'm not sure if it breaks the flow of the tutorial)
 
@@ -192,7 +201,7 @@ As you can see here, GenomeScope can be useful for getting an idea of what your 
     <summary>
         <strong>DROPDOWN QUESTION: How does the data look? What does the coverage look to be? How many peaks are there in the data and what do they represent? What are some characteristics of the genome as inferred by GenomeScope?</strong>
     </summary>    
-    This data looks good, and you know that 1) because I already called it good previously, and 2) there's a good amount of coverage, around 40X diploid coverage in fact. Additionally, the peaks are all very clear and distinct from each other and from the error *k*-mer slope on the left. Recall that the first peak represents haploid coverage (i.e., coverage of heterozygous loci) and the second peak is diploid coverage. GenomeScope is predicting the total size of the genome to be about 2.2 Gbp with 1.23% heterozygosity. This is data for <i>Microtus pennsylvaticus</i>, the eastern meadow vole. 
+    This data looks good, and you know that 1) because this tutorial text already called it good previously, and 2) there's a good amount of coverage, around 40X diploid coverage in fact. Additionally, the peaks are all very clear and distinct from each other and from the error *k*-mer slope on the left. Recall that the first peak represents haploid coverage (i.e., coverage of heterozygous loci) and the second peak is diploid coverage. GenomeScope is predicting the total size of the genome to be about 2.2 Gbp with 1.23% heterozygosity. This is data for <i>Microtus pennsylvaticus</i>, the eastern meadow vole. 
 </details>
 
 Here's an example of another HiFi dataset:
@@ -254,10 +263,7 @@ cd -
     Merqury as a package ships with a lot of scripts, especially for plotting. The `merqury.sh` command that we're using is calling those scripts, but we need to tell it where we installed Merqury. 
 </details>
 
-output.qv:
-```
-assembly	171	4655969	59.1213	1.22426e-06
-```
+To find out the QV, we want the file named `output.qv`. Take a look at it and try to interpret the QV value you find (third column). If we recall the Phred scale system, this would mean that this QV value is great! Which is not surprising, considering we used HiFi data. **It's worth noting, though, that we are using HiFi *k*-mers to evaluate sequences derived from those same HiFi reads.** This does a good job of showing whether the assembly worked with that data well, but what if the HiFi data itself is missing parts of the genome, such as due to bias (*e.g.*, GA dropout)? That's why it's important to use orthogonal datasets made using different sequencing technology, when possible. For instance, we can use an Illumina-based meryl database to evaluate a HiFi assembly. For non-human vertebrates, this often results in the QV dropping from 50-60 to 35-45, depending on the genome in question. 
 
 ```
 #!/bin/bash -e
@@ -324,11 +330,14 @@ yak trioeval -t 32 \
     > hifiasm.trio.mat.trioeval
 ```
 
-
 ## Completeness (asmgene)
 Another way to assess an assembly is via **completeness**, particularly with regard to expected gene content. If you have a reference genome that's been annotated with coding sequences, then you can use the tool *asmgene* to align multi-copy genes to your assembly and see if they remain multi-copy, or if the assembler has created a misassembly. asmgene works by aligning annotated transcripts to the reference genome, and record hits if the transcript is mapped at or over 99% identity over 99% or greater of the transcript length. If the transcript only has one hit, then it is single-copy (SC), otherwise it's multi-copy (MC). The same is then done for your assembly, and the fraction of missing multi-copy (%MMC) gene content is computed. 
 
-A perfect asesmbly would have %MMC be zero, while a higher fraction indicates the assembly has collapsed some of these multi-copy genes.
+A perfect asesmbly would have %MMC be zero, while a higher fraction indicates the assembly has collapsed some of these multi-copy genes. Additionally, you can look at the presence (or absence!) of expected single-copy genes in order to check gene completeness of the assembly. 
+
+The output will be a tab-delimed list of metrics and the value of that metric for the reference and for your given assembly. The line **full_sgl** gives the number of single-copy genes present in the reference and your assembly -- if these numbers are off-balanced, then you might have false duplications, which are also pointed out on the **full_dup** line. For the multi-copy genes, you can look at **dup_cnt** to see the number of multi-copy genes in the reference and see how many of those genes are still multi-copy in your assembly. You can then use these values to calculate %MMC via the formula `1 - (dup_cnt asm / dup_cnt ref)`. 
+
+Let's try running asmgene on `haplotype1` and `haplotype2` from the pre-baked verkko trio assemblies. 
 
 ```
 ## asmgene
@@ -338,16 +347,17 @@ cd day3_assembly_qc/asmgene
 ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa .
 ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.cds.fasta .
 ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta .
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype2.fasta .
 ```
 
-Now that we have our files
+Now that we have our files, we're ready to go. Make a script with the following content and run it in the directory with the appropriate files: 
 
 ```
 #!/bin/bash -e
 
 #SBATCH --job-name      asmgene
 #SBATCH --cpus-per-task 32
-#SBATCH --time          01:00:00
+#SBATCH --time          05:00:00
 #SBATCH --mem           256G
 #SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
 #SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
@@ -355,19 +365,21 @@ Now that we have our files
 ## load modules
 module load minimap2
 
-## run minimap2 
+## run minimap2 on ref, hap1, and hap2
 minimap2 -cxsplice:hq -t32 \
     chm13v2.0.fa CHM13-T2T.cds.fasta \
     > ref.cdna.paf
 minimap2 -cxsplice:hq -t32 \
     assembly.haplotype1.fasta CHM13-T2T.cds.fasta \
-    > asm.cdna.paf
+    > asm.hap1.cdna.paf
+minimap2 -cxsplice:hq -t32 \
+    assembly.haplotype2.fasta CHM13-T2T.cds.fasta \
+    > asm.hap2.cdna.paf
+
+## run asmgene
+
+k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.hap1.cdna.paf > verkko.haplotype1.asmgene.tsv
+k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.hap2.cdna.paf > verkko.haplotype2.asmgene.tsv
 ```
 
-```
-sbatch -c32 --mem=256G --wrap="k8 /opt/nesi/CS400_centos7_bdw/minimap2/2.24-GCC-11.3.0/bin/paftools.js asmgene -a ref.cdna.paf asm.cdna.paf > verkko.haplotype1.asmgene.tsv"
-```
-
-Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your *de novo* genome assembly is for a species that does not have a reference genome yet. 
-
-now it's even faster with minibusco!
+Another popular tool for checking genome completeness using gene content is the software Benchmarking Universal Single-Copy Orthologs (BUSCO). This approach uses a set of evolutionarily conserved genes that are expected to be present at single copy for a given taxa, so one could check their genome to see if, for instance, it has all the genes predicted to be necessary for *Aves* or *Vertebrata*. This approach is useful if your *de novo* genome assembly is for a species that does not have a reference genome yet. And it's even faster now with the recently developed tool *minibusco*!

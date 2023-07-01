@@ -474,4 +474,121 @@ Now look through the bed file and find the contig you are interested in to see i
 
 2. Not having base-level information is actually ok for what we just did. If you would like base level information at only a few fold the run cost of mashmap (so still very fast), then you probably want to check out [wfmash](https://github.com/waveygang/wfmash/blob/master/README.md). It can be used for alignments of long reads (100kb+) or assemblies at very large scales.
 
+## Minimap2: 
+If you are mapping long read data and you'd like to have base-level alignment, minimap2 is probably your first stop. 
 
+Today we are going to use minimap2 to align ONT reads that have 5mC information stored in Mm/Ml tags to our diploid assembly.
+
+**Create A Directory**
+```
+cd ~
+mkdir -p lra/day3b_annotation/minimap2
+cd lra/day3b_annotation/minimap2
+```
+
+**Copy over our Verkko trio assembly**
+
+We are going to use the diploid version of our Verkko trio assembly. (This just means that the maternal and paternal haplotypes are both included in the fasta.)
+```
+cp \
+    /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.fasta \
+    verkko_trio_diploid.fa
+```
+**Create a minimap2 slurm script**
+
+Open your favourite text editor
+```
+nano ont_mm2.sl
+```
+And paste in the following
+```
+#!/bin/bash -e
+
+#SBATCH --account       nesi02659
+#SBATCH --job-name      minimap2-ont
+#SBATCH --cpus-per-task 48
+#SBATCH --time          05:00:00
+#SBATCH --mem           128G
+#SBATCH --output        slurmlogs/test.slurmoutput.%x.%j.log
+#SBATCH --error         slurmlogs/test.slurmoutput.%x.%j.err
+
+## load modules
+module purge
+module load minimap2/2.24-GCC-11.3.0
+module load SAMtools/1.16.1-GCC-11.3.0
+
+## Create minimap2 index of our diploid assembly
+minimap2 \
+    -k 17 \
+    -I 8G \
+    -d verkko_trio_diploid.fa.mmi \
+    verkko_trio_diploid.fa
+
+## minimap parameters appropriate for nanopore
+in_args="-y -x map-ont --MD --eqx --cs -Y -L -p0.1 -a -k 17 -K 10g"
+
+#do the mapping with methylation tags by dumping the Mm/Ml tags to a fastq header
+samtools fastq \
+    -TMm,Ml /nesi/nobackup/nesi02659/LRA/resources/ont_ul/03_08_22_R941_HG002_2_Guppy_6.1.2_5mc_cg_prom_sup.bam \
+    | minimap2 -t 24 ${in_args} verkko_trio_diploid.fa.mmi - \
+    | samtools view -@ 24 -bh - \
+    | samtools sort -@ 24 - > \
+    verkko_trio_diploid.mm2.5mC.bam
+
+samtools index verkko_trio_diploid.mm2.5mC.bam
+```
+**And run the script**
+
+```
+sbatch ont_mm2.sl
+```
+This should only take 3 hours or so, but we have some pre-baked results for you already. We will use these results in the next section.
+
+
+<details>
+    <summary>
+        <strong>Why did we align to the diploid version of our assembly?</strong>
+    </summary>    
+    The traditional thing to do is to align your data to a haploid or pseudo-haploid assembly like CHM13 or GRCh38. We are diploid individuals, though. And for some use cases we want to align long reads to a diploid assembly in order to have the reads segregate by haplotype. When we are aligning a samples reads to its own assembly this is especially important.
+</details>
+
+### Visualize The Alignments In IGV
+
+**Before switching over to your virtual desktop link the prerun alignments to your working directory**
+```
+ln -s /nesi/nobackup/nesi02659/LRA/resources/ont_ul/aligned/verkko_trio_diploid.mm2.5mC.bam
+ln -s /nesi/nobackup/nesi02659/LRA/resources/ont_ul/aligned/verkko_trio_diploid.mm2.5mC.bam.bai
+```
+
+**Now view the alignments in IGV**
+1. Open an IGV window as you did above. Don't forget to `module load IGV/2.16.1` (we need v 2.14 or greater)
+2. We need to use our assembly as the genome file. Do that by clicking the **Genomes** dropdown at the top and then select **Load Genome From File**. Navigate to your folder and select the Verkko trio genome that we copied in.
+3. Load the 5mC bam by clicking on the **File** dropdown then selecting **Load From File**
+4. Show the methylation predictions by right clicking on the alignment track and selecting **Color alignments by**, then click **base modifications (5mc)**
+
+**Explore the data a bit**
+
+Zoom in on a random region that is a few hundred basepairs in size. You can see the methylation levels in the track histogram and in the reads themselves. Red is methylated and blue is unmethylated.
+
+If you are familiar with ONT data already you know that ONT and PacBio have the ability to detect base modifications without any additional steps like bisulfite conversion. What we are adding here is the ability to look at methylation in the context of a sample's own assembly. Maybe that wouldn't matter if you are looking at regions of the genome which are structurally consistent across samples -- like promoters for well known genes. 
+
+Now let's take a look at a region where it matters that we are using a matched data and sample:
+Navigate to  `mat-0000038:51,448,000 - 51,510,000`. This is the biggest contig that maps to chrX and we chose a region that is usually where the centromere is on chrX. 
+
+You will notice that most of the view has very high levels of methylation, but there are some regions where the methylation drops to near zero. These are called the centromere dip regions.
+
+
+<details>
+    <summary>
+        <strong>Why did we choose to show you an example in chrX?</strong>
+    </summary>    
+    In male samples chrX is haploid, so outside of the psuedoautosomal, or PAR, regions we don't have to worry about whether or not our reads map to the correct haplotype.
+</details>
+
+
+<details>
+    <summary>
+        <strong>What would have happened if we had just aligned this data to CHM13?</strong>
+    </summary>    
+    Centromeres are highly repetitive and alpha satellite arrays can vary from individual to individual in size by more than a factor of two. So aligning centromeric reads from one individual to another individual's assembly is an inherently dodgy proposition.
+</details>

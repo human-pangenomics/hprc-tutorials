@@ -1,11 +1,17 @@
-<!-- # Background on HiFi+UL Assemblers
-## Verkko Process
-Figure from paper
-## Hifiasm Process
-Figure from paper
- -->
+# Day 2: Assembly
+
+Here is a rundown of what we are doing today:
+* Run Hifiasm with test data (HiFi only)
+* Run Verkko with test data (HiFi + ONT)
+* See how to run both with full datasets
+* Compare the two assemblers
+* Talk about how much data we need 
+
+At the end of the day you will hopefully have a feel for how to actually run each assembler, what data to give them, and when to choose one over the other.
+
 # Playing With Test Data
 Running assemblers is very computationally intensive and the output files can be big. Let's not jump straight into assembling human genomes. Instead we can use the test data that both assemblers provide as a way to both ensure that we know how to run the tool (which is easy) and we can start to get a feel for the process and outputs in real life. 
+
 ## Run Hifiasm With Test Data
 
 **Create A Directory**
@@ -234,6 +240,7 @@ Open the `assembly/1-buildGraph/hifi-resolved.gfa` file in Bandage. You will see
 
 Open the `assembly/5-untip/unitig-normal-connected-tip.gfa` file in Bandage. Now our three nodes have been resolved into one. 
 
+
 # Comparison of Runtime Parameters
 
 ## Hifiasm
@@ -263,3 +270,53 @@ Verkko is written as a shell wrapper around a Snakemake pipeline. This has the a
 This gives an estimate of around 9000 cpu hours for the same data as above. This is almost certainly an overestimate, but not by more than a factor of 2. 
 
 Note that the runtime estimates for Hifiasm and Verkko don't consider the preparatory work of counting parental kmers with yak or meryl, which are necessary steps before running either in trio mode.
+
+# High-Level Comparison of Verkko & Hifiasm
+
+Verkko and Hifiasm are both excellent assemblers. If you have a human sample with over 40X HiFi and over 15X ONT data over 100kb then the high level metrics that you will learn about tomorrow should be pretty comparable across the two assemblers. If you have a set of data that you spent a bunch of money on, and you are hoping to make a high-quality assembly, your best bet is to assemble with both and see which assembly is better. You could even stitch the good parts of each assembly together -- though the people who have to do the actual work tend to flinch when they hear that.
+
+
+## Verrko's Approach
+As we saw previously, Verkko uses HiFi data to create a graph (in the case of Verkko it is a DeBruijn graph). ONT reads are aligned to the graph and the graph is then simplified. One thing that Verkko does is it outputs scaffolds -- where Hifiasm only outputs contigs. With 40X+ HiFi, Verkko's scaffolding tends to add about 12 extra T2T chromosomes to a diploid human assembly. 
+
+The way it is scaffolded comes from the graph (as shown below). One the left we see one haplotype and there is a tangle in the middle of the sequence. Verkko doesn't neccesarily know how to walk through this tangle and it doesn't want to output incorrect sequence. So it just estimates the size of the nodes in the tangle and puts the corresponding number of N's into the final assembly. Similarly, on the right we have a gap in one haplotype. Verkko will infer the size of the missing sequence from the other haplotype and put that many N's into to top sequence.
+
+<p align="center">
+    <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly/verkko_grapholds.png?raw=true" width="350"/>
+</p>
+
+This has led some people (well at least one person) to call this approach grapholding. 
+
+## Hifiasm's Approach
+
+Hifiasm creates string graphs from HiFi and ONT data separately (kind of) and then combines them. The argument here is that by creating a standalone ONT graph you don't risk losing information that may be missing in the HiFi-only graph. At the time moment (July 2023) Hifiasm does not include a scaffolding step. Though that will likely change in the coming months.
+
+## I Have Data, Just Tell Me Which To Choose
+
+**It's not an easy choice, but here are some guidelines**
+* If you can, use both
+* If you have Hifi coverage under 40X: use Hifiasm
+    * Verkko tends to perform less well at lower HiFi coverages
+* If you have to pay for compute time: use Hifiasm (see the previous section)
+    * Verkko is more expensive to run. If you are on an HPC that may be ok. If you are paying Amazon for your compute then Verkko assemblies can cost upwards of $300 (USD).
+* If you want to assemble then fiddle with it to perfect the assembly: use both, then fix things with Verkko
+    * Verkko allows you to see its inner workings. You can also make manual changes and then restart from that point in the assembly process. If you do things right, Verkko will take care of the rest. This was done, for instance, by the Verkko team on their version of the HG002 assembly: they manually resolved tangles in the graph.
+
+# How Much Input Data Do I Need?
+
+Let's do some back of the envelope math to see how much is an ideal amount of data that would go into an assembly...
+
+**PacBio HiFi**
+
+Computing overlaps isn't so different from calling variants. For each haplotype we probably want around 10X coverage in order to calculate good overlaps. So that would give about 20X total. But HiFi coverage is variable, and there are some well know regions (such as GA repeats) that drop out of HiFi data. In order to get as many regions as possible above the threshold for assembly we increase the value to 40X.
+
+**ONT UL**
+
+The answer to this depends on who you ask. In the case of Verkko you are often just looking for one or a handful of reads to span a tricky region in the graph. The Verkko team has shown that coverages over 15X of 100kb+ reads don't add much in terms of contiguity. (Though for advanced applications such as using ONT to fill-in missing parts of the graph the math may be different.)
+
+**Trio and Hi-C**
+
+In general the better your graph, the easier it is to phase. If you have only a few big bubbles in the graph, it is a lot easier to find Illumina data that will map to them in a haplotype-specific way. This hasn't been tested rigorously, but people tend to talk about 30X for these datasets.
+
+
+ 

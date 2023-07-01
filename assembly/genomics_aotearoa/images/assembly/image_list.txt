@@ -8,4 +8,8 @@ verkko_process_hifi_repeat_compr.png
 verkko_process_ont_resolved.png
 verkko_process_phasing.png
 	Parts of the Verkko assembly process.
-	pulled apart from: Rautiainen, Mikko, et al. "Telomere-to-telomere assembly of diploid chromosomes with Verkko." Nature Biotechnology (2023): 1-9.
+	pulled apart from fig 1: Rautiainen, Mikko, et al. "Telomere-to-telomere assembly of diploid chromosomes with Verkko." Nature Biotechnology (2023): 1-9.
+
+verkko_grapholds.png
+	Parts of the Verkko assembly process.
+	pulled apart from Extended Data Fig. 10: Rautiainen, Mikko, et al. "Telomere-to-telomere assembly of diploid chromosomes with Verkko." Nature Biotechnology (2023): 1-9.	
