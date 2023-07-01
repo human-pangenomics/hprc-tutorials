@@ -203,7 +203,7 @@ mashmap -f "one-to-one" \
 
 Then submit the job with <code>sbatch</code>:
 
-<pre><code>sbatch -J mashmap -N1 -n1 -c16 --mem=8G -t 0-00:15 -A nesi02659 -o %x.%j.log mashmap.sh</code></pre>
+<pre><code>sbatch -J mashmap -N1 -n1 -c16 --mem=6G -t 0-00:15 -A nesi02659 -o %x.%j.log mashmap.sh</code></pre>
 
 </details>
 
@@ -265,12 +265,12 @@ these were). One thing that may help is seeing what percentage of the contig is
 covered by each alignment:
 ```
 awk 'BEGIN{FS=" "; OFS="\t"; print "Contig", "Length", "Percent Identity", "Percent Aligned"}{print $1, $2, $10 "%", ($4-$3)/$2*100 "%"}' \
-    hg2hap2-x-chm13.ssv \
+    hg2hap2-x-chm13.gt1m-chrY.ssv \
     | column -ts $'\t' \
-    > hg2hap2-x-chm13.annotated.txt
-less -S hg2hap2-x-chm13.annotated.txt
+    > hg2hap2-x-chm13.gt1m-chrY.annotated.txt
+less -S hg2hap2-x-chm13.gt1m-chrY.annotated.txt
 ```
-
+<!-- this was wrong- it was based on only --pi 95, which is why we saw only a small amount:
 The astute observer will wonder why pat-0000724 should be included when
 it has only 1% of the contig is aligned. Note that only 1% of the
 contig is aligned in a block of &gt;= 1 Mbp. Let&rsquo;s add back in
@@ -293,6 +293,11 @@ less -S hg2hap2-x-chm13.selected.annotated.txt
 To prevent you from having to do the math in your head, here are the
 percentages of each contig aligned to chrY (sum of the final column in
 the `hg2hap2-x-chm13.selected.annotated.txt` file):
+-->
+
+To prevent you from having to do the math in your head, here are the
+percentages of each contig aligned to chrY (sum of the final column in
+the `hg2hap2-x-chm13.gt1m-chrY.annotated.txt` file):
 
 <table>
     <thead>
@@ -308,7 +313,7 @@ the `hg2hap2-x-chm13.selected.annotated.txt` file):
             pat-0000724
         </td>
         <td>
-            76.10262%
+            84.332%
         </td>
     </tr>
     <tr>
