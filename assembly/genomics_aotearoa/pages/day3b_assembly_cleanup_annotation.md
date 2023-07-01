@@ -540,9 +540,50 @@ sbatch ont_mm2.sl
 ```
 This should only take 3 hours or so, but we have some pre-baked results for you already. We will use these results in the next section.
 
+
 <details>
     <summary>
         <strong>Why did we align to the diploid version of our assembly?</strong>
     </summary>    
     The traditional thing to do is to align your data to a haploid or pseudo-haploid assembly like CHM13 or GRCh38. We are diploid individuals, though. And for some use cases we want to align long reads to a diploid assembly in order to have the reads segregate by haplotype. When we are aligning a samples reads to its own assembly this is especially important.
+</details>
+
+### Visualize The Alignments In IGV
+
+**Before switching over to your virtual desktop link the prerun alignments to your working directory**
+```
+ln -s /nesi/nobackup/nesi02659/LRA/resources/ont_ul/aligned/verkko_trio_diploid.mm2.5mC.bam
+ln -s /nesi/nobackup/nesi02659/LRA/resources/ont_ul/aligned/verkko_trio_diploid.mm2.5mC.bam.bai
+```
+
+**Now view the alignments in IGV**
+1. Open an IGV window as you did above. Don't forget to `module load IGV/2.9.4`
+2. We need to use our assembly as the genome file. Do that by clicking the **Genomes** dropdown at the top and then select **Load Genome From File**. Navigate to your folder and select the Verkko trio genome that we copied in.
+3. Load the 5mC bam by clicking on the **File** dropdown then selecting **Load From File**
+4. Show the methylation predictions by right clicking on the alignment track and selecting **Color alignments by**, then click **base modifications (5mc)**
+
+**Explore the data a bit**
+Zoom in on a random region that is a few hundred basepairs in size. You can see the methylation levels in the track histogram and in the reads themselves. Red is methylated and blue is unmethylated.
+
+If you are familiar with ONT data already you know that ONT and PacBio have the ability to detect base modifications without any additional steps like bisulfite conversion. What we are adding here is the ability to look at methylation in the context of a sample's own assembly. Maybe that wouldn't matter if you are looking at regions of the genome which are structurally consistent across samples -- like promoters for well known genes. 
+
+Now let's take a look at a region where it matters that we are using a matched data and sample:
+Navigate to  `mat-0000038:51,448,000 - 51,510,000`. This is the biggest contig that maps to chrX and we chose a region that is usually where the centromere is on chrX. 
+
+You will notice that most of the view has very high levels of methylation, but there are some regions where the methylation drops to near zero. These are called the centromere dip regions.
+
+
+<details>
+    <summary>
+        <strong>Why did we choose to show you an example in chrX?</strong>
+    </summary>    
+    In male samples chrX is haploid, so outside of the psuedoautosomal, or PAR, regions we don't have to worry about whether or not our reads map to the correct haplotype.
+</details>
+
+
+<details>
+    <summary>
+        <strong>What would have happened if we had just aligned this data to CHM13?</strong>
+    </summary>    
+    From a haplotype specificity standpoint for chrX it might have been fine. Centromeres are highly repetitive and alpha satellite arrays can vary from individual to individual in size by more than a factor of two. So aligning contromeric reads from one individual to another individual's assembly is an inherently dodgy proposition.
 </details>
