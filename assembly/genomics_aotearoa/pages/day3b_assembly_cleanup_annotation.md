@@ -471,7 +471,7 @@ Now look through the bed file and find the contig you are interested in to see i
 2. Not having base-level information is actually ok for what we just did. If you would like base level information at only a few fold the run cost of mashmap (so still very fast), then you probably want to check out [wfmash](https://github.com/waveygang/wfmash/blob/master/README.md). It can be used for alignments of long reads (100kb+) or assemblies at very large scales.
 
 ## Minimap2: 
-If you are mapping long read data and you'd like to have base-level alignment, M=minimap2 is probably your first stop. 
+If you are mapping long read data and you'd like to have base-level alignment, minimap2 is probably your first stop. 
 
 Today we are going to use minimap2 to align ONT reads that have 5mC information stored in Mm/Ml tags to our diploid assembly.
 
@@ -482,14 +482,16 @@ mkdir -p lra/day3b_annotation/minimap2
 cd lra/day3b_annotation/minimap2
 ```
 
-**Link the files we need**
+**Copy over our Verkko trio assembly**
 
-We are going to use the diploid version of our Verkko trio assembly. (This just means that the maternal and paternal haplotypes are not separated.)
+We are going to use the diploid version of our Verkko trio assembly. (This just means that the maternal and paternal haplotypes are both included in the fasta.)
 ```
 cp \
     /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.fasta \
     verkko_trio_diploid.fa
 ```
+**Create a minimap2 slurm script**
+
 Open your favourite text editor
 ```
 nano ont_mm2.sl
@@ -531,12 +533,12 @@ samtools fastq \
 
 samtools index verkko_trio_diploid.mm2.5mC.bam
 ```
+**And run the script**
 
-This should only take 3 hours or so, but we have some pre-baked results for you already.
 ```
 sbatch ont_mm2.sl
 ```
-We will use these results in the next section.
+This should only take 3 hours or so, but we have some pre-baked results for you already. We will use these results in the next section.
 
 <details>
     <summary>
