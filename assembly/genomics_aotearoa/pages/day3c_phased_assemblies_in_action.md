@@ -1,39 +1,17 @@
 # Phased Assemblies in Action
 
-!!! info "Objectives"
-```
-- learn about different approaches to phasing
-- generate a pseudohaplotype assembly, without using any additional phasing data
-- generate a Hi-C-phased assembly
-- identify QC metrics that can assess phasing of assemblies
-```
+What can you do with a phased assembly that you cannot do with a squashed
+assembly? Why does having a highly-continuous and highly-accurate assembly
+matter? In same cases, you don&rsquo; need an assembly like that, e.g., if
+doing targeted sequencing of a region of interest that fits inside the length
+of a read. Conversly, some applications _require_ a good assembly, e.g., when
+studying repetitive DNA, especially long and/or interspersed repeats. Phasing
+is also helpful when the haplotypes differ, especially when those differences
+are structural in nature (e.g., copy number variants or large insertions,
+deletions, duplications, or inversions). Let&rsquo; take a look at the repeats
+in chromosome Y of our HG002 assembly.
 
-### Recap
-
-- previously learned about assembly QC -> now we need to apply it by interpreting QC to see if an assembly is phased
-
-### Data set reminder
-
-- placeholder
-
-
-
-## Getting started
-Remember that there is a "Key terms and concepts" box at the end of this document if you want to refresh any definitions!
-### subheader
-text
-
-!!! info "Key terms and concepts"
-```
-- CONTIG: contiguous (i.e., gapless) sequence in an assembly
-- PHASING: phasing aims to partition the contigs for an individual according to their haplotype of origin. This is typically done using raed data from the parents to identify parentally inherited alleles. Recent approaches incorporate long-range Hi-C linkage information from the same individual to phase contigs. 
-- PSEUDOHAPLOTYPE ASSEMBLY: assembly consisting of long, phased haplotype blocks separated by regions where the haplotype cannot be distinguished.
-- SWITCH ERROR: 
-- PRIMARY ASSEMBLY:
-- ALTERNATE ASSEMBLY:
-```
-
-# Visualizing Repeats using ModDotPlot
+## Visualizing Repeats using ModDotPlot
 
 [ModDotPlot](https://github.com/marbl/ModDotPlot) <!--([Sweeten _et al._ 2023](https://doi.org/##############))-->
 is a tool for visualizing tandem repeats using dot plots, similar to
@@ -63,15 +41,17 @@ software can&rsquo;t distinguish between repeat copies.
         minimizers, made particularly popular with tools like
         <a href="https://lh3.github.io/minimap2">minimap2</a>
         (<a href="https://doi.org/10.1093/bioinformatics/bty191">Li 2018</a>),
-        which applies minimizers to the alignment problem. Several variants to
-        minimizers exist, e.g., syncmers and modimizers, the latter of which is
-        used in ModDotPlot. Each sketching method has different properties
-        depending on how they select the subsequence used to represent a larger
-        area, whether they allow overlaps, whether a certain density of
-        representative sequences is enforced in any given window, whether the
-        neighboring windows are dependent on eachother, etc. In general, the
-        representative sequences are found by sliding along the sequence and
-        selecting a representative subsequence in the given window.
+        which applies minimizers to the alignment problem. We discussed
+        minimizers earlier when running MashMap. The minimizer for any given
+        window is the lexicographically smallest canonical k-mer. Several
+        variants to minimizers exist, e.g., syncmers, minmers, and modimizers,
+        the latter of which is used in ModDotPlot. Each sketching method has
+        different properties depending on how they select the subsequence used
+        to represent a larger area, whether they allow overlaps, whether a
+        certain density of representative sequences is enforced in any given
+        window, whether the neighboring windows are dependent on eachother, etc.
+        In general, the representative sequences are found by sliding along the
+        sequence and selecting a representative subsequence in the given window.
     </p>
     <p>
         Many other tools use sketching in some way, here are a few examples:
@@ -104,46 +84,56 @@ software can&rsquo;t distinguish between repeat copies.
 We&rsquo;re going to run ModDotPlot on part of the Y chromosome from our
 earlier assembly. First we&rsquo;ll need to identify the appropriate chunk,
 which can be done a few different ways depending on the sequence you&rsquo;re
-looking for. In our case, chrY often appears tied on only one end to chrX in
-the Bandage plot, making it easy to identify the Y node (which is shorter than
-the longer X node). This method may not get all of the Y chromosome because it
-may be (and in our case is) in separate pieces (i.e., it isn&rsquo;t T2T). The
-ideal way is to map some known sequence against your assembly or to may your
-assembly against a known reference. Since we&rsquo;re using data from HG002,
-we can map against the CHM13-T2T reference.
+looking for. ChrY somtimes appears tied on only one end to chrX in the Bandage
+plot, making it easy to identify the Y node (which is shorter than the longer X
+node). This method may not get all of the Y chromosome because it may be in
+separate pieces (i.e., it isn&rsquo;t T2T), and we often see chrX and chrY
+untangled from eachother in one or two pieces each, so topology of the graph
+isn&rsquo;t always a reliable option (though, we recommend labelling the graph
+with the chromosome names to get a feel for how your assembly looks). The ideal
+way is to map some known sequence against your assembly or to map your assembly
+against a known reference. Since we&rsquo;re using data from HG002 (a human), we
+can map against the human CHM13-T2T reference.
 
-## Initial setup
+### Initial setup
 
 **Make a directory to work in**
 
 ```
-mkdir day3-moddotplot
-cd day3-moddotplot
+mkdir day3c-moddotplot
+cd day3c-moddotplot
 ```
 
 **Get the files**
 
 ```
 ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/chm13/chm13v2.0.fa chm13.fa
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta hg002.fa
-ln -s /nesi/nobackup/nesi02659/LRA/resources/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta.fai hg002.fa.fai
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype2.fasta hg002.hap2.fa
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype2.fasta.fai hg002.hap2.fa.fai
 ```
 
-## Find chrY contigs with MashMap
+Note that we&rsquo; cheating a bit. We could map against the entire diploid
+assembly, but we&rsquo;ve already determined that chrY is in haplotype2, so
+we&squo;ll save some time and work with only that haplotype.
+
+### Find chrY contigs with MashMap
 
 **Do the alignments**
 
 We&rsquo;ll do the alignments with [MashMap](https://github.com/marbl/MashMap)
 ([Kille _et al._ 2023](https://doi.org/10.1101/2023.05.16.540882)). This should
-take ~3 minutes with 4 CPUs and should use <3 GB RAM.
+take ~25 minutes with 4 CPUs and should use <4 GB RAM. This command is the same
+as the one you ran earlier, except that this time it is on haplotype2 and the
+percent identity threshold is lower, which should help us recruit alignments in
+the satellites on chrY.
 ```
 module load MashMap/3.0.4-Miniconda3
 mashmap -f "one-to-one" \
-    -k 16 --pi 85 \
-    -s 500000 -t 4 \
+    -k 16 --pi 90 \
+    -s 100000 -t 4 \
     -r chm13.fa \
-    -q hg002.fa \
-    -o hg2-x-chm13.ssv
+    -q hg002.hap2.fa \
+    -o hg2hap2-x-chm13.ssv
 ```
 
 <details>
@@ -182,35 +172,172 @@ mashmap -f "one-to-one" \
     'none' disables filtering</code></pre>
 </details>
 
+<!--
+**Grab the MashMap alignments from earlier**
+```
+ln -s ../day3b_annotation/mashmap/asm-to-chm13.mashmap.out hg2hap2-x-chm13.ssv
+```
+-->
+
+<details>
+    <summary>
+        <strong>What if I want to run it faster?</strong>
+    </summary>
+    Submit it as a job with <code>sbatch</code>. First copy the command into a
+    script named <code>mashmap.sh</code> and change the number of threads to 16:
+
+<pre><code>#! /usr/bin/env bash
+
+set -euo pipefail
+
+module load MashMap/3.0.4-Miniconda3
+
+mashmap -f "one-to-one" \
+    -k 16 --pi 90 \
+    -s 100000 -t 16 \
+    -r chm13.fa \
+    -q hg002.hap2.fa \
+    -o hg2hap2-x-chm13.ssv
+</code></pre>
+
+
+Then submit the job with <code>sbatch</code>:
+
+<pre><code>sbatch -J mashmap -N1 -n1 -c16 --mem=8G -t 0-00:15 -A nesi02659 -o %x.%j.log mashmap.sh</code></pre>
+
+</details>
+
 **View the output file**
 
 ```
-less -S hg2-x-chm13.ssv
+less -S hg2hap2-x-chm13.ssv
+```
+
+There is more information present than we need, and we can simplify things by
+looking at long alignments only.
+
+**Subset the alignments**
+
+```
+awk 'BEGIN{FS=" "; OFS=FS}{if($6 == "chrY" && ($4-$3) >= 1000000){print $0}}' \
+    < hg2hap2-x-chm13.ssv \
+    > hg2hap2-x-chm13.gt1m-chrY.ssv
 ```
 
 <details>
     <summary>
-        <strong>Which contigs belong to chrY?</strong>
+        <strong>What is the <code>awk</code> command doing?</strong>
     </summary>
-    <p>
-        pat-0000204, pat-0000206, pat-0000209, pat-0000213, and pat-0000218 probably
-        are chrY. Others may be as well, but it is difficult to tell without a more
-        refined investigation.
-    </p>
-    <p>
-        Having a hard time telling? Try determining what percentage of the contig is aligned.
-        <pre><code>awk 'BEGIN{FS=" "; OFS="\t"; print "Contig", "Length", "Percent Identity", "Percent Aligned"}{print $1, $2, $10 "%", ($4-$3)/$2*100 "%"}' \
-    hg2-x-chm13.ssv \
-    | column -ts $'\t' \
-    > hg2-x-chm13.annotated.txt
-less -S hg2-x-chm13.annotated.txt</code></pre>
-    </p>
-    <p>
-        It may also help to visualize the dot plot from MashMap of contigs
-        along chrY:
-        <img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly-in-action/mashmap_hg002-x-chm13_chrY.png?raw=true" alt="Dotplot of HG002 contigs against CHM13 chrY">
-    </p>
+    This <code>awk</code> command is keeping only alignments (remember, one
+    alignment is on each line of the file) that map to chrY; the sixth column
+    is the "reference" or "target" sequence name. The third and fourth columns
+    are respectively the start and stop positions of the aligned region on the
+    "query" sequence (i.e., a contig from our assembly); thus, we&rsquo;re
+    keeping only alignments that are 1 Mbp or longer. This also has the
+    consequence of ignoring contigs that are shorter than 1 Mbp.
 </details>
+
+**View the output file**
+
+Now that we&rsquo;ve culled the alignments, viewing them should be much easier:
+
+```
+less -S hg2hap2-x-chm13.gt1m-chrY.ssv
+```
+
+**Which contigs belong to chrY?**
+
+<details>
+    <summary>
+        <strong>Click here to reveal the answer</strong>
+    </summary>
+    pat-0000724, pat-0000725,  and pat-0000727 are probably chrY.
+</details>
+
+Others may be as well, but it is difficult to tell without a more refined
+investigation, and this is sufficient for our purposes.
+
+**How can we tell?**
+
+Anything with a long, high-identity alignment is a pretty good candidate,
+especially if the contig was determined to be paternal using trio markers (as
+these were). One thing that may help is seeing what percentage of the contig is
+covered by each alignment:
+```
+awk 'BEGIN{FS=" "; OFS="\t"; print "Contig", "Length", "Percent Identity", "Percent Aligned"}{print $1, $2, $10 "%", ($4-$3)/$2*100 "%"}' \
+    hg2hap2-x-chm13.ssv \
+    | column -ts $'\t' \
+    > hg2hap2-x-chm13.annotated.txt
+less -S hg2hap2-x-chm13.annotated.txt
+```
+
+The astute observer will wonder why pat-0000724 should be included when
+it has only 1% of the contig is aligned. Note that only 1% of the
+contig is aligned in a block of &gt;= 1 Mbp. Let&rsquo;s add back in
+the short alignments for these three contigs and then look at the
+percentages for each contig:
+
+```
+awk 'BEGIN{FS=" "; OFS=FS}{if($6 == "chrY" && $1 ~ /^pat-000042[457]$/){print $0}}' \
+    hg2hap2-x-chm13.ssv \
+    > hg2hap2-x-chm13.selected.ssv
+
+awk 'BEGIN{FS=" "; OFS="\t"; print "Contig", "Length", "Percent Identity", "Percent Aligned"}{print $1, $2, $10 "%", ($4-$3)/$2*100 "%"}' \
+    hg2hap2-x-chm13.selected.ssv \
+    | column -ts $'\t' \
+    > hg2hap2-x-chm13.selected.annotated.txt
+
+less -S hg2hap2-x-chm13.selected.annotated.txt
+```
+
+To prevent you from having to do the math in your head, here are the
+percentages of each contig aligned to chrY (sum of the final column in
+the `hg2hap2-x-chm13.selected.annotated.txt` file):
+
+<table>
+    <thead>
+        <td>
+            HG002 Contig
+        </td>
+        <td>
+            % aligned to chrY
+        </td>
+    </thead>
+    <tr>
+        <td>
+            pat-0000724
+        </td>
+        <td>
+            76.10262%
+        </td>
+    </tr>
+    <tr>
+        <td>
+            pat-0000725
+        </td>
+        <td>
+            99.9999%
+        </td>
+    </tr>
+    <tr>
+        <td>
+            pat-0000727
+        </td>
+        <td>
+            98.342%
+        </td>
+    </tr>
+</table>
+
+More short contigs may also belong to chrY, but we would need to investigate
+more carefully to find them. We would want to confirm whether telomeres are
+present on the end of the terminal contigs. Also, we do not expect perfect or
+complete alignments here; not only are we using a sketching-based alignment
+method, but any aligner would likely struggle when aligning repetitve DNA. So,
+how much of chrY did we capture with these three contigs? You can see that
+these three contigs cover the majority, if not all, of chrY:
+
+<img src="https://github.com/human-pangenomics/hprc-tutorials/blob/GA-workshop/assembly/genomics_aotearoa/images/assembly-in-action/mashmap_hg002-x-chm13_chrY.png?raw=true" alt="Dotplot of HG002 contigs against CHM13 chrY">
 
 ## Create self dot plots for each contig
 ModDotPlot is still in development, and it cannot currently support doing
@@ -220,10 +347,10 @@ files for our contigs of interest.
 **Create and index subset fastas**
 
 ```
-for CTG in pat-00002{0{4,6,9},1{3,8}}
+for CTG in pat-000072{4,5,7}
 do
-    samtools faidx ${CTG} hg002.fa > hg002.${CTG}.fa
-    samtools faidx hg002.${CTG}.fa
+    samtools faidx ${CTG} hg002.hap2.fa > hg002.hap2.${CTG}.fa
+    samtools faidx hg002.hap2.${CTG}.fa
 done
 ```
 
@@ -240,11 +367,11 @@ set -euo pipefail
 
 module load ModDotPlot/2023-06-gimkl-2022a-Python-3.11.3
 
-for CTG in pat-00002{0{4,6,9},1{3,8}}
+for CTG in pat-000072{4,5,7}
 do
     moddotplot \
         -k 21 -id 85 \
-        -i hg002.${CTG}.fa \
+        -i hg002.hap2.${CTG}.fa \
         -o mdp_hg002-${CTG}
 done
 ```

@@ -248,8 +248,8 @@ ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.renamed.gff.gz chm1
 ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/CHM13-T2T.renamed.gff.liftoff.sqlite3 chm13-annotations.gff.liftoff.sqlite3
 ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa chm13.fa
 ln -s /nesi/nobackup/nesi02659/LRA/resources/chm13/chm13v2.0.fa.fai chm13.fa.fai
-ln -s /nesi/nobackup/nesi02659/LRA/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa
-ln -s /nesi/nobackup/nesi02659/LRA/resources/verkko_trio_prebaked/asm_hifiont/assembly.fasta asm.fa.fai
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta asm.hap1.fa
+ln -s /nesi/nobackup/nesi02659/LRA/resources/assemblies/verkko/full/trio/assembly/assembly.haplotype1.fasta.fai asm.hap1.fa.fai
 ```
 
 <details>
@@ -269,8 +269,8 @@ ln -s /nesi/nobackup/nesi02659/LRA/resources/verkko_trio_prebaked/asm_hifiont/as
     the input GFF file) and <code>-db</code> (to provide the input SQLite
     database) are interchangeable. We&rsquo;ll be using the database to save
     time, but we could instead use the other option and supply the GFF file.
-	If you haven&rsquo;t yet viewed a GFF file, now would be a good time to
-	check one out: <pre><code>less -S chm13-annotations.gff.gz</code></pre>
+    If you haven&rsquo;t yet viewed a GFF file, now would be a good time to
+    check one out: <pre><code>less -S chm13-annotations.gff.gz</code></pre>
 </details>
 
 **Run Liftoff**
@@ -286,8 +286,8 @@ module load Liftoff/1.6.3.2-gimkl-2022a-Python-3.11.3
 liftoff \
     -p 8 \
     -db chm13-annotations.gff.liftoff.sqlite3 \
-    -o asm.annotations.gff \
-    asm.fa \
+    -o asm.hap1.annotations.gff \
+    asm.hap1.fa \
     chm13.fa
 ```
 
@@ -315,15 +315,19 @@ liftoff \
     -copies # possibly with -sc 2 # diploid vs haploid assembly liftover
 -->
 
+<!--
+    Expect this to take just over 1 hour w/ 8 cpus. MaxRSS was reported as
+    ~36 GB, but it failed when I gave it only 36 GB previously.
+-->
 Then submit it as a job with `sbatch`:
 ```
-sbatch -J liftoff -N1 -n1 -c8 --mem=20G -t 0-01:30 -A nesi02659 -o %x.%j.log liftoff.sh
+sbatch -J liftoff -N1 -n1 -c8 --mem=48G -t 0-02:00 -A nesi02659 -o %x.%j.log liftoff.sh
 ```
 
 **Look at the output GFF3 file**
 
 ```shell
-less -S asm.annotations.gff
+less -S asm.hap1.annotations.gff
 ```
 
 You can also explore the files in Liftoff's intermediate directory:
@@ -335,8 +339,8 @@ Before we visualize the annotations in IGV, it is best if we sort and index the
 output GFF file:
 ```
 module load IGV/2.9.4
-igvtools sort asm.annotations.gff asm.annotations.sorted.gff
-igvtools index asm.annotations.sorted.gff
+igvtools sort asm.hap1.annotations.gff asm.hap1.annotations.sorted.gff
+igvtools index asm.hap1.annotations.sorted.gff
 ```
 These operations are small enough that you should not need to submit a job for
 them.
@@ -351,7 +355,7 @@ To open IGV and view the annotations, do the following:
        igv.sh
        ```
 2. Load the CHM13-T2T genome (instead of the default hg19): Genome > Load Genome from File... > `chm13.fa`
-3. Load the GFF file: File > Load from File... > `asm.annotations.sorted.gff`
+3. Load the GFF file: File > Load from File... > `asm.hap1.annotations.sorted.gff`
 4. Explore
 
 **What do you observe? Do you have any questions?**
