@@ -13,3 +13,10 @@ verkko_process_phasing.png
 verkko_grapholds.png
 	Parts of the Verkko assembly process.
 	pulled apart from Extended Data Fig. 10: Rautiainen, Mikko, et al. "Telomere-to-telomere assembly of diploid chromosomes with Verkko." Nature Biotechnology (2023): 1-9.	
+
+
+merqury_kmer_hap1.png
+merqury_kmer_primary_only_purged.png
+merqury_kmer_primary_only.png
+	Merqury plots of kmer multiplicities of different assemblies
+	From aGasCar1 assembly from VGP	
