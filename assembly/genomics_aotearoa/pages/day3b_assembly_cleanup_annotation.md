@@ -354,7 +354,7 @@ To open IGV and view the annotations, do the following:
        module load IGV/2.9.4
        igv.sh
        ```
-2. Load the CHM13-T2T genome (instead of the default hg19): Genome > Load Genome from File... > `chm13.fa`
+2. Load the HG002 hap1 genome (instead of the default hg19): Genome > Load Genome from File... > `asm.hap1.fa`
 3. Load the GFF file: File > Load from File... > `asm.hap1.annotations.sorted.gff`
 4. Explore
 
