@@ -240,6 +240,26 @@ Open the `assembly/1-buildGraph/hifi-resolved.gfa` file in Bandage. You will see
 
 Open the `assembly/5-untip/unitig-normal-connected-tip.gfa` file in Bandage. Now our three nodes have been resolved into one. 
 
+# Building Graph Sense
+
+We&rsquo;re going to open Bandage and look around. This is a demonstration, so
+you do not need to try to do this on your own machine. The goal is to develop
+an intution for what the graph visualization is telling you.
+
+* Overall feel for graphs and bandage
+  * graphs: nodes, edges, and paths
+    * simple examples: cycle & hairpin
+  * bandage UI
+  * loading CSVs and launching from CLI
+* How does a typical human assembly look?
+  * ~23 chunks
+  * zippers: het-hom-het-etc.
+  * non-zippers (rDNA tangles, sex chrs, breaks)
+* Complex examples
+  * hom with short hets w/o markers
+  * long hom with long hets
+  * &ldquo;scaffold&rdquo; from graph structure
+  * complete fail
 
 # Comparison of Runtime Parameters
 
