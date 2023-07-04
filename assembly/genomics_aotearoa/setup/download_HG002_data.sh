@@ -101,6 +101,16 @@ mkdir -p /nesi/nobackup/nesi02659/LRA/resources/ilmn/mat
 
 /home/juklucas/bin/aws \
     s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/Illumina/child/HG002_HiSeq30x_subsampled_R1.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/ilmn/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
+    s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/Illumina/child/HG002_HiSeq30x_subsampled_R2.fastq.gz \
+    /nesi/nobackup/nesi02659/LRA/resources/ilmn/ &
+
+/home/juklucas/bin/aws \
+    s3 --no-sign-request cp \
     s3://human-pangenomics/working/HPRC_PLUS/HG002/raw_data/Illumina/parents/HG003/HG003_HiSeq30x_subsampled_R1.fastq.gz \
     /nesi/nobackup/nesi02659/LRA/resources/ilmn/pat/ &
 
