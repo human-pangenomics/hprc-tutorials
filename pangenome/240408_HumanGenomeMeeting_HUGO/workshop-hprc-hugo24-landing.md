@@ -2,6 +2,8 @@
 
 ## https://tinyurl.com/PangenomeHugo24
 
+Tiny URL used during the workshop. It still points at this "landing" page in the old repository.
+
 ## [Slides](https://docs.google.com/presentation/d/1HijsejJkJ8x_pEStdOHdVnI-DzNQmhUk9I6MF20Ppsk/edit?usp=sharing)
 
 
