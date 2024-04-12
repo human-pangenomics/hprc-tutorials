@@ -1,0 +1,22 @@
+Sample	gfaffix	odgi	seqwish	smoothxg	pggb	wfmash	nf-core/pangenome	Nextflow
+GFAFFIX	0.1.5b0							
+ODGI_BUILD		0.8.4						
+ODGI_DRAW_HEIGHT		0.8.4						
+ODGI_DRAW_MULTIQC		0.8.4						
+ODGI_LAYOUT		0.8.4						
+ODGI_SORT		0.8.4						
+ODGI_STATS		0.8.4						
+ODGI_UNCHOP		0.8.4						
+ODGI_VIEW		0.8.4						
+ODGI_VIZ_COLOR		0.8.4						
+ODGI_VIZ_COMPR		0.8.4						
+ODGI_VIZ_DEPTH		0.8.4						
+ODGI_VIZ_INV		0.8.4						
+ODGI_VIZ_POS		0.8.4						
+ODGI_VIZ_UNCALLED		0.8.4						
+SEQWISH			0.7.9					
+SMOOTHXG				0.7.2				
+SPLIT_APPROX_MAPPINGS_IN_CHUNKS					null			
+WFMASH_ALIGN						0.10.4		
+WFMASH_MAP						0.10.4		
+Workflow							v1.1.2-g0e8a387	23.10.1

@@ -1,0 +1,8 @@
+graph: 'hprc-v1.0-mc-grch38.chr1_25053647_25685365'
+gbz: "rhce_data/hprc-v1.0-mc-grch38.chr1_25053647_25685365.gbz"
+ref_paths_list: 'rhce_data/ref.paths.list.txt'
+seqn_prefix: "GRCh38."
+gt_min_var_len: 30
+sample_tsv: "rhce_data/sample_info.tsv"
+sort_gam: true
+kmc_mem_gb: 2

@@ -1,0 +1,190 @@
+<!--
+  ~ Copyright 2013-2023, Seqera Labs
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html>
+<head>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+</head>
+<body>
+<pre class="mermaid" style="text-align: center;">
+flowchart TB
+    subgraph " "
+    v13["Channel.of"]
+    v14["Channel.of"]
+    v16["Channel.fromPath"]
+    v28["fasta"]
+    v32["query_self"]
+    v33["fasta_query_list"]
+    v42["query_self"]
+    v43["fasta_query_list"]
+    v127["Channel.of"]
+    v131["ch_workflow_summary"]
+    end
+    subgraph NFCORE_PANGENOME
+    subgraph PANGENOME
+    subgraph PGGB
+    v34([WFMASH_MAP])
+    v36([SPLIT_APPROX_MAPPINGS_IN_CHUNKS])
+    v44([WFMASH_ALIGN])
+    v48([SEQWISH])
+    v50([SMOOTHXG])
+    v53([GFAFFIX])
+    v59([ODGI_BUILD])
+    v63([ODGI_UNCHOP])
+    v65([ODGI_SORT])
+    v67([ODGI_VIEW])
+    subgraph ODGI_QC
+    v76([ODGI_STATS])
+    v80([ODGI_VIZ_COLOR])
+    v83([ODGI_VIZ_POS])
+    v86([ODGI_VIZ_DEPTH])
+    v89([ODGI_VIZ_INV])
+    v92([ODGI_VIZ_COMPR])
+    v95([ODGI_VIZ_UNCALLED])
+    v97([ODGI_LAYOUT])
+    v101([ODGI_DRAW_MULTIQC])
+    v104([ODGI_DRAW_HEIGHT])
+    v70(( ))
+    v100(( ))
+    v103(( ))
+    end
+    v29(( ))
+    v38(( ))
+    v46(( ))
+    v56(( ))
+    v61(( ))
+    v79(( ))
+    v82(( ))
+    v85(( ))
+    v88(( ))
+    v91(( ))
+    v94(( ))
+    end
+    v141([MULTIQC])
+    v15(( ))
+    v138(( ))
+    v139(( ))
+    v140(( ))
+    v145(( ))
+    end
+    end
+    subgraph " "
+    v51[" "]
+    v54[" "]
+    v68["gfa"]
+    v77[" "]
+    v98[" "]
+    v105[" "]
+    v142[" "]
+    v143[" "]
+    v144[" "]
+    v146["multiqc_report"]
+    v148["versions"]
+    end
+    v13 --> v29
+    v13 --> v38
+    v14 --> v29
+    v14 --> v38
+    v16 --> v138
+    v28 --> v29
+    v28 --> v38
+    v28 --> v46
+    v32 --> v34
+    v33 --> v34
+    v29 --> v34
+    v34 --> v36
+    v34 --> v15
+    v36 --> v15
+    v36 --> v38
+    v42 --> v44
+    v43 --> v44
+    v38 --> v44
+    v44 --> v15
+    v44 --> v46
+    v46 --> v48
+    v48 --> v50
+    v48 --> v15
+    v48 --> v56
+    v50 --> v53
+    v50 --> v51
+    v50 --> v15
+    v53 --> v54
+    v53 --> v15
+    v53 --> v56
+    v56 --> v59
+    v59 --> v15
+    v59 --> v61
+    v59 --> v70
+    v61 --> v63
+    v63 --> v65
+    v63 --> v15
+    v65 --> v67
+    v65 --> v97
+    v65 --> v15
+    v65 --> v70
+    v65 --> v79
+    v65 --> v82
+    v65 --> v85
+    v65 --> v88
+    v65 --> v91
+    v65 --> v94
+    v65 --> v100
+    v65 --> v103
+    v67 --> v68
+    v67 --> v15
+    v70 --> v76
+    v76 --> v77
+    v76 --> v15
+    v79 --> v80
+    v80 --> v15
+    v82 --> v83
+    v83 --> v15
+    v85 --> v86
+    v86 --> v15
+    v88 --> v89
+    v89 --> v15
+    v91 --> v92
+    v92 --> v15
+    v94 --> v95
+    v95 --> v15
+    v97 --> v98
+    v97 --> v15
+    v97 --> v100
+    v97 --> v103
+    v100 --> v101
+    v101 --> v15
+    v103 --> v104
+    v104 --> v105
+    v104 --> v15
+    v127 --> v15
+    v131 --> v15
+    v15 --> v141
+    v138 --> v141
+    v139 --> v141
+    v140 --> v141
+    v141 --> v144
+    v141 --> v143
+    v141 --> v142
+    v141 --> v145
+    v145 --> v146
+    v15 --> v148
+
+</pre>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true });
+</script>
+</body>
+</html>

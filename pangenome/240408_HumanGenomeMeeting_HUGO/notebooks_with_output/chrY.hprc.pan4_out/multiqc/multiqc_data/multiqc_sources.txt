@@ -1,0 +1,3 @@
+Module	Section	Sample Name	Source
+ODGI	all_sections	seqwish	/tmp/jean/pggb/work/15/1eecc7f3e3c582bb967c4e65351a67/3/chrY.hprc.pan4.fa.gz.seqwish.og.stats.yaml
+ODGI	all_sections	chrY.hprc.pan4	/tmp/jean/pggb/work/15/1eecc7f3e3c582bb967c4e65351a67/2/chrY.hprc.pan4.fa.gz.gfaffix.og.stats.yaml

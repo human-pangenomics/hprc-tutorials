@@ -1,0 +1,5 @@
+FROM quay.io/jmonlong/hprc-hugo2024-jupyterhub
+
+COPY bigdata /bigdata
+
+COPY singularity_cache /singularity_cache
