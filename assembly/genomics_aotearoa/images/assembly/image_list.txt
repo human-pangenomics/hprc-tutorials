@@ -1,0 +1,22 @@
+hic_phasing.png
+	Hi-C phasing on unitig graph for assembly phasing
+	modified from: Garg, Shilpa. "Towards routine chromosome-scale haplotype-resolved reconstruction in cancer genomics." Nature Communications 14.1 (2023): 1358.
+
+verkko_process_contigs.png
+verkko_process_hifi_graph.png
+verkko_process_hifi_repeat_compr.png
+verkko_process_ont_resolved.png
+verkko_process_phasing.png
+	Parts of the Verkko assembly process.
+	pulled apart from fig 1: Rautiainen, Mikko, et al. "Telomere-to-telomere assembly of diploid chromosomes with Verkko." Nature Biotechnology (2023): 1-9.
+
+verkko_grapholds.png
+	Parts of the Verkko assembly process.
+	pulled apart from Extended Data Fig. 10: Rautiainen, Mikko, et al. "Telomere-to-telomere assembly of diploid chromosomes with Verkko." Nature Biotechnology (2023): 1-9.	
+
+
+merqury_kmer_hap1.png
+merqury_kmer_primary_only_purged.png
+merqury_kmer_primary_only.png
+	Merqury plots of kmer multiplicities of different assemblies
+	From aGasCar1 assembly from VGP	

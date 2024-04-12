@@ -1,0 +1,16 @@
+HG002_bandage.png
+	Diploid Assembly Bandage (subset to one area)
+	from: made from in-house data
+
+PAN027_bandage.png
+	Diploid Assembly Bandage
+	from: made from in-house data
+	
+Assembly_Workflow.svg
+	Assembly workflow
+	from: made in lucid charts
+	
+Porubsky_Gaps_Figure1D.png
+	Gaps In Medically Relevant Loci
+	from: Porubsky, David, et al. "Gaps and complex structurally variant loci in phased genome assemblies." Genome Research 33.4 (2023): 496-510.
+
