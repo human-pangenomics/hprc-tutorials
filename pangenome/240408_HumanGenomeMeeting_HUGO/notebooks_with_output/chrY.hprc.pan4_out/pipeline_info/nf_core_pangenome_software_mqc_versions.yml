@@ -1,0 +1,43 @@
+GFAFFIX:
+  gfaffix: 0.1.5b
+ODGI_BUILD:
+  odgi: 0.8.4
+ODGI_DRAW_HEIGHT:
+  odgi: 0.8.4
+ODGI_DRAW_MULTIQC:
+  odgi: 0.8.4
+ODGI_LAYOUT:
+  odgi: 0.8.4
+ODGI_SORT:
+  odgi: 0.8.4
+ODGI_STATS:
+  odgi: 0.8.4
+ODGI_UNCHOP:
+  odgi: 0.8.4
+ODGI_VIEW:
+  odgi: 0.8.4
+ODGI_VIZ_COLOR:
+  odgi: 0.8.4
+ODGI_VIZ_COMPR:
+  odgi: 0.8.4
+ODGI_VIZ_DEPTH:
+  odgi: 0.8.4
+ODGI_VIZ_INV:
+  odgi: 0.8.4
+ODGI_VIZ_POS:
+  odgi: 0.8.4
+ODGI_VIZ_UNCALLED:
+  odgi: 0.8.4
+SEQWISH:
+  seqwish: 0.7.9
+SMOOTHXG:
+  smoothxg: 0.7.2
+SPLIT_APPROX_MAPPINGS_IN_CHUNKS:
+  pggb: null
+WFMASH_ALIGN:
+  wfmash: 0.10.4
+WFMASH_MAP:
+  wfmash: 0.10.4
+Workflow:
+    nf-core/pangenome: v1.1.2-g0e8a387
+    Nextflow: 23.10.1

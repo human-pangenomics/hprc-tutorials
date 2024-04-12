@@ -1,0 +1,79 @@
+{
+  "BACKEND_URL": false,
+  "DATA_SOURCES": [
+      {
+          "name": "RHCE-RHD region",
+          "tracks": [
+              {"trackFile": "exampleData/internal/hprc-v1.0-mc-grch38.chr1_25053647_25685365.gbz", "trackType": "graph"},
+              {"trackFile": "exampleData/internal/hprc-v1.0-mc-grch38.chr1_25053647_25685365.gbz", "trackType": "haplotype"},
+              {"trackFile": "exampleData/internal/HG002.hprc-v1.0-mc-grch38.chr1_25053647_25685365.sorted.gam", "trackType": "read"}
+          ],
+          "region": "GRCh38.chr1:300000+100",
+          "dataType": "built-in"
+      },
+      {
+          "name": "SV genotyping - construct",
+          "tracks": [
+              {"trackFile": "exampleData/internal/svgeno_7_158876691_158884496.construct.gbz", "trackType": "graph"},
+              {"trackFile": "exampleData/internal/svgeno_7_158876691_158884496.construct.gbz", "trackType": "haplotype"},
+              {"trackFile": "exampleData/internal/svgeno_7_158876691_158884496.construct.HG002.sorted.gam", "trackType": "read"}
+          ],
+          "region": "ref:4800+10",
+          "dataType": "built-in"
+      },
+      {
+          "name": "SV genotyping - MSA",
+          "tracks": [
+              {"trackFile": "exampleData/internal/svgeno_7_158876691_158884496.msa.gbz", "trackType": "graph", "trackColorSettings": {"mainPalette": "greys", "auxPalette": "plainColors"}},
+              {"trackFile": "exampleData/internal/svgeno_7_158876691_158884496.msa.HG002.sorted.gam", "trackType": "read"}
+          ],
+          "region": "ref:4800+10",
+          "dataType": "built-in"
+      }
+  ],
+  "vgPath": "",
+  "dataPath": "exampleData",
+  "internalDataPath": "./exampleData/internal",
+  "tempDirPath": "temp",
+  "fetchTimeout": 15,
+  "maxFileSizeBytes": 1000000000,
+
+  "defaultGraphColorPalette" : {
+    "mainPalette": "#000000", 
+    "auxPalette": "greys", 
+    "colorReadsByMappingQuality": false
+  },
+
+  "defaultHaplotypeColorPalette" : {
+    "mainPalette": "plainColors", 
+    "auxPalette": "lightColors", 
+    "colorReadsByMappingQuality": false
+  },
+  
+  "defaultReadColorPalette" : {
+    "mainPalette": "blues", 
+    "auxPalette": "reds", 
+    "colorReadsByMappingQuality": false
+  },
+
+  "defaultTrackProps" : {
+    "trackType": "graph",
+    "trackColorSettings": {
+      "mainPalette": "#000000",
+      "auxPalette": "greys",
+      "colorReadsByMappingQuality": false
+    }
+  },
+
+  "fileTypeToExtensions": {
+    "graph": ".xg,.vg,.hg,.gbz,.pg,.db",
+    "haplotype": ".gbwt,.gbz",
+    "read": ".gam"
+  },
+
+  "MAXUPLOADSIZE": 5242880,
+  "pickerTypeOptions": ["mounted", "upload"],
+  "fileExpirationTime": 86400
+
+
+}
