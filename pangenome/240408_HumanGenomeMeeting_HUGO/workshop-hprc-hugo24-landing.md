@@ -7,7 +7,7 @@
 
 See `HUGO-Rome 2024_HPRC-Slides.pdf` for the PDF version.
 
-## [Click here to reach the JupyterHub Server]()
+## +Click here to reach the JupyterHub Server+
 
 **Link is dead now**. See [README.local.md](README.local.md) for instructions on how to run locally on your machine.
 
@@ -18,7 +18,7 @@ Login with
 
 This will create a workspace where you can access the notebooks and data.
 
-## [Click here to access the sequenceTubeMap server for this workshop]()
+## +Click here to access the sequenceTubeMap server for this workshop+
 
 **Link is dead now**. See [README.local.md](README.local.md) for instructions on how to run locally on your machine.
 
