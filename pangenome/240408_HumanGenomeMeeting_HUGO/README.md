@@ -1,272 +1,112 @@
-Notes to prepare or use the JupyterHub server for the HPRC Pangenome workshop at HUGO 2024.
+# HPRC Pangenome Workshop at the Human Genome Meeting (Rome 2024)
 
-To find out how to **run it locally on your computer** see [README.local.md](README.local.md).
+This workshop took place in Rome on April, 8 2024 for [Human Genome Meeting (HUGO)](https://www.hugo-hgm2024.org/).
+The objective was to teach participants to
 
-To see what the **notebooks with the outputs/plots**, go to the [`notebooks_with_output` folder](notebooks_with_output).
+- Understand how to leverage pangenomes produced by the HPRC for their work;
+- Conduct genomic analyses using diverse pangenome datasets and resources with an intuition about why this improves the validity and utility of their results; and
+- Access and analyze pangenomic datasets using high-performance computing (HPC) environments like the commercial AWS cloud executing reproducible workflows.
 
-# Launch a prepared instance
+After some introductions around the project and pangenomes, the participants first **built and analyzed pangenomes with [PGGB](https://github.com/pangenome/pggb)**. 
+They witness the effect of different parameters on the constructed pangenome. 
+Different pangenomes were also visualized with odgi and analyzed, for example to make a phylogenetic tree of primates, or monitor the growth of the core pangenome as more samples are added.
+Participants got familiar with a Nextflow pipeline automating pangenome construction too.
+In the second part, [Giraffe](https://github.com/vgteam/vg) was used to **map short sequencing reads to a slice of the HPRC pangenome and small variants were called** using [DeepVariant](https://github.com/google/deepvariant).
+Participants first played with a minimal command to align reads to the pangenome and project them to a linear reference genome. 
+Hence, they learned how to integrate the HPRC pangenome as a reference for read mapping in their existing pipeline. 
+To go further, participants ran the full Giraffe-DeepVariant pipeline with Snakemake, which call SNVs and indels from the aligned reads.
+Finally, they investigated the called small variants and visualized their read support on the pangenome.
 
-## Launch on EC2
+You can find materials for the workshops below, including:
 
-- Start from an image
-    - in left panel: *Images* -> *AMIs* 
-    - select latest image, e.g. *hprc-workshop-hugo-2024*
-    - *Launch instance from AMI*
-- Ubuntu Server 22.04, for example:
-    - t2.micro for testing
-    - c5.9xlarge for testing with a few users
-    - u-6tb1.112xlarge for the workshop
-- Pick enough disk space, for example 5 Tb (100Gb * 50 participants).
-- pick your personal keypair
-- Allow HTTPS and HTTP traffic from the internet
+- slides
+- output of the notebooks (viewable on GitHub)
+- instructions on how to run the notebook on your machine
 
-## Save the IP
+Note: for the workshop, we launched a large AWS instance to host the JupyterHub server. We had prepared a Docker image and the large data file (pangenomes and Singularity cache) in advance. See [README.instance_setup.md](README.instance_setup.md) for details on how the image, data, and instances were prepared.
 
-Once the instance is running, save the instance's public IP locally as an ENV variable
+## Slides
 
-```
-IP=34.215.133.12
-```
+- [GoogleSlides link](https://docs.google.com/presentation/d/1HijsejJkJ8x_pEStdOHdVnI-DzNQmhUk9I6MF20Ppsk/edit?usp=sharing)
+-  PDF version: [`HUGO-Rome 2024_HPRC-Slides.pdf`](<HUGO-Rome 2024_HPRC-Slides.pdf>).
 
-## Connect to instance 
+## Notebooks with output
 
-Using your keypair:
+You can see how the notebooks look like after being run, i.e. with all the log and graphic outputs, in the [`notebooks_with_output` folder](notebooks_with_output).
+The notebooks are:
 
-```
-ssh -i ~/.ssh/jmonlong-hprc-training.pem ubuntu@$IP
-```
+- [hprc_hugo24_pggb.ipynb](hprc_hugo24_pggb.ipynb) on the construction and analysis of pangenomes with PGGB.
+- [RHD-RHCE - Small variant calling with Giraffe-DeepVariant.ipynb](<RHD-RHCE - Small variant calling with Giraffe-DeepVariant.ipynb>) about mapping reads with Giraffe and calling small variants with DeepVariant in the RHD-RHCE region.
+- [pangenome-sv-genotyping.ipynb](pangenome-sv-genotyping.ipynb) with a simple example of mapping reads with giraffe and genotyping variants.
 
-## Optional: update data
+In that directory, you can also find the HTML reports and other outputs of the nf-core/pangenome Nextflow run in `chrY.hprc.pan4_out`, and other PDF files from the PGGB notebook.
 
-When starting from an image, the instance should have all the necessary data.
+## Run the workshop locally on a local machine
 
-If they have changed, or when starting an instance from scratch:
+**Note**: we had planned 8 cores and 16 Gb of memory per participant. If your machine has less cores/memory than that, you might need to tweak the commands in the notebook. 
+For example, change the `-t 8` to `-t X` where *X* is the number of cores you want to use. 
 
-- [Download/update the data](#downloadupdate-the-data)
-- [Download/update the notebooks](#downloadupdate-the-notebooks)
-- [Import Docker image with big files](#Import-Docker-image-with-big-files)
+To run the JupyterHub server on your machine, the easiest is to use one of the Docker images that we've prepared.
 
-## Launch JupyterHub from a screen
+### Install Docker
 
-```
-screen -S hub
+If you don't already have docker on your machine, find out how to install it at [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/).
 
-docker run --privileged -v `pwd`/data:/data:ro -v `pwd`/singularity_cache:/singularity_cache:ro -p 80:8000 --name jupyterhub jh jupyterhub
-```
+### Run the JuputerHub container
 
-The JupyterHub should be accessible at the public IP through HTTP (https://<IP> won't work!).
-The password is `hugo24pangenome`
+Two options. 
 
-Note: see *Issues* below if docker doesn't start.
+1. Option 1 if you're planning on running the PGGB part just once or twice, or if you want to play with the Giraffe parts. This is **recommended** in most cases.
+1. Option 2 if you're planning on running the PGGB part several times. It takes more time to setup but avoids re-downloading data every time.
 
-To restart the JupyterHub:
+#### Option 1: Download the large files within the notebook
 
-```
-docker rm jupyterhub
-```
+Large files are used for the PGGB part.
+They can be downloaded using commands (might be commented) in the notebook.
 
-# Prepare the Docker image
-
-```
-docker build -t jmonlong-jupyterhub .
-
-## test locally
-docker run --privileged -v `pwd`/data:/data:ro -v `pwd`/bigdata:/bigdata:ro -v `pwd`/singularity_cache:/singularity_cache:ro -p 80:8000 --name jupyterhub jmonlong-jupyterhub jupyterhub
-docker rm jupyterhub
-
-## push to quay.io
-docker tag jmonlong-jupyterhub quay.io/jmonlong/hprc-hugo2024-jupyterhub
-docker push quay.io/jmonlong/hprc-hugo2024-jupyterhub
-```
-
-## Prepare Docker image containing the big files
-
-When a directory is mounted/bound in the docker command, if behaves like a separate disk. 
-Hence, accessing/moving large files can be very slow. 
-The PGGB part uses files that are several Gbs so we instead include them in the Docker image.
-This is not great practice so to avoid uploading this extra large image to a public repository, we save it as a TAR file.
-This TAR file can be saved like a typical large file, e.g. in S3, and downloaded and imported when needed.
+Run this command from the root of this repo (i.e. the directory where this README file is):
 
 ```
-docker build -f workshop-hprc-hugo24/Dockerfile_withdata -t hprc-hugo2024-jupyterhub-withdata .
-docker save -o hprc-hugo2024-jupyterhub-withdata.tar hprc-hugo2024-jupyterhub-withdata
-aws s3 cp hprc-hugo2024-jupyterhub-withdata.tar s3://hprc-training/hugo24/
+docker run --privileged -v `pwd`/data:/data:ro -p 80:8000 --name jupyterhub quay.io/jmonlong/hprc-hugo2024-jupyterhub jupyterhub
 ```
 
-### Upload the large image to Zenodo
+Then, in your browser, navigate to `localhost`. Pick a username, and use the following password: `hugo24pangenome`
 
-I created a Zenodo draft upload and uploaded the TAR file using https://github.com/jhpoelen/zenodo-upload
+Note: there is no Singularity cache either, so the Nextflow or Snakemake workflows will start by downloading them which can take a few minutes.
 
-# Prepare an instance from scratch
+#### Option 2: Use a Docker image with the large files
 
-## Minimal installation
+If you don't want to download the large files every time, i.e. you want to run the PGGB part several times, you can use an image with the large files included. 
+The docker image was deposited on Zenodo at [https://zenodo.org/records/10948633](https://zenodo.org/records/10948633).
 
-```
-## install docker, maybe not the best way but works
-sudo apt update
-sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
-sudo apt update
-sudo apt install -y docker-ce
-sudo usermod -aG docker ${USER}
-sudo su - ${USER}
-
-## install screen and AWS CLI
-sudo apt install -y awscli screen
-```
-
-## Download/update the data
-
-To download the files from S3, I couldn't find a better way than copying my local credentials to the instance...
-
-```
-mkdir -p ~/.aws
-## locally: scp -i ~/.ssh/jmonlong-hprc-training.pem ~/.aws/config ~/.aws/credentials ubuntu@$IP:.aws/
-```
-
-Then
-
-```
-aws s3 sync s3://hprc-training/hugo24/ .
-```
-
-**Don't forget to remove your AWS credentials after that!**
-
-```
-rm ~/.aws/config ~/.aws/credentials
-```
-
-## Download/update the notebooks
-
-To update just the notebooks, assuming the big data or cached Singularity images have not changed, we can just pull the latest version of this repo.
-
-```
-git clone https://github.com/jmonlong/workshop-hprc-hugo24.git
-rm -rf data
-cp -r workshop-hprc-hugo24/data .
-```
-
-## Import Docker image with big files
+To pull the image, either download the TAR file at https://zenodo.org/records/10948633 and run: 
 
 ```
 docker load -i hprc-hugo2024-jupyterhub-withdata.tar
 ```
 
-The tar file should be available after the "sync" command from above. 
-Otherwise, to download that file specifically:
+OR
 
 ```
-aws s3 cp s3://hprc-training/hugo24/hprc-hugo2024-jupyterhub-withdata.tar .
+curl https://zenodo.org/records/10948633/files/hprc-hugo2024-jupyterhub-withdata.tar | docker load -
 ```
 
-# Prepare the large public files
-
-The `bigdata` directory contains public data used in the PGGB part and can be prepared with `download-bigdata.sh`.
-Some files are >5Gb so it saves time to download them in advance once instead of having every participant do, all at the same time.
-
-This directory was saved in `s3://hprc-training/hugo24/`.
+Once this is done you should have a new docker image called `hprc-hugo2024-jupyterhub-withdata`.
+Hence, to start the server, run this command from the root of this repo (i.e. the directory where this README file is):
 
 ```
-aws s3 sync bigdata s3://hprc-training/hugo24/bigdata --dryrun
+docker run --privileged -v `pwd`/data:/data:ro -p 80:8000 --name jupyterhub hprc-hugo2024-jupyterhub-withdata
 ```
 
-# Prepare the Singularity cache
+Then, in your browser, navigate to [localhost](localhost). Pick a username, and use the following password: `hugo24pangenome`
 
-We can download the singularity images in advanced. It avoids having all the participants downloading them all at once. We save the "cache" in a `singularity_cache` directory.
+### Launch the sequenceTubeMap server
 
-To fill the cache, we can run each pipeline once using the prepared container.
-
-Start the container
-
-```
-docker run -it --privileged -u `id -u $USER` -v `pwd`/bigdata:/bigdata -v `pwd`/data:/data -v `pwd`/singularity_cache:/singularity_cache quay.io/jmonlong/hprc-hugo2024-jupyterhub /bin/bash
-```
-
-Within that container:
+At the end of the Giraffe part of the workshop, we visualized the pangenomes and mapped reads with the sequenceTubeMap. 
+To play with that tubemap, start the server with:
 
 ```
-cd /data/giraffe-deepvariant-rhce/
-git clone -b hapsampdv https://github.com/vgteam/vg_snakemake.git
-snakemake --singularity-prefix /singularity_cache --use-singularity --snakefile vg_snakemake/workflow/Snakefile --configfile smk.config.rhce.yaml --cores 2 all -n
-
-cd /data/pggb
-NXF_HOME=/data/pggb NXF_SINGULARITY_CACHEDIR=/singularity_cache nextflow run nf-core/pangenome -r 1.1.2 --input /bigdata/chrY.hprc.pan4.fa.gz --outdir chrY.hprc.pan4_out --n_haplotypes 4 --wfmash_map_pct_id 98 --wfmash_segment_length 10k --wfmash_n_mappings 3 --seqwish_min_match_length 311 --smoothxg_poa_length \"1000,\" -c hprc_hugo24.config,chrY.hprc.pan4.config --wfmash_exclude_delim '#' -profile singularity --wfmash_chunks 4
-
+docker run -it -p 3210:3000 quay.io/jmonlong/sequencetubemap:vg1.55.0_hugo24
 ```
 
-Exit the container and sync the S3 bucket
-
-```
-aws s3 sync singularity_cache s3://hprc-training/hugo24/singularity_cache --dryrun
-```
-
-Eventually, clean up:
-
-```
-rm -rf data/giraffe-deepvariant-rhce/vg_snakemake  data/giraffe-deepvariant-rhce/results /data/pggb/chrY.hprc.pan4_out /data/pggb/work /data/pggb/secrets /data/pggb/assets /data/pggb/capsule /data/pggb/framework /data/pggb/plugins /data/pggb/tmp
-```
-
-# Issues
-
-### Docker problem: `Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?`
-
-Docker sometimes bug. One way to fix is to quickly reinstalling it:
-
-```
-sudo apt install -y docker-ce
-```
-
-# Monitor usage on a big instance
-
-A few tricks to keep watch:
-
-- Change htop's config to show the total CPU used instead of each CPU's usage
-    - Edit `~/.config/htop/htoprc`
-    - Replace `left_meters=AllCPUs Memory Swap` by ``left_meters=CPU Memory Swap` for example
-- Connect to the JupyterHub using the admin username and go to `http://<IP>/hub/admin` to manage users.
-
-# Prepare the sequenceTubeMap server
-
-## Docker image 
-
-```
-## clone repo
-git clone https://github.com/vgteam/sequenceTubeMap.git
-## copy data files
-cp tubemap/*gbz tubemap/*gam tubemap/*gai tubemap/*xg sequenceTubeMap/exampleData/internal/
-## copy config file
-cp tubemap/config.json sequenceTubeMap/docker/
-## move to the docker folder to build the image
-cd sequenceTubeMap/docker
-## optional. update the vg version used in Docker file
-## build image
-docker build -t sequencetubemap -f Dockerfile ..
-docker tag sequencetubemap quay.io/jmonlong/sequencetubemap:vg1.55.0_hugo24
-docker push quay.io/jmonlong/sequencetubemap:vg1.55.0_hugo24
-```
-
-## Option 1: on an instance
-
-Launch an instance with docker installed. 
-For example, the same image that was prepared for the JupyterHub server.
-Then: 
-
-```
-screen -S tubemap
-docker run -it -p 80:3000 quay.io/jmonlong/sequencetubemap:vg1.55.0_hugo24
-```
-
-Access through the public IP (if HTTP access was enabled when launching it).
-
-## Option 2: on Courtyard
-
-This sequenceTubeMap and the small pangenomes used in the workshop won't use much ressources. 
-We could serve it on Courtyard (UCSC machine with public access).
-
-```
-screen -S tubemap
-docker run -it -p 2024:3000 quay.io/jmonlong/sequencetubemap:vg1.55.0_hugo24
-```
-
-Then access at http://courtyard.gi.ucsc.edu:2024
+Then access it on a web browser at [localhost:3210](localhost:3210).

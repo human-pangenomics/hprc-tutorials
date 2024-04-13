@@ -8,6 +8,16 @@
 
 ------------------
 
+### HPRC Pangenome Workshop at the Human Genome Meeting (Rome 2024)
+
+This workshop took place in Rome on April, 8 2024 for [Human Genome Meeting (HUGO)](https://www.hugo-hgm2024.org/).
+After some introductions around the project and pangenomes, the participants first built and analyzed pangenomes with [PGGB](https://github.com/pangenome/pggb). 
+In the second part, [Giraffe](https://github.com/vgteam/vg) was used to map short sequencing reads to a slice of the HPRC pangenome and small variants were called using [DeepVariant](https://github.com/google/deepvariant).
+
+The materials for the workshop are available under [`hprc-tutorials/pangenome/240408_HumanGenomeMeeting_HUGO`](hprc-tutorials/pangenome/240408_HumanGenomeMeeting_HUGO).
+
+------------------
+
 ### Short Read Variant Calling With Giraffe & DeepVariant
 This tutorial demonstrates variant calling using the Human Pangenome Reference Consortium's (HPRC) year 1 Minigraph/CACTUS pangenome with the Giraffe/DeepVariant pipeline for calling germline small variants. This workspace is intended to be a demonstration of utilizing a pangenome from the HPRC in AnVIL and Terra.
 
