@@ -14,7 +14,7 @@ This workshop took place in Rome on April, 8 2024 for [Human Genome Meeting (HUG
 After some introductions around the project and pangenomes, the participants first built and analyzed pangenomes with [PGGB](https://github.com/pangenome/pggb). 
 In the second part, [Giraffe](https://github.com/vgteam/vg) was used to map short sequencing reads to a slice of the HPRC pangenome and small variants were called using [DeepVariant](https://github.com/google/deepvariant).
 
-The materials for the workshop are available under [`hprc-tutorials/pangenome/240408_HumanGenomeMeeting_HUGO`](hprc-tutorials/pangenome/240408_HumanGenomeMeeting_HUGO).
+The materials for the workshop are available under [`pangenome/240408_HumanGenomeMeeting_HUGO`](pangenome/240408_HumanGenomeMeeting_HUGO).
 
 ------------------
 
