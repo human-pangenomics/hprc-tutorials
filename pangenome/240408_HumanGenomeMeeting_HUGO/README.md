@@ -74,6 +74,9 @@ Then, in your browser, navigate to `localhost`. Pick a username, and use the fol
 
 Note: there is no Singularity cache either, so the Nextflow or Snakemake workflows will start by downloading them which can take a few minutes.
 
+Once you're done, exit the command with `Ctrl-C` and kill the running container with `docker rm jupyterhub`.
+If you've already run the container before and get an error like *jupyterhub is already in use by container*, run `docker rm jupyterhub` to kill the old one and try again.
+
 #### Option 2: Use a Docker image with the large files
 
 If you don't want to download the large files every time, i.e. you want to run the PGGB part several times, you can use an image with the large files included. 
