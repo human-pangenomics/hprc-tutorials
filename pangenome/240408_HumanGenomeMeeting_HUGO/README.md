@@ -88,7 +88,7 @@ docker load -i hprc-hugo2024-jupyterhub-withdata.tar
 OR
 
 ```
-curl https://zenodo.org/records/10948633/files/hprc-hugo2024-jupyterhub-withdata.tar | docker load -
+curl https://zenodo.org/records/10948633/files/hprc-hugo2024-jupyterhub-withdata.tar | docker load
 ```
 
 Once this is done you should have a new docker image called `hprc-hugo2024-jupyterhub-withdata`.
