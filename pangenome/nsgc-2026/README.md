@@ -16,7 +16,7 @@ This repository contains the hands-on materials from the Human Pangenome Referen
 - **Connect gaps to structural variants:** Look at a well-known gene and work out what the alignments and SV calls are showing.
 - **See where GRCh38 falls short:** Explore a complex locus and think about what a single reference can and can't represent.
 
-**Instructions:** [Part 1 Instructions (PDF)](instructions/NSGC%20Workshop_%20Hands%20On%20Part1%20Instructions.pdf)
+**Instructions:** [Part 1 Instructions (PDF)](instructions/NSGC26_Workshop_Hands_On_Part1_Instructions.pdf)
 
 ## 2. From Reference to Variant Calls with the Pangenome Viewer
 
@@ -28,7 +28,7 @@ This repository contains the hands-on materials from the Human Pangenome Referen
 - **Put mapping quality in context:** Learn what mapping quality does and doesn't tell you about where a read belongs.
 - **See what changes with a pangenome:** Compare the same reads on both references and note what a report would say differently.
 
-**Instructions:** [Pangenome Viewer Instructions (Word)](instructions/NSGC26_Pangenome_Viewer_Instructions.docx)
+**Instructions:** [Pangenome Viewer Instructions (PDF)](instructions/NSGC26_Workshop_Hands_On_Part2_Instructions.pdf)
 
 ---
 
