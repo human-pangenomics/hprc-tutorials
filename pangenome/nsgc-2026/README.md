@@ -1,8 +1,13 @@
 # The Human Pangenome in Practice: Tools, Cases, and Clinical Impact for Genetic Counselors
 
-This repository contains the hands-on materials from the Human Pangenome Reference Consortium (HPRC) workshop at the NSGC 2026 Annual Conference. In two short activities you look at publicly available data in genome browsers and see how the use of a single reference genome can have limitations. The materials included in this workshop do not require coding experience.
+This repository contains the hands-on materials from the Human Pangenome Reference Consortium (HPRC) workshop at the NSGC 2026 Annual Conference. This workshop is designed to be interactive and hands-on. It will include two activities where you will look at publicly available data in genome browsers and see how the use of a single reference genome can have limitations. The materials included in this workshop do not require coding experience.
+
 
 ![NSGC 2026](https://img.shields.io/badge/NSGC-2026-2b6cb0)
+
+# Suggested preparation
+While preparation is not required for this workshop, we strongly encourage attendees to review the following document prior, especially if you’re new to genome browsers or could use a quick refresher: [Suggested Preparation Handout](https://docs.google.com/document/d/1I85Vkac9pRWCRYco8cYCIcnUk-0fD3LHaHnETcUQnvg/edit?tab=t.0)
+
 
 # Activities
 
@@ -28,7 +33,7 @@ This repository contains the hands-on materials from the Human Pangenome Referen
 - **Put mapping quality in context:** Learn what mapping quality does and doesn't tell you about where a read belongs.
 - **See what changes with a pangenome:** Compare the same reads on both references and note what a report would say differently.
 
-**Instructions:** [Pangenome Viewer Instructions (PDF)](instructions/NSGC26_Workshop_Hands_On_Part2_Instructions.pdf)
+**Instructions:** [Part 2 Instructions (PDF)](instructions/NSGC26_Workshop_Hands_On_Part2_Instructions.pdf)
 
 ---
 
